@@ -35,7 +35,7 @@ public final class TraceRecorder {
 
     public long t0() { return t0; }
 
-    public void record(String thread, String type, int a, int b, int c, String note) {
+    public void record(String thread, String type, long a, long b, long c, String note) {
         long s = seq.getAndIncrement();
         if (s >= maxEvents) {
             truncated.set(true);
@@ -44,11 +44,11 @@ public final class TraceRecorder {
         events.add(new TraceEvent(s, System.nanoTime() - t0, thread, type, a, b, c, note));
     }
 
-    public void record(String thread, String type, int a, int b, int c) {
+    public void record(String thread, String type, long a, long b, long c) {
         record(thread, type, a, b, c, null);
     }
 
-    public void record(String thread, String type, int a, int b) {
+    public void record(String thread, String type, long a, long b) {
         record(thread, type, a, b, TraceEvent.NONE, null);
     }
 

@@ -29,7 +29,7 @@ public final class MergingThread extends Thread {
         try {
             ops.event("M_START", params.leftStart, params.mid, params.end);
             merge();
-            ops.event("M_DONE", params.leftStart, params.end, Integer.MIN_VALUE);
+            ops.event("M_DONE", params.leftStart, params.end, Ops.NONE);
         } catch (Throwable t) {
             failure = t;
         } finally {

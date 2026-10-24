@@ -30,16 +30,16 @@ public final class DataGenerator {
 
     public static int[] generate(long n, long seed, long min, long max, Pattern pattern) {
         if (n <= 0) {
-            throw new InputException("--random утга эерэг байх ёстой (одоо " + n + ").");
+            throw new InputException("n (хэмжээ) эерэг бүхэл тоо байх ёстой (одоо " + n + ").");
         }
         if (n > Limits.HARD_MAX_N) {
-            throw new InputException("--random " + n + " нь дээд хязгаараас хэтэрсэн (n ≤ " + Limits.HARD_MAX_N + ").");
+            throw new InputException("n = " + n + " нь дээд хязгаараас хэтэрсэн (n ≤ " + Limits.HARD_MAX_N + ").");
         }
         if (min < Integer.MIN_VALUE || max > Integer.MAX_VALUE) {
-            throw new InputException("--min/--max нь int мужид байх ёстой.");
+            throw new InputException("min/max нь int мужид байх ёстой: [" + Integer.MIN_VALUE + ", " + Integer.MAX_VALUE + "].");
         }
         if (min > max) {
-            throw new InputException("--min (" + min + ") нь --max (" + max + ")-аас их байж болохгүй.");
+            throw new InputException("min (" + min + ") нь max (" + max + ")-аас их байж болохгүй.");
         }
         Random rnd = new Random(seed);
         long span = max - min + 1;               // fits in long, ≥ 1

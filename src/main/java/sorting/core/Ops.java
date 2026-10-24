@@ -1,5 +1,6 @@
 package sorting.core;
 
+import sorting.trace.TraceEvent;
 import sorting.trace.TraceRecorder;
 
 /**
@@ -27,8 +28,11 @@ public final class Ops {
 
     public String threadName() { return threadName; }
 
+    /** Marker for an unused event field. */
+    static final long NONE = TraceEvent.NONE;
+
     /** Records a lifecycle event of this thread (no-op when tracing is off). */
-    void event(String type, int a, int b, int c) {
+    void event(String type, long a, long b, long c) {
         if (trace != null) trace.record(threadName, type, a, b, c);
     }
 

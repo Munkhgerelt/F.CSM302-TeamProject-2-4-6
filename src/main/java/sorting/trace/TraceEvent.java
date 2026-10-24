@@ -22,20 +22,22 @@ package sorting.trace;
  * </pre>
  * {@code t} is nanoseconds since the run started (System.nanoTime based),
  * {@code seq} is a global sequence number taken when the event was recorded.
+ * Fields are {@code long} so that the "no value" marker ({@link #NONE}) can never
+ * collide with a real int value such as Integer.MIN_VALUE.
  */
 public final class TraceEvent {
-    public static final int NONE = Integer.MIN_VALUE;
+    public static final long NONE = Long.MIN_VALUE;
 
     public final long seq;
     public final long t;
     public final String thread;
     public final String type;
-    public final int a;
-    public final int b;
-    public final int c;
+    public final long a;
+    public final long b;
+    public final long c;
     public final String note;
 
-    public TraceEvent(long seq, long t, String thread, String type, int a, int b, int c, String note) {
+    public TraceEvent(long seq, long t, String thread, String type, long a, long b, long c, String note) {
         this.seq = seq;
         this.t = t;
         this.thread = thread;

@@ -26,9 +26,9 @@ public final class SortingThread extends Thread {
     public void run() {
         startedAtNanos = System.nanoTime() - runStartNanos;
         try {
-            ops.event("T_START", params.startIndex, params.endIndex, Integer.MIN_VALUE);
+            ops.event("T_START", params.startIndex, params.endIndex, Ops.NONE);
             params.algorithm.sort(ops, params.startIndex, params.endIndex);
-            ops.event("T_DONE", params.startIndex, params.endIndex, Integer.MIN_VALUE);
+            ops.event("T_DONE", params.startIndex, params.endIndex, Ops.NONE);
         } catch (Throwable t) {
             failure = t;
         } finally {

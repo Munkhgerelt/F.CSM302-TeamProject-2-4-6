@@ -22,7 +22,13 @@ if !JMAJOR! LSS %REQUIRED_JAVA% (
 
 if exist out rmdir /s /q out
 mkdir out
-dir /s /b src\main\java\*.java > sources.txt
+rem One quoted path per line with forward slashes, so folders with spaces work.
+if exist sources.txt del sources.txt
+for /r "src\main\java" %%f in (*.java) do (
+  set "P=%%f"
+  set "P=!P:\=/!"
+  echo "!P!">> sources.txt
+)
 javac --release %REQUIRED_JAVA% -encoding UTF-8 -d out @sources.txt
 if errorlevel 1 (
   del sources.txt

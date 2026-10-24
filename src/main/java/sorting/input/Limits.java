@@ -13,8 +13,13 @@ import java.util.List;
  */
 public final class Limits {
     public static final int HARD_MAX_N = Algorithm.MAX_N_LOGLINEAR;
-    /** Max n for writing an event trace (every compare/swap becomes one JSON line). */
+    /**
+     * Max n for writing an event trace (every compare/swap becomes one JSON line).
+     * O(n^2) algorithms produce ~n^2/4 events, so they get a much smaller limit;
+     * this keeps every allowed trace below the recorder's 2 000 000 event cap.
+     */
     public static final int TRACE_MAX_N = 10_000;
+    public static final int TRACE_MAX_N_QUADRATIC = 1_000;
 
     private Limits() { }
 
@@ -28,9 +33,14 @@ public final class Limits {
 
     public static List<String> check(int n, Algorithm left, Algorithm right, boolean force, boolean trace) {
         List<String> warnings = new ArrayList<>();
-        if (trace && n > TRACE_MAX_N) {
-            throw new InputException("--trace нь n ≤ " + TRACE_MAX_N + " үед л ажиллана (одоо n = " + n
-                    + "). Алхам бүр нэг event болдог тул файл хэт томорно. n-ийг багасгах эсвэл --trace-гүй ажиллуулна уу.");
+        if (trace) {
+            boolean quadratic = left.quadratic || right.quadratic;
+            int traceMax = quadratic ? TRACE_MAX_N_QUADRATIC : TRACE_MAX_N;
+            if (n > traceMax) {
+                throw new InputException("--trace-ийн хязгаар: O(n^2) алгоритмд n ≤ " + TRACE_MAX_N_QUADRATIC
+                        + ", merge/quick-д n ≤ " + TRACE_MAX_N + " (одоо n = " + n + "). Алхам бүр нэг event болдог тул"
+                        + " файл хэт томорно. n-ийг багасгах эсвэл --trace-гүй ажиллуулна уу.");
+            }
         }
         if (n <= 0) {
             throw new InputException("Оролт хоосон байна (n = 0).");
