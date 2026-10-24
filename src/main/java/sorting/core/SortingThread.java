@@ -16,9 +16,13 @@ public final class SortingThread extends Thread {
     private volatile Throwable failure;
 
     public SortingThread(SharedData data, SortParams params, long runStartNanos, TraceRecorder trace) {
+        this(data, params, runStartNanos, trace, null);
+    }
+
+    public SortingThread(SharedData data, SortParams params, long runStartNanos, TraceRecorder trace, StepGate gate) {
         super(params.threadName);
         this.params = params;
-        this.ops = new Ops(data, params.threadName, trace);
+        this.ops = new Ops(data, params.threadName, trace, gate);
         this.runStartNanos = runStartNanos;
     }
 

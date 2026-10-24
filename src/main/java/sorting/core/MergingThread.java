@@ -17,9 +17,13 @@ public final class MergingThread extends Thread {
     private volatile Throwable failure;
 
     public MergingThread(SharedData data, MergeParams params, long runStartNanos, TraceRecorder trace) {
+        this(data, params, runStartNanos, trace, null);
+    }
+
+    public MergingThread(SharedData data, MergeParams params, long runStartNanos, TraceRecorder trace, StepGate gate) {
         super(params.threadName);
         this.params = params;
-        this.ops = new Ops(data, params.threadName, trace);
+        this.ops = new Ops(data, params.threadName, trace, gate);
         this.runStartNanos = runStartNanos;
     }
 

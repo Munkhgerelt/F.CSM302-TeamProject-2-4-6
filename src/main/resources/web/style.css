@@ -118,6 +118,7 @@ canvas { display: block; width: 100%; }
 .thread .state[data-s=waiting] { color: var(--cmp); }
 .thread .state[data-s=done] { color: var(--muted); }
 .thread .kv { color: var(--muted); }
+.thread .java { margin-top: 3px; color: var(--ink); }
 
 .split { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; }
 @media (max-width: 1100px) { .split { grid-template-columns: 1fr; } }

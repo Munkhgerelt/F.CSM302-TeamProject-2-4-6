@@ -14,16 +14,27 @@ public final class Ops {
     private final int[] result;
     private final String threadName;
     private final TraceRecorder trace;   // null = tracing off
+    private final StepGate gate;         // null = run freely (no lockstep)
 
     private long compares;
     private long swaps;
     private long writes;
 
     public Ops(SharedData data, String threadName, TraceRecorder trace) {
+        this(data, threadName, trace, null);
+    }
+
+    public Ops(SharedData data, String threadName, TraceRecorder trace, StepGate gate) {
         this.list = data.list;
         this.result = data.result;
         this.threadName = threadName;
         this.trace = trace;
+        this.gate = gate;
+    }
+
+    /** In lockstep mode the thread blocks here until the UI grants one more step. */
+    private void step() {
+        if (gate != null) gate.pass();
     }
 
     public String threadName() { return threadName; }
@@ -45,6 +56,7 @@ public final class Ops {
 
     /** Compares list[i] with list[j]; returns <0, 0 or >0. */
     public int compare(int i, int j) {
+        step();
         compares++;
         int r = Integer.compare(list[i], list[j]);
         if (trace != null) trace.record(threadName, "CMP", i, j, r);
@@ -53,6 +65,7 @@ public final class Ops {
 
     /** Compares list[i] with a value held by the algorithm (e.g. a pivot). */
     public int compareToValue(int i, int value) {
+        step();
         compares++;
         int r = Integer.compare(list[i], value);
         if (trace != null) trace.record(threadName, "CMPV", i, value, r);
@@ -64,6 +77,7 @@ public final class Ops {
      * private buffer (merge sort). Positions are kept for visualisation.
      */
     public int compareValues(int i, int j, int x, int y) {
+        step();
         compares++;
         int r = Integer.compare(x, y);
         if (trace != null) trace.record(threadName, "CMPA", i, j, r);
@@ -71,6 +85,7 @@ public final class Ops {
     }
 
     public void swap(int i, int j) {
+        step();
         swaps++;
         int t = list[i];
         list[i] = list[j];
@@ -79,6 +94,7 @@ public final class Ops {
     }
 
     public void set(int i, int value) {
+        step();
         writes++;
         list[i] = value;
         if (trace != null) trace.record(threadName, "SET", i, value);
@@ -88,6 +104,7 @@ public final class Ops {
 
     /** Merging thread: compares list[i] (left run) with list[j] (right run). */
     public int mergeCompare(int i, int j) {
+        step();
         compares++;
         int r = Integer.compare(list[i], list[j]);
         if (trace != null) trace.record(threadName, "MCMP", i, j, r);
@@ -96,6 +113,7 @@ public final class Ops {
 
     /** Merging thread: result[k] = list[src]. */
     public void mergeWrite(int k, int src) {
+        step();
         writes++;
         result[k] = list[src];
         if (trace != null) trace.record(threadName, "MW", k, src, result[k]);

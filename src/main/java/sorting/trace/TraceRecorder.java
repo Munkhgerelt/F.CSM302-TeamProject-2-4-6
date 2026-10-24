@@ -23,19 +23,42 @@ public final class TraceRecorder {
     private final AtomicLong seq = new AtomicLong();
     private final ConcurrentLinkedQueue<TraceEvent> events = new ConcurrentLinkedQueue<>();
     private final AtomicBoolean truncated = new AtomicBoolean(false);
+    /**
+     * Ordered mode (lockstep sessions): seq assignment and append happen under one
+     * lock, so the list order equals seq order and a reader can safely ask for
+     * "everything after index i" while the threads are still running.
+     */
+    private final boolean ordered;
+    private final List<TraceEvent> orderedEvents = new ArrayList<>();
 
     public TraceRecorder(long t0) {
         this(t0, DEFAULT_MAX_EVENTS);
     }
 
     public TraceRecorder(long t0, int maxEvents) {
+        this(t0, maxEvents, false);
+    }
+
+    public TraceRecorder(long t0, int maxEvents, boolean ordered) {
         this.t0 = t0;
         this.maxEvents = maxEvents;
+        this.ordered = ordered;
     }
 
     public long t0() { return t0; }
 
     public void record(String thread, String type, long a, long b, long c, String note) {
+        if (ordered) {
+            synchronized (orderedEvents) {
+                long s = seq.getAndIncrement();
+                if (s >= maxEvents) {
+                    truncated.set(true);
+                    return;
+                }
+                orderedEvents.add(new TraceEvent(s, System.nanoTime() - t0, thread, type, a, b, c, note));
+            }
+            return;
+        }
         long s = seq.getAndIncrement();
         if (s >= maxEvents) {
             truncated.set(true);
@@ -59,10 +82,27 @@ public final class TraceRecorder {
     public boolean truncated() { return truncated.get(); }
 
     /** Number of events actually stored. */
-    public int size() { return events.size(); }
+    public int size() {
+        if (ordered) {
+            synchronized (orderedEvents) {
+                return orderedEvents.size();
+            }
+        }
+        return events.size();
+    }
+
+    /** Ordered mode only: copy of the events with list index >= from. */
+    public List<TraceEvent> eventsFrom(int from) {
+        if (!ordered) throw new IllegalStateException("eventsFrom requires ordered mode");
+        synchronized (orderedEvents) {
+            int start = Math.max(0, Math.min(from, orderedEvents.size()));
+            return new ArrayList<>(orderedEvents.subList(start, orderedEvents.size()));
+        }
+    }
 
     /** All recorded events ordered by sequence number. */
     public List<TraceEvent> snapshot() {
+        if (ordered) return eventsFrom(0);
         List<TraceEvent> list = new ArrayList<>(events);
         list.sort(Comparator.comparingLong(e -> e.seq));
         return list;

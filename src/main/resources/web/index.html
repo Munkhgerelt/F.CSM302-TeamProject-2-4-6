@@ -70,8 +70,12 @@
 
     <section class="group">
       <h2>Удирдлага</h2>
+      <div class="seg" role="radiogroup" aria-label="Горим">
+        <label><input type="radio" name="mode" value="replay" checked> Replay</label>
+        <label><input type="radio" name="mode" value="live"> Lockstep</label>
+      </div>
+      <p class="hint" id="modeHint">Replay: Java дээр жинхэнэ 3 thread ажиллаж дуусаад, бүртгэсэн event-үүдийг энд урагш, хойш тоглуулна.</p>
       <button type="button" class="primary" id="btnRun">Ажиллуулах</button>
-      <p class="hint">Java дээр жинхэнэ 3 thread ажиллаж, алхам бүрийг бүртгэнэ. Доор тэр бүртгэлийг тоглуулна.</p>
       <div class="row player">
         <button type="button" id="btnBack" title="Нэг алхам буцах (←)" disabled>◂ Алхам</button>
         <button type="button" id="btnPlay" title="Тоглуулах / түр зогсоох (Space)" disabled>Тоглуулах</button>

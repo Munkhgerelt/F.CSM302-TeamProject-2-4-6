@@ -35,7 +35,7 @@ public final class MultithreadedSorter {
                                   String leftAlgoName, SortAlgorithm leftAlgo,
                                   String rightAlgoName, SortAlgorithm rightAlgo)
             throws InterruptedException {
-        return sort(input, leftAlgoName, leftAlgo, rightAlgoName, rightAlgo, null);
+        return sort(input, leftAlgoName, leftAlgo, rightAlgoName, rightAlgo, RunOptions.none());
     }
 
     /**
@@ -47,6 +47,20 @@ public final class MultithreadedSorter {
                                   String rightAlgoName, SortAlgorithm rightAlgo,
                                   TraceRecorder trace)
             throws InterruptedException {
+        return sort(input, leftAlgoName, leftAlgo, rightAlgoName, rightAlgo, RunOptions.traced(trace));
+    }
+
+    /**
+     * Full version: optional trace recorder, optional lockstep gate and an optional
+     * callback that receives each worker thread right after it has been created.
+     */
+    public static SortResult sort(int[] input,
+                                  String leftAlgoName, SortAlgorithm leftAlgo,
+                                  String rightAlgoName, SortAlgorithm rightAlgo,
+                                  RunOptions options)
+            throws InterruptedException {
+        final TraceRecorder trace = options.trace;
+        final StepGate gate = options.gate;
         final int n = input.length;
         final int mid = splitIndex(n);
         final SharedData data = new SharedData(input);
@@ -54,9 +68,11 @@ public final class MultithreadedSorter {
         if (trace != null) trace.record(PARENT_NAME, "RUN_START", n, mid);
 
         SortingThread left = new SortingThread(data,
-                new SortParams(LEFT_NAME, 0, mid, leftAlgoName, leftAlgo), t0, trace);
+                new SortParams(LEFT_NAME, 0, mid, leftAlgoName, leftAlgo), t0, trace, gate);
         SortingThread right = new SortingThread(data,
-                new SortParams(RIGHT_NAME, mid, n, rightAlgoName, rightAlgo), t0, trace);
+                new SortParams(RIGHT_NAME, mid, n, rightAlgoName, rightAlgo), t0, trace, gate);
+        created(options, left);
+        created(options, right);
 
         started(trace, left);
         left.start();
@@ -70,7 +86,8 @@ public final class MultithreadedSorter {
         rethrowIfFailed(left.getName(), left.failure());
         rethrowIfFailed(right.getName(), right.failure());
 
-        MergingThread merger = new MergingThread(data, new MergeParams(MERGER_NAME, 0, mid, n), t0, trace);
+        MergingThread merger = new MergingThread(data, new MergeParams(MERGER_NAME, 0, mid, n), t0, trace, gate);
+        created(options, merger);
         started(trace, merger);
         merger.start();
         merger.join();
@@ -95,6 +112,10 @@ public final class MultithreadedSorter {
         for (int i = 0; i < t.length; i++) t[i] = sort(input, leftName, left.get(), rightName, right.get()).totalNanos;
         Arrays.sort(t);
         return t[t.length / 2];
+    }
+
+    private static void created(RunOptions options, Thread t) {
+        if (options.onThreadCreated != null) options.onThreadCreated.accept(t);
     }
 
     private static void started(TraceRecorder trace, Thread t) {

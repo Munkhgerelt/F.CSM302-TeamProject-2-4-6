@@ -24,8 +24,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Local web server for the sorting animation (binds to 127.0.0.1 only).
@@ -33,12 +36,19 @@ import java.util.concurrent.Executors;
  *   <li>GET  /            static page (index.html, app.js, style.css from the classpath /web/)</li>
  *   <li>GET  /api/meta    algorithms and limits</li>
  *   <li>POST /api/run     runs the REAL multithreaded sort with tracing and returns the trace JSON</li>
+ *   <li>POST /api/live/start, /api/live/step, /api/live/stop, GET /api/live/state
+ *       lockstep session: the real threads wait on a semaphore permit per operation</li>
  * </ul>
  * The browser only replays events that the Java threads actually produced.
  */
 public final class WebServer {
     /** Largest n the animation accepts (bars stay readable). */
     public static final int REPLAY_MAX_N = 300;
+    /** Largest n for lockstep sessions (every step is one HTTP round trip). */
+    public static final int LIVE_MAX_N = 100;
+    private static final int MAX_SESSIONS = 4;
+    private static final long SESSION_IDLE_MS = 10 * 60 * 1000;
+    private static final int MAX_STEP = 1000;
     private static final int MAX_BODY = 1 << 20;
     /** Untraced timing: warm-up runs, then the median of REPS measured runs. */
     static final int WARMUPS = 3;
@@ -47,6 +57,8 @@ public final class WebServer {
     private final int port;
     private HttpServer server;
     private ExecutorService pool;
+    private final Map<String, LiveSession> sessions = new ConcurrentHashMap<>();
+    private ScheduledExecutorService janitor;
 
     public WebServer(int port) {
         this.port = port;
@@ -67,8 +79,18 @@ public final class WebServer {
         server.setExecutor(pool);
         server.createContext("/api/meta", ex -> safe(ex, this::meta));
         server.createContext("/api/run", ex -> safe(ex, this::run));
+        server.createContext("/api/live/start", ex -> safe(ex, this::liveStart));
+        server.createContext("/api/live/step", ex -> safe(ex, this::liveStep));
+        server.createContext("/api/live/state", ex -> safe(ex, this::liveState));
+        server.createContext("/api/live/stop", ex -> safe(ex, this::liveStop));
         server.createContext("/", ex -> safe(ex, this::staticFile));
         server.start();
+        janitor = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "session-janitor");
+            t.setDaemon(true);
+            return t;
+        });
+        janitor.scheduleAtFixedRate(this::dropIdleSessions, 1, 1, TimeUnit.MINUTES);
     }
 
     public int port() {
@@ -76,6 +98,9 @@ public final class WebServer {
     }
 
     public void stop() {
+        for (LiveSession ls : sessions.values()) ls.cancel();
+        sessions.clear();
+        if (janitor != null) janitor.shutdownNow();
         if (server != null) server.stop(0);
         if (pool != null) pool.shutdownNow();
     }
@@ -109,6 +134,7 @@ public final class WebServer {
               .append(",\"complexity\":").append(Json.str(a.complexity)).append('}');
         }
         sb.append("],\"limits\":{\"replayMaxN\":").append(REPLAY_MAX_N)
+          .append(",\"liveMaxN\":").append(LIVE_MAX_N)
           .append(",\"quadraticMaxN\":").append(Algorithm.MAX_N_QUADRATIC)
           .append(",\"hardMaxN\":").append(Limits.HARD_MAX_N)
           .append("},\"defaults\":{\"min\":").append(DataGenerator.DEFAULT_MIN)
@@ -121,7 +147,7 @@ public final class WebServer {
             sendJson(ex, 405, "{\"ok\":false,\"error\":\"POST шаардлагатай\"}");
             return;
         }
-        RunRequest req = RunRequest.parse(readForm(ex), REPLAY_MAX_N);
+        RunRequest req = RunRequest.parse(readForm(ex), REPLAY_MAX_N, "Replay горимд");
 
         // 1) honest reference time without tracing (warm-up + median), 2) traced run for the animation
         long untraced = MultithreadedSorter.medianUntracedNanos(req.values,
@@ -138,6 +164,70 @@ public final class WebServer {
         }
         sb.append("],\"trace\":").append(TraceJson.toJson(traced, rec, untraced, REPS)).append('}');
         sendJson(ex, 200, sb.toString());
+    }
+
+    // ------------------------------------------------------------------ lockstep
+
+    private void liveStart(HttpExchange ex) throws IOException {
+        if (!requirePost(ex)) return;
+        RunRequest req = RunRequest.parse(readForm(ex), LIVE_MAX_N, "Lockstep горимд");
+        while (sessions.size() >= MAX_SESSIONS) {
+            sessions.values().stream().min((a, b) -> Long.compare(b.idleMillis(), a.idleMillis()))
+                    .ifPresent(old -> { old.cancel(); sessions.remove(old.id); });
+        }
+        LiveSession ls = new LiveSession(req.values, req.left, req.right, req.source, req.notes);
+        sessions.put(ls.id, ls);
+        ls.start();
+        sendJson(ex, 200, ls.startJson());
+    }
+
+    private void liveStep(HttpExchange ex) throws Exception {
+        if (!requirePost(ex)) return;
+        Map<String, String> f = readForm(ex);
+        LiveSession ls = session(f);
+        long count = InputParser.parseOptionLong("count", f.getOrDefault("count", "1"));
+        if (count < 1 || count > MAX_STEP) throw new InputException("count 1.." + MAX_STEP + " мужид байх ёстой.");
+        ls.step((int) count, 2000);
+        sendJson(ex, 200, ls.stateJson(from(f)));
+    }
+
+    private void liveState(HttpExchange ex) throws IOException {
+        Map<String, String> f = readForm(ex);
+        sendJson(ex, 200, session(f).stateJson(from(f)));
+    }
+
+    private void liveStop(HttpExchange ex) throws IOException {
+        if (!requirePost(ex)) return;
+        Map<String, String> f = readForm(ex);
+        LiveSession ls = sessions.remove(f.getOrDefault("id", ""));
+        if (ls != null) ls.cancel();
+        sendJson(ex, 200, "{\"ok\":true}");
+    }
+
+    private LiveSession session(Map<String, String> f) {
+        LiveSession ls = sessions.get(f.getOrDefault("id", ""));
+        if (ls == null) throw new InputException("Lockstep session олдсонгүй (хугацаа нь дууссан эсвэл сервер дахин асаасан). \"Ажиллуулах\"-ыг дахин дарна уу.");
+        return ls;
+    }
+
+    private static int from(Map<String, String> f) {
+        long v = InputParser.parseOptionLong("from", f.getOrDefault("from", "0"));
+        return (int) Math.max(0, Math.min(v, Integer.MAX_VALUE));
+    }
+
+    private static boolean requirePost(HttpExchange ex) throws IOException {
+        if ("POST".equals(ex.getRequestMethod())) return true;
+        sendJson(ex, 405, "{\"ok\":false,\"error\":\"POST шаардлагатай\"}");
+        return false;
+    }
+
+    private void dropIdleSessions() {
+        for (LiveSession ls : sessions.values()) {
+            if (ls.idleMillis() > SESSION_IDLE_MS) {
+                ls.cancel();
+                sessions.remove(ls.id);
+            }
+        }
     }
 
     private void staticFile(HttpExchange ex) throws IOException {
@@ -219,14 +309,14 @@ public final class WebServer {
         String source;
         List<String> notes;
 
-        static RunRequest parse(Map<String, String> f, int maxN) {
+        static RunRequest parse(Map<String, String> f, int maxN, String modeLabel) {
             RunRequest r = new RunRequest();
             r.left = algo(f.getOrDefault("algoLeft", "merge"));
             r.right = algo(f.getOrDefault("algoRight", "merge"));
             String mode = f.getOrDefault("source", "input");
             if (mode.equals("random")) {
                 long n = InputParser.parseOptionLong("n (хэмжээ)", f.getOrDefault("n", ""));
-                if (n > maxN) throw new InputException("Animation-д n ≤ " + maxN + " (одоо n = " + n + ").");
+                if (n > maxN) throw new InputException(modeLabel + " n ≤ " + maxN + " (одоо n = " + n + ").");
                 String seedText = f.getOrDefault("seed", "").trim();
                 long seed = seedText.isEmpty() ? System.currentTimeMillis() : InputParser.parseOptionLong("seed", seedText);
                 long min = InputParser.parseOptionLong("min", f.getOrDefault("min", String.valueOf(DataGenerator.DEFAULT_MIN)));
@@ -239,7 +329,7 @@ public final class WebServer {
                 r.source = "гараас оруулсан";
             }
             if (r.values.length > maxN) {
-                throw new InputException("Animation-д n ≤ " + maxN + " (одоо n = " + r.values.length
+                throw new InputException(modeLabel + " n ≤ " + maxN + " (одоо n = " + r.values.length
                         + "). Том өгөгдлийг console горимоор ажиллуулна уу: ./run.sh --random N --algo merge");
             }
             r.notes = Limits.check(r.values.length, r.left, r.right, false, true);
