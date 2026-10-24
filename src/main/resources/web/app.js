@@ -474,8 +474,10 @@ function wire() {
   $('speedOut').textContent = String(speed());
   window.addEventListener('resize', () => render());
   document.addEventListener('keydown', (e) => {
-    if (!app.trace || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
-    if (e.key === ' ') { e.preventDefault(); app.playing ? pause() : play(); }
+    const tag = document.activeElement.tagName;
+    if (!app.trace || /INPUT|TEXTAREA|SELECT/.test(tag)) return;
+    // on a focused button Space already "clicks" it; do not toggle a second time
+    if (e.key === ' ' && tag !== 'BUTTON') { e.preventDefault(); app.playing ? pause() : play(); }
     if (e.key === 'ArrowRight') { pause(); seek(app.pos + 1); }
     if (e.key === 'ArrowLeft') { pause(); seek(app.pos - 1); }
   });

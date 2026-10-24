@@ -225,7 +225,7 @@ public final class WebServer {
             r.right = algo(f.getOrDefault("algoRight", "merge"));
             String mode = f.getOrDefault("source", "input");
             if (mode.equals("random")) {
-                long n = InputParser.parseOptionLong("n", f.getOrDefault("n", ""));
+                long n = InputParser.parseOptionLong("n (хэмжээ)", f.getOrDefault("n", ""));
                 if (n > maxN) throw new InputException("Animation-д n ≤ " + maxN + " (одоо n = " + n + ").");
                 String seedText = f.getOrDefault("seed", "").trim();
                 long seed = seedText.isEmpty() ? System.currentTimeMillis() : InputParser.parseOptionLong("seed", seedText);

@@ -160,7 +160,8 @@ public final class Main {
         System.out.println("Бусад:");
         System.out.println("  --force               O(n^2) алгоритмын n ≤ " + Algorithm.MAX_N_QUADRATIC + " хязгаарыг үл тоох");
         System.out.println("  --full                n > " + PREVIEW_LIMIT + " үед ч массивыг бүтнээр хэвлэх");
-        System.out.println("  --trace FILE          thread бүрийн алхмыг JSON event trace болгон бичих (n ≤ " + Limits.TRACE_MAX_N + ")");
+        System.out.println("  --trace FILE          thread бүрийн алхмыг JSON event trace болгон бичих (n ≤ " + Limits.TRACE_MAX_N
+                + ", O(n^2) алгоритмтай бол n ≤ " + Limits.TRACE_MAX_N_QUADRATIC + ")");
         System.out.println("  --web [--port P]      sorting animation-ийг http://localhost:P дээр нээх (анхдагч 8080)");
         System.out.println("  -h, --help            энэ тусламж");
         System.out.println("Хязгаар: O(n^2) (insertion/bubble/selection) n ≤ " + Algorithm.MAX_N_QUADRATIC
