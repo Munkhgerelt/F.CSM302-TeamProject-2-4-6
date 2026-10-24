@@ -559,6 +559,39 @@ function applyModeLimits() {
     : 'Replay: Java дээр жинхэнэ 3 thread ажиллаж дуусаад, бүртгэсэн event-үүдийг энд урагш, хойш тоглуулна. n ≤ ' + max + '.';
 }
 
+// Clears the picture of an earlier run (used when the mode is switched).
+function resetStage(message) {
+  app.playing = false;
+  app.trace = null;
+  app.view = null;
+  app.response = null;
+  app.pos = 0;
+  for (const id of ['cvList', 'cvResult', 'cvTimeline']) setupCanvas($(id));
+  $('threads').innerHTML = '';
+  $('log').innerHTML = '';
+  $('evMeta').textContent = '';
+  $('listMeta').textContent = 'sorting thread-үүд өөрийн хэсгийг энд эрэмбэлнэ';
+  $('resultMeta').textContent = 'merging thread энд нэгтгэнэ';
+  $('summary').innerHTML = '<dt>Төлөв</dt><dd>Ажиллуулаагүй</dd>';
+  ['btnBack', 'btnPlay', 'btnStep', 'btnReset', 'scrub'].forEach((id) => { $(id).disabled = true; });
+  $('btnPlay').textContent = 'Тоглуулах';
+  $('scrub').max = '0';
+  $('scrub').value = '0';
+  $('posOut').textContent = '0 / 0';
+  showError(null);
+  setStatus(message, '');
+}
+
+async function onModeChange() {
+  applyModeLimits();
+  if (!app.trace) return;
+  // a lockstep session keeps real threads waiting on the server: stop it
+  app.playing = false;
+  await liveStop();
+  app.mode = currentMode();
+  resetStage('Горим солигдлоо. “Ажиллуулах” дарна уу.');
+}
+
 function currentMode() {
   return document.querySelector('input[name=mode]:checked').value;
 }
@@ -653,11 +686,15 @@ function wire() {
     seek(0);
     setStatus('Эхэнд нь буцлаа.', '');
   });
-  document.querySelectorAll('input[name=mode]').forEach((r) => r.addEventListener('change', applyModeLimits));
+  document.querySelectorAll('input[name=mode]').forEach((r) => r.addEventListener('change', onModeChange));
   window.addEventListener('beforeunload', () => {
     if (app.live && !app.live.finished) navigator.sendBeacon('/api/live/stop', new URLSearchParams({ id: app.live.id }));
   });
-  $('scrub').addEventListener('input', (e) => { pause(); seek(Number(e.target.value)); });
+  $('scrub').addEventListener('input', (e) => {
+    const target = Number(e.target.value);   // read first: pause() re-renders and resets the slider
+    pause();
+    seek(target);
+  });
   $('speed').addEventListener('input', () => { $('speedOut').textContent = String(speed()); });
   $('speedOut').textContent = String(speed());
   window.addEventListener('resize', () => render());
