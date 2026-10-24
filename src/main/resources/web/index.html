@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>II-4-6 Multithreaded Sorting</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>Multithreaded Sorting</h1>
+    <p class="sub">II-4-6, F.CSM302 Үйлдлийн систем. Хоёр sorting thread, нэг merging thread.</p>
+  </div>
+  <div class="status" id="status" aria-live="polite">Өгөгдлөө оруулаад “Ажиллуулах” дарна уу.</div>
+</header>
+
+<main class="layout">
+  <!-- ============================== controls ============================== -->
+  <aside class="controls" aria-label="Тохиргоо">
+    <section class="group">
+      <h2>Өгөгдөл</h2>
+      <div class="seg" role="radiogroup" aria-label="Өгөгдлийн эх үүсвэр">
+        <label><input type="radio" name="source" value="input" checked> Гараар</label>
+        <label><input type="radio" name="source" value="random"> Санамсаргүй</label>
+      </div>
+
+      <div id="srcInput">
+        <label class="field" for="input">Бүхэл тоонууд (таслал эсвэл зайгаар)
+          <textarea id="input" rows="3" spellcheck="false">7, 12, 19, 3, 18, 4, 2, 6, 15, 8</textarea>
+        </label>
+        <button type="button" class="ghost" id="btnBook">Номын жишээ</button>
+      </div>
+
+      <div id="srcRandom" hidden>
+        <div class="grid2">
+          <label class="field" for="n">n (хэмжээ)
+            <input id="n" type="number" min="1" max="300" value="40">
+          </label>
+          <label class="field" for="seed">Seed
+            <input id="seed" type="number" value="42">
+          </label>
+          <label class="field" for="min">Min
+            <input id="min" type="number" value="1">
+          </label>
+          <label class="field" for="max">Max
+            <input id="max" type="number" value="100">
+          </label>
+        </div>
+        <label class="field" for="pattern">Хэлбэр
+          <select id="pattern">
+            <option value="random">random</option>
+            <option value="sorted">sorted (эрэмбэлэгдсэн)</option>
+            <option value="reversed">reversed (урвуу)</option>
+            <option value="duplicates">duplicates (давхардалтай)</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="group">
+      <h2>Алгоритм</h2>
+      <label class="field" for="algoLeft"><span><span class="dot l"></span>Sorter-L (зүүн хэсэг)</span>
+        <select id="algoLeft"></select>
+      </label>
+      <label class="field" for="algoRight"><span><span class="dot r"></span>Sorter-R (баруун хэсэг)</span>
+        <select id="algoRight"></select>
+      </label>
+    </section>
+
+    <section class="group">
+      <h2>Удирдлага</h2>
+      <button type="button" class="primary" id="btnRun">Ажиллуулах</button>
+      <p class="hint">Java дээр жинхэнэ 3 thread ажиллаж, алхам бүрийг бүртгэнэ. Доор тэр бүртгэлийг тоглуулна.</p>
+      <div class="row player">
+        <button type="button" id="btnBack" title="Нэг алхам буцах (←)" disabled>◂ Алхам</button>
+        <button type="button" id="btnPlay" title="Тоглуулах / түр зогсоох (Space)" disabled>Тоглуулах</button>
+        <button type="button" id="btnStep" title="Нэг алхам урагшлах (→)" disabled>Алхам ▸</button>
+      </div>
+      <button type="button" class="ghost wide" id="btnReset" disabled>Эхнээс нь</button>
+      <label class="field" for="speed"><span>Хурд: <output id="speedOut">60</output> алхам/сек</span>
+        <input id="speed" type="range" min="0" max="100" value="45">
+      </label>
+      <label class="field" for="scrub"><span>Байрлал: <output id="posOut">0 / 0</output> event</span>
+        <input id="scrub" type="range" min="0" max="0" value="0" disabled>
+      </label>
+    </section>
+
+    <div class="error" id="error" role="alert" hidden></div>
+  </aside>
+
+  <!-- ============================== stage ============================== -->
+  <section class="stage" aria-label="Дүрслэл">
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Эх массив list[]</h2>
+        <span class="meta" id="listMeta">sorting thread-үүд өөрийн хэсгийг энд эрэмбэлнэ</span>
+      </div>
+      <canvas id="cvList" height="190" aria-label="list массивын баганан дүрслэл"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Хоёр дахь global массив result[]</h2>
+        <span class="meta" id="resultMeta">merging thread энд нэгтгэнэ</span>
+      </div>
+      <canvas id="cvResult" height="150" aria-label="result массивын баганан дүрслэл"></canvas>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Thread-ийн хугацааны шугам</h2>
+        <span class="meta" id="tlMeta">бодит System.nanoTime хугацаагаар</span>
+      </div>
+      <canvas id="cvTimeline" height="150" aria-label="thread-үүдийн хугацааны шугам"></canvas>
+    </div>
+
+    <div class="threads" id="threads"></div>
+
+    <div class="split">
+      <div class="panel">
+        <div class="panel-head"><h2>Сүүлийн event-үүд</h2><span class="meta" id="evMeta"></span></div>
+        <ol class="log" id="log"></ol>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Үр дүн</h2></div>
+        <dl class="summary" id="summary"><dt>Төлөв</dt><dd>Ажиллуулаагүй</dd></dl>
+      </div>
+    </div>
+
+    <div class="panel legend" aria-label="Тайлбар">
+      <span><i class="sw l"></i>Sorter-L-ийн хэсэг</span>
+      <span><i class="sw r"></i>Sorter-R-ийн хэсэг</span>
+      <span><i class="sw m"></i>Merger бичсэн</span>
+      <span><i class="sw cmp"></i>Харьцуулж буй</span>
+      <span><i class="sw mov"></i>Сольсон / бичсэн</span>
+      <span><i class="sw used"></i>Merger аль хэдийн авсан</span>
+      <span><i class="bar-mid"></i>Хуваалтын цэг (mid)</span>
+    </div>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

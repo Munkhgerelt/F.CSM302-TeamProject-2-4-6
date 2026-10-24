@@ -28,6 +28,8 @@ final class Config {
     Algorithm right = Algorithm.MERGE;
     // flags
     String tracePath;    // --trace FILE: write JSON event trace
+    boolean web;         // --web: start the local animation server
+    int port = 8080;
     boolean force;
     boolean full;
     boolean help;
@@ -49,6 +51,13 @@ final class Config {
                 case "--force": c.force = true; break;
                 case "--full": c.full = true; break;
                 case "--trace": c.tracePath = value(args, ++i, a); break;
+                case "--web": c.web = true; break;
+                case "--port": {
+                    long p = InputParser.parseOptionLong(a, value(args, ++i, a));
+                    if (p < 1 || p > 65535) throw new InputException("--port 1..65535 мужид байх ёстой (одоо " + p + ").");
+                    c.port = (int) p;
+                    break;
+                }
                 case "--input": c.inputText = value(args, ++i, a); break;
                 case "--file": c.file = value(args, ++i, a); break;
                 case "--random": c.randomN = InputParser.parseOptionLong(a, value(args, ++i, a)); break;
@@ -78,6 +87,12 @@ final class Config {
             c.inputText = String.join(" ", positional);
         }
         if (c.help || c.listAlgos) return c;
+        if (c.web) {
+            if (c.inputText != null || c.file != null || c.randomN != null) {
+                throw new InputException("--web горимд өгөгдлийг хөтөч дээрээс оруулна; --input/--file/--random хэрэггүй.");
+            }
+            return c;
+        }
 
         int sources = (c.inputText != null ? 1 : 0) + (c.file != null ? 1 : 0) + (c.randomN != null ? 1 : 0);
         if (sources == 0) {

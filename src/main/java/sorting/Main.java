@@ -9,6 +9,7 @@ import sorting.input.Limits;
 import sorting.trace.TraceEvent;
 import sorting.trace.TraceJson;
 import sorting.trace.TraceRecorder;
+import sorting.web.WebServer;
 
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
@@ -46,6 +47,10 @@ public final class Main {
                 printAlgorithms();
                 return;
             }
+            if (cfg.web) {
+                startWeb(cfg.port);
+                return;
+            }
             input = cfg.resolveInput();
             notes = Limits.check(input.length, cfg.left, cfg.right, cfg.force, cfg.tracePath != null);
         } catch (InputException e) {
@@ -72,12 +77,14 @@ public final class Main {
      * The untraced run above gives the reference time (tracing adds overhead).
      */
     static boolean writeTrace(Config cfg, int[] input, SortResult untraced) throws InterruptedException {
+        long untracedMedian = MultithreadedSorter.medianUntracedNanos(input,
+                cfg.left.key, cfg.left::create, cfg.right.key, cfg.right::create, 2, 3);
         TraceRecorder rec = new TraceRecorder(System.nanoTime());
         SortResult traced = MultithreadedSorter.sort(input,
                 cfg.left.key, cfg.left.create(),
                 cfg.right.key, cfg.right.create(), rec);
         boolean same = Arrays.equals(traced.result, untraced.result);
-        String json = TraceJson.toJson(traced, rec, untraced.totalNanos);
+        String json = TraceJson.toJson(traced, rec, untracedMedian, 3);
         Path out = Path.of(cfg.tracePath);
         try {
             if (out.getParent() != null) Files.createDirectories(out.getParent());
@@ -95,8 +102,8 @@ public final class Main {
         Map<String, Integer> byThread = new TreeMap<>();
         for (TraceEvent e : events) byThread.merge(e.thread, 1, Integer::sum);
         System.out.println("Thread-ээр: " + byThread);
-        System.out.printf("Хугацаа: trace-гүй %.3f ms, trace-тэй %.3f ms (trace бүртгэлийн нэмэгдэл)%n",
-                untraced.totalNanos / 1e6, traced.totalNanos / 1e6);
+        System.out.printf("Хугацаа: trace-гүй %.3f ms (2 дулаацуулалтын дараах 3 ажиллалтын медиан), trace-тэй %.3f ms%n",
+                untracedMedian / 1e6, traced.totalNanos / 1e6);
         System.out.println("Trace-тэй ажиллалтын үр дүн trace-гүйтэй " + (same ? "ИЖИЛ" : "ЗӨРҮҮТЭЙ"));
         int show = Math.min(12, events.size());
         System.out.println("Эхний " + show + " event:");
@@ -114,6 +121,21 @@ public final class Main {
         return sb.toString();
     }
 
+    /** Starts the local animation server and blocks until the process is stopped (Ctrl+C). */
+    static void startWeb(int port) throws InterruptedException {
+        WebServer server = new WebServer(port);
+        try {
+            server.start();
+        } catch (IOException e) {
+            System.err.println("Алдаа: web серверийг эхлүүлж чадсангүй. " + e.getMessage());
+            System.exit(2);
+        }
+        System.out.println("Sorting animation сервер ажиллаж байна: http://localhost:" + server.port() + "/");
+        System.out.println("Хөтөч дээр дээрх хаягийг нээнэ үү. Зогсоох: Ctrl+C");
+        Runtime.getRuntime().addShutdownHook(new Thread(server::stop, "web-shutdown"));
+        Thread.currentThread().join();
+    }
+
     /** Mongolian text must print correctly regardless of the OS default charset. */
     static void useUtf8Console() {
         System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, StandardCharsets.UTF_8));
@@ -121,7 +143,7 @@ public final class Main {
     }
 
     static void printUsage() {
-        System.out.println("Хэрэглээ: ./run.sh <оролт> [сонголтууд]");
+        System.out.println("Хэрэглээ: ./run.sh <оролт> [сонголтууд]   эсвэл   ./run.sh --web");
         System.out.println("Оролт (аль нэг нь заавал):");
         System.out.println("  --input \"a,b,c\"       бүхэл тоонууд (таслал, цэг таслал эсвэл зайгаар тусгаарлана)");
         System.out.println("  a b c ...             тоонуудыг шууд аргументаар");
@@ -139,6 +161,7 @@ public final class Main {
         System.out.println("  --force               O(n^2) алгоритмын n ≤ " + Algorithm.MAX_N_QUADRATIC + " хязгаарыг үл тоох");
         System.out.println("  --full                n > " + PREVIEW_LIMIT + " үед ч массивыг бүтнээр хэвлэх");
         System.out.println("  --trace FILE          thread бүрийн алхмыг JSON event trace болгон бичих (n ≤ " + Limits.TRACE_MAX_N + ")");
+        System.out.println("  --web [--port P]      sorting animation-ийг http://localhost:P дээр нээх (анхдагч 8080)");
         System.out.println("  -h, --help            энэ тусламж");
         System.out.println("Хязгаар: O(n^2) (insertion/bubble/selection) n ≤ " + Algorithm.MAX_N_QUADRATIC
                 + ", O(n log n) (merge/quick) n ≤ " + Algorithm.MAX_N_LOGLINEAR + ", утга нь int муж.");

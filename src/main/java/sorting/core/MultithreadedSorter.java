@@ -3,6 +3,9 @@ package sorting.core;
 import sorting.algo.SortAlgorithm;
 import sorting.trace.TraceRecorder;
 
+import java.util.Arrays;
+import java.util.function.Supplier;
+
 /**
  * The parent-thread logic of the textbook project:
  * <ol>
@@ -77,6 +80,21 @@ public final class MultithreadedSorter {
 
         if (trace != null) trace.record(PARENT_NAME, "RUN_END", isSorted(data.result) ? 1 : 0, n);
         return new SortResult(input.clone(), data.result, mid, left, right, merger, sortPhase, total);
+    }
+
+    /**
+     * Honest wall-clock time of an untraced run: a few warm-up runs first (JIT, thread
+     * pool of the OS warmed up), then the median of {@code reps} measured runs.
+     */
+    public static long medianUntracedNanos(int[] input,
+                                           String leftName, Supplier<SortAlgorithm> left,
+                                           String rightName, Supplier<SortAlgorithm> right,
+                                           int warmups, int reps) throws InterruptedException {
+        for (int i = 0; i < warmups; i++) sort(input, leftName, left.get(), rightName, right.get());
+        long[] t = new long[Math.max(reps, 1)];
+        for (int i = 0; i < t.length; i++) t[i] = sort(input, leftName, left.get(), rightName, right.get()).totalNanos;
+        Arrays.sort(t);
+        return t[t.length / 2];
     }
 
     private static void started(TraceRecorder trace, Thread t) {

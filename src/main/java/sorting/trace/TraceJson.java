@@ -23,6 +23,11 @@ public final class TraceJson {
      * @param untracedTotalNanos wall time of an identical run without tracing, or -1 if not measured
      */
     public static String toJson(SortResult r, TraceRecorder trace, long untracedTotalNanos) {
+        return toJson(r, trace, untracedTotalNanos, 1);
+    }
+
+    /** @param untracedRuns how many measured runs the untraced (median) time is based on */
+    public static String toJson(SortResult r, TraceRecorder trace, long untracedTotalNanos, int untracedRuns) {
         List<TraceEvent> events = trace.snapshot();
         StringBuilder sb = new StringBuilder(64 + events.size() * 64);
         sb.append("{\n");
@@ -45,7 +50,8 @@ public final class TraceJson {
         sb.append("\n],\n");
         sb.append("\"timing\":{\"tracedSortPhaseNs\":").append(r.sortPhaseNanos)
           .append(",\"tracedTotalNs\":").append(r.totalNanos)
-          .append(",\"untracedTotalNs\":").append(untracedTotalNanos).append("},\n");
+          .append(",\"untracedTotalNs\":").append(untracedTotalNanos)
+          .append(",\"untracedRuns\":").append(untracedRuns).append("},\n");
         sb.append("\"eventCounts\":{");
         boolean first = true;
         for (Map.Entry<String, Integer> e : countByType(events).entrySet()) {
