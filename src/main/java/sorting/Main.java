@@ -1,8 +1,9 @@
 package sorting;
 
-import sorting.algo.InsertionSort;
+import sorting.algo.Algorithm;
 import sorting.core.MultithreadedSorter;
 import sorting.core.SortResult;
+import sorting.core.SortingThread;
 
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
@@ -12,26 +13,37 @@ import java.util.Arrays;
 
 /**
  * Console entry point.
- * Usage: java -cp out sorting.Main 7 12 19 3 18 4 2 6 15 8
- *        java -cp out sorting.Main --input "7,12,19,3,18,4,2,6,15,8"
+ * Examples:
+ *   java -cp out sorting.Main 7 12 19 3 18 4 2 6 15 8
+ *   java -cp out sorting.Main --input "7,12,19,3,18,4,2,6,15,8" --algo-left insertion --algo-right quick
  */
 public final class Main {
 
     public static void main(String[] args) throws Exception {
         useUtf8Console();
+        Config cfg;
         int[] input;
         try {
-            input = parse(args);
+            cfg = Config.parse(args);
+            if (cfg.help) {
+                printUsage();
+                return;
+            }
+            if (cfg.listAlgos) {
+                printAlgorithms();
+                return;
+            }
+            input = parseNumbers(cfg.inputText);
         } catch (IllegalArgumentException e) {
             System.err.println("Алдаа: " + e.getMessage());
-            System.err.println("Жишээ: ./run.sh --input \"7,12,19,3,18,4,2,6,15,8\"");
+            System.err.println("Жишээ: ./run.sh --input \"7,12,19,3,18,4,2,6,15,8\" --algo merge");
             System.exit(2);
             return;
         }
 
         SortResult r = MultithreadedSorter.sort(input,
-                "insertion", new InsertionSort(),
-                "insertion", new InsertionSort());
+                cfg.left.key, cfg.left.create(),
+                cfg.right.key, cfg.right.create());
         print(r);
     }
 
@@ -41,18 +53,12 @@ public final class Main {
         System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err), true, StandardCharsets.UTF_8));
     }
 
-    /** Minimal parser: integers given as arguments or via --input "a,b,c". */
-    static int[] parse(String[] args) {
-        String text;
-        if (args.length >= 2 && args[0].equals("--input")) {
-            text = args[1];
-        } else {
-            text = String.join(" ", args);
-        }
-        String[] tokens = text.trim().split("[,\\s]+");
-        if (text.trim().isEmpty()) {
+    /** Minimal number parser (full validation is added separately). */
+    static int[] parseNumbers(String text) {
+        if (text == null || text.trim().isEmpty()) {
             throw new IllegalArgumentException("оролт хоосон байна.");
         }
+        String[] tokens = text.trim().split("[,\\s]+");
         int[] a = new int[tokens.length];
         for (int i = 0; i < tokens.length; i++) {
             try {
@@ -64,19 +70,37 @@ public final class Main {
         return a;
     }
 
+    static void printUsage() {
+        System.out.println("Хэрэглээ: ./run.sh [сонголтууд] [тоонууд...]");
+        System.out.println("  --input \"a,b,c\"       эрэмбэлэх бүхэл тоонууд (таслал эсвэл зайгаар)");
+        System.out.println("  --algo NAME           хоёр sorting thread-д ижил алгоритм");
+        System.out.println("  --algo-left NAME      Sorter-L (зүүн хэсэг)-ийн алгоритм");
+        System.out.println("  --algo-right NAME     Sorter-R (баруун хэсэг)-ийн алгоритм");
+        System.out.println("  --list-algos          боломжит алгоритмуудыг харуулах");
+        System.out.println("  -h, --help            энэ тусламж");
+        System.out.println("Алгоритм: " + Algorithm.keysList() + " (анхдагч: merge)");
+    }
+
+    static void printAlgorithms() {
+        for (Algorithm a : Algorithm.values()) {
+            System.out.printf("  %-10s %-34s %s%n", a.key, a.displayName, a.complexity);
+        }
+    }
+
+    private static void printSorter(SortingThread t) {
+        System.out.printf("[%s] tid=%d муж=[%d,%d) %s: compare=%d swap=%d write=%d, %.3f-%.3f ms%n",
+                t.getName(), t.getId(), t.params().startIndex, t.params().endIndex,
+                t.params().algorithmName, t.ops().compares(), t.ops().swaps(), t.ops().writes(),
+                t.startedAtNanos() / 1e6, t.finishedAtNanos() / 1e6);
+    }
+
     static void print(SortResult r) {
         int n = r.original.length;
         System.out.println("Эх жагсаалт (n=" + n + "): " + Arrays.toString(r.original));
         System.out.printf("Хуваалт: зүүн [0,%d) хэмжээ %d, баруун [%d,%d) хэмжээ %d%n",
                 r.mid, r.mid, r.mid, n, n - r.mid);
-        System.out.printf("[%s] tid=%d муж=[%d,%d) %s: compare=%d swap=%d, %.3f-%.3f ms%n",
-                r.left.getName(), r.left.getId(), r.left.params().startIndex, r.left.params().endIndex,
-                r.left.params().algorithmName, r.left.ops().compares(), r.left.ops().swaps(),
-                r.left.startedAtNanos() / 1e6, r.left.finishedAtNanos() / 1e6);
-        System.out.printf("[%s] tid=%d муж=[%d,%d) %s: compare=%d swap=%d, %.3f-%.3f ms%n",
-                r.right.getName(), r.right.getId(), r.right.params().startIndex, r.right.params().endIndex,
-                r.right.params().algorithmName, r.right.ops().compares(), r.right.ops().swaps(),
-                r.right.startedAtNanos() / 1e6, r.right.finishedAtNanos() / 1e6);
+        printSorter(r.left);
+        printSorter(r.right);
         System.out.printf("[%s] tid=%d нэгтгэл list[0,%d) + list[%d,%d) -> result[0,%d): compare=%d write=%d, %.3f-%.3f ms%n",
                 r.merger.getName(), r.merger.getId(), r.mid, r.mid, n, n,
                 r.merger.ops().compares(), r.merger.ops().writes(),
