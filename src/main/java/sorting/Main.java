@@ -4,18 +4,22 @@ import sorting.algo.Algorithm;
 import sorting.core.MultithreadedSorter;
 import sorting.core.SortResult;
 import sorting.core.SortingThread;
+import sorting.input.InputException;
+import sorting.input.Limits;
 
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Console entry point.
  * Examples:
  *   java -cp out sorting.Main 7 12 19 3 18 4 2 6 15 8
  *   java -cp out sorting.Main --input "7,12,19,3,18,4,2,6,15,8" --algo-left insertion --algo-right quick
+ *   java -cp out sorting.Main --random 1000 --seed 42 --pattern reversed --algo quick
  */
 public final class Main {
 
@@ -23,6 +27,7 @@ public final class Main {
         useUtf8Console();
         Config cfg;
         int[] input;
+        List<String> notes;
         try {
             cfg = Config.parse(args);
             if (cfg.help) {
@@ -33,18 +38,22 @@ public final class Main {
                 printAlgorithms();
                 return;
             }
-            input = parseNumbers(cfg.inputText);
-        } catch (IllegalArgumentException e) {
+            input = cfg.resolveInput();
+            notes = Limits.check(input.length, cfg.left, cfg.right, cfg.force);
+        } catch (InputException e) {
             System.err.println("Алдаа: " + e.getMessage());
-            System.err.println("Жишээ: ./run.sh --input \"7,12,19,3,18,4,2,6,15,8\" --algo merge");
+            System.err.println("Жишээ: ./run.sh --input \"7,12,19,3,18,4,2,6,15,8\" --algo merge   (тусламж: --help)");
             System.exit(2);
             return;
         }
 
+        System.out.println("Оролт: " + cfg.sourceDescription);
+        for (String note : notes) System.out.println(note);
         SortResult r = MultithreadedSorter.sort(input,
                 cfg.left.key, cfg.left.create(),
                 cfg.right.key, cfg.right.create());
-        print(r);
+        boolean ok = print(r, cfg.full);
+        if (!ok) System.exit(1);
     }
 
     /** Mongolian text must print correctly regardless of the OS default charset. */
@@ -53,32 +62,27 @@ public final class Main {
         System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err), true, StandardCharsets.UTF_8));
     }
 
-    /** Minimal number parser (full validation is added separately). */
-    static int[] parseNumbers(String text) {
-        if (text == null || text.trim().isEmpty()) {
-            throw new IllegalArgumentException("оролт хоосон байна.");
-        }
-        String[] tokens = text.trim().split("[,\\s]+");
-        int[] a = new int[tokens.length];
-        for (int i = 0; i < tokens.length; i++) {
-            try {
-                a[i] = Integer.parseInt(tokens[i]);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("'" + tokens[i] + "' нь бүхэл тоо биш.");
-            }
-        }
-        return a;
-    }
-
     static void printUsage() {
-        System.out.println("Хэрэглээ: ./run.sh [сонголтууд] [тоонууд...]");
-        System.out.println("  --input \"a,b,c\"       эрэмбэлэх бүхэл тоонууд (таслал эсвэл зайгаар)");
-        System.out.println("  --algo NAME           хоёр sorting thread-д ижил алгоритм");
+        System.out.println("Хэрэглээ: ./run.sh <оролт> [сонголтууд]");
+        System.out.println("Оролт (аль нэг нь заавал):");
+        System.out.println("  --input \"a,b,c\"       бүхэл тоонууд (таслал, цэг таслал эсвэл зайгаар тусгаарлана)");
+        System.out.println("  a b c ...             тоонуудыг шууд аргументаар");
+        System.out.println("  --file PATH           текст файлаас унших ('#'-ээс хойш тайлбар)");
+        System.out.println("  --random N            N санамсаргүй тоо үүсгэх");
+        System.out.println("     --seed S           давтагдах үр дүнд seed (анхдагч: одоогийн цаг, хэвлэгдэнэ)");
+        System.out.println("     --min A --max B    утгын муж (анхдагч: 1..100)");
+        System.out.println("     --pattern P        random | sorted | reversed | duplicates");
+        System.out.println("Алгоритм:");
+        System.out.println("  --algo NAME           хоёр sorting thread-д ижил алгоритм (анхдагч: merge)");
         System.out.println("  --algo-left NAME      Sorter-L (зүүн хэсэг)-ийн алгоритм");
         System.out.println("  --algo-right NAME     Sorter-R (баруун хэсэг)-ийн алгоритм");
-        System.out.println("  --list-algos          боломжит алгоритмуудыг харуулах");
+        System.out.println("  --list-algos          боломжит алгоритмууд");
+        System.out.println("Бусад:");
+        System.out.println("  --force               O(n^2) алгоритмын n ≤ " + Algorithm.MAX_N_QUADRATIC + " хязгаарыг үл тоох");
+        System.out.println("  --full                n > " + PREVIEW_LIMIT + " үед ч массивыг бүтнээр хэвлэх");
         System.out.println("  -h, --help            энэ тусламж");
-        System.out.println("Алгоритм: " + Algorithm.keysList() + " (анхдагч: merge)");
+        System.out.println("Хязгаар: O(n^2) (insertion/bubble/selection) n ≤ " + Algorithm.MAX_N_QUADRATIC
+                + ", O(n log n) (merge/quick) n ≤ " + Algorithm.MAX_N_LOGLINEAR + ", утга нь int муж.");
     }
 
     static void printAlgorithms() {
@@ -94,9 +98,22 @@ public final class Main {
                 t.startedAtNanos() / 1e6, t.finishedAtNanos() / 1e6);
     }
 
-    static void print(SortResult r) {
+    static final int PREVIEW_LIMIT = 50;
+
+    /** Prints the whole array for small n, otherwise the first and last 10 values. */
+    static String show(int[] a, boolean full) {
+        if (full || a.length <= PREVIEW_LIMIT) return Arrays.toString(a);
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < 10; i++) sb.append(a[i]).append(", ");
+        sb.append("... (").append(a.length - 20).append(" утга нуусан) ...");
+        for (int i = a.length - 10; i < a.length; i++) sb.append(", ").append(a[i]);
+        return sb.append("]").toString();
+    }
+
+    /** @return true when the result is verified correct. */
+    static boolean print(SortResult r, boolean full) {
         int n = r.original.length;
-        System.out.println("Эх жагсаалт (n=" + n + "): " + Arrays.toString(r.original));
+        System.out.println("Эх жагсаалт (n=" + n + "): " + show(r.original, full));
         System.out.printf("Хуваалт: зүүн [0,%d) хэмжээ %d, баруун [%d,%d) хэмжээ %d%n",
                 r.mid, r.mid, r.mid, n, n - r.mid);
         printSorter(r.left);
@@ -106,7 +123,7 @@ public final class Main {
                 r.merger.ops().compares(), r.merger.ops().writes(),
                 r.merger.startedAtNanos() / 1e6, r.merger.finishedAtNanos() / 1e6);
         System.out.println("Parent thread бүх thread-ийг join хийлээ.");
-        System.out.println("Эрэмбэлсэн үр дүн: " + Arrays.toString(r.result));
+        System.out.println("Эрэмбэлсэн үр дүн: " + show(r.result, full));
 
         int[] expected = r.original.clone();
         Arrays.sort(expected);
@@ -114,5 +131,6 @@ public final class Main {
         System.out.println("Шалгалт (Arrays.sort-той харьцуулав): " + (ok ? "ЗӨВ" : "БУРУУ"));
         System.out.printf("Хугацаа: эрэмбэлэх үе %.3f ms, нийт %.3f ms%n",
                 r.sortPhaseNanos / 1e6, r.totalNanos / 1e6);
+        return ok;
     }
 }
