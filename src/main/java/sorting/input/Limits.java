@@ -13,6 +13,8 @@ import java.util.List;
  */
 public final class Limits {
     public static final int HARD_MAX_N = Algorithm.MAX_N_LOGLINEAR;
+    /** Max n for writing an event trace (every compare/swap becomes one JSON line). */
+    public static final int TRACE_MAX_N = 10_000;
 
     private Limits() { }
 
@@ -21,7 +23,15 @@ public final class Limits {
      * @return warnings to show (may be empty); throws when the input is rejected.
      */
     public static List<String> check(int n, Algorithm left, Algorithm right, boolean force) {
+        return check(n, left, right, force, false);
+    }
+
+    public static List<String> check(int n, Algorithm left, Algorithm right, boolean force, boolean trace) {
         List<String> warnings = new ArrayList<>();
+        if (trace && n > TRACE_MAX_N) {
+            throw new InputException("--trace нь n ≤ " + TRACE_MAX_N + " үед л ажиллана (одоо n = " + n
+                    + "). Алхам бүр нэг event болдог тул файл хэт томорно. n-ийг багасгах эсвэл --trace-гүй ажиллуулна уу.");
+        }
         if (n <= 0) {
             throw new InputException("Оролт хоосон байна (n = 0).");
         }

@@ -1,5 +1,7 @@
 package sorting.core;
 
+import sorting.trace.TraceRecorder;
+
 /**
  * One of the two sorting threads. Sorts list[startIndex, endIndex) of the
  * shared data in place with the algorithm given in its {@link SortParams}.
@@ -13,10 +15,10 @@ public final class SortingThread extends Thread {
     private volatile long finishedAtNanos;
     private volatile Throwable failure;
 
-    public SortingThread(SharedData data, SortParams params, long runStartNanos) {
+    public SortingThread(SharedData data, SortParams params, long runStartNanos, TraceRecorder trace) {
         super(params.threadName);
         this.params = params;
-        this.ops = new Ops(data, params.threadName);
+        this.ops = new Ops(data, params.threadName, trace);
         this.runStartNanos = runStartNanos;
     }
 
@@ -24,7 +26,9 @@ public final class SortingThread extends Thread {
     public void run() {
         startedAtNanos = System.nanoTime() - runStartNanos;
         try {
+            ops.event("T_START", params.startIndex, params.endIndex, Integer.MIN_VALUE);
             params.algorithm.sort(ops, params.startIndex, params.endIndex);
+            ops.event("T_DONE", params.startIndex, params.endIndex, Integer.MIN_VALUE);
         } catch (Throwable t) {
             failure = t;
         } finally {

@@ -1,26 +1,36 @@
 package sorting.core;
 
+import sorting.trace.TraceRecorder;
+
 /**
  * Per-thread access object to the shared arrays. Every algorithm step
- * (compare / swap / write) goes through this class so that it can be counted.
+ * (compare / swap / write) goes through this class so that it can be counted
+ * and, when a {@link TraceRecorder} is attached, recorded as an event.
  * One instance belongs to exactly one thread, so the counters need no locking.
  */
 public final class Ops {
     private final int[] list;
     private final int[] result;
     private final String threadName;
+    private final TraceRecorder trace;   // null = tracing off
 
     private long compares;
     private long swaps;
     private long writes;
 
-    public Ops(SharedData data, String threadName) {
+    public Ops(SharedData data, String threadName, TraceRecorder trace) {
         this.list = data.list;
         this.result = data.result;
         this.threadName = threadName;
+        this.trace = trace;
     }
 
     public String threadName() { return threadName; }
+
+    /** Records a lifecycle event of this thread (no-op when tracing is off). */
+    void event(String type, int a, int b, int c) {
+        if (trace != null) trace.record(threadName, type, a, b, c);
+    }
 
     // ---------- operations used by the sorting algorithms (on list) ----------
 
@@ -32,13 +42,17 @@ public final class Ops {
     /** Compares list[i] with list[j]; returns <0, 0 or >0. */
     public int compare(int i, int j) {
         compares++;
-        return Integer.compare(list[i], list[j]);
+        int r = Integer.compare(list[i], list[j]);
+        if (trace != null) trace.record(threadName, "CMP", i, j, r);
+        return r;
     }
 
     /** Compares list[i] with a value held by the algorithm (e.g. a pivot). */
     public int compareToValue(int i, int value) {
         compares++;
-        return Integer.compare(list[i], value);
+        int r = Integer.compare(list[i], value);
+        if (trace != null) trace.record(threadName, "CMPV", i, value, r);
+        return r;
     }
 
     /**
@@ -47,7 +61,9 @@ public final class Ops {
      */
     public int compareValues(int i, int j, int x, int y) {
         compares++;
-        return Integer.compare(x, y);
+        int r = Integer.compare(x, y);
+        if (trace != null) trace.record(threadName, "CMPA", i, j, r);
+        return r;
     }
 
     public void swap(int i, int j) {
@@ -55,11 +71,13 @@ public final class Ops {
         int t = list[i];
         list[i] = list[j];
         list[j] = t;
+        if (trace != null) trace.record(threadName, "SWP", i, j);
     }
 
     public void set(int i, int value) {
         writes++;
         list[i] = value;
+        if (trace != null) trace.record(threadName, "SET", i, value);
     }
 
     // ---------- operations used by the merging thread ----------
@@ -67,13 +85,16 @@ public final class Ops {
     /** Merging thread: compares list[i] (left run) with list[j] (right run). */
     public int mergeCompare(int i, int j) {
         compares++;
-        return Integer.compare(list[i], list[j]);
+        int r = Integer.compare(list[i], list[j]);
+        if (trace != null) trace.record(threadName, "MCMP", i, j, r);
+        return r;
     }
 
     /** Merging thread: result[k] = list[src]. */
     public void mergeWrite(int k, int src) {
         writes++;
         result[k] = list[src];
+        if (trace != null) trace.record(threadName, "MW", k, src, result[k]);
     }
 
     // ---------- statistics ----------

@@ -1,5 +1,7 @@
 package sorting.core;
 
+import sorting.trace.TraceRecorder;
+
 /**
  * The third thread: merges the two sorted halves list[leftStart, mid) and
  * list[mid, end) into the second global array result[leftStart, end).
@@ -14,10 +16,10 @@ public final class MergingThread extends Thread {
     private volatile long finishedAtNanos;
     private volatile Throwable failure;
 
-    public MergingThread(SharedData data, MergeParams params, long runStartNanos) {
+    public MergingThread(SharedData data, MergeParams params, long runStartNanos, TraceRecorder trace) {
         super(params.threadName);
         this.params = params;
-        this.ops = new Ops(data, params.threadName);
+        this.ops = new Ops(data, params.threadName, trace);
         this.runStartNanos = runStartNanos;
     }
 
@@ -25,7 +27,9 @@ public final class MergingThread extends Thread {
     public void run() {
         startedAtNanos = System.nanoTime() - runStartNanos;
         try {
+            ops.event("M_START", params.leftStart, params.mid, params.end);
             merge();
+            ops.event("M_DONE", params.leftStart, params.end, Integer.MIN_VALUE);
         } catch (Throwable t) {
             failure = t;
         } finally {

@@ -27,6 +27,7 @@ final class Config {
     Algorithm left = Algorithm.MERGE;
     Algorithm right = Algorithm.MERGE;
     // flags
+    String tracePath;    // --trace FILE: write JSON event trace
     boolean force;
     boolean full;
     boolean help;
@@ -47,6 +48,7 @@ final class Config {
                 case "--list-algos": c.listAlgos = true; break;
                 case "--force": c.force = true; break;
                 case "--full": c.full = true; break;
+                case "--trace": c.tracePath = value(args, ++i, a); break;
                 case "--input": c.inputText = value(args, ++i, a); break;
                 case "--file": c.file = value(args, ++i, a); break;
                 case "--random": c.randomN = InputParser.parseOptionLong(a, value(args, ++i, a)); break;

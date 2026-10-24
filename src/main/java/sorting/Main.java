@@ -6,13 +6,21 @@ import sorting.core.SortResult;
 import sorting.core.SortingThread;
 import sorting.input.InputException;
 import sorting.input.Limits;
+import sorting.trace.TraceEvent;
+import sorting.trace.TraceJson;
+import sorting.trace.TraceRecorder;
 
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Console entry point.
@@ -39,7 +47,7 @@ public final class Main {
                 return;
             }
             input = cfg.resolveInput();
-            notes = Limits.check(input.length, cfg.left, cfg.right, cfg.force);
+            notes = Limits.check(input.length, cfg.left, cfg.right, cfg.force, cfg.tracePath != null);
         } catch (InputException e) {
             System.err.println("Алдаа: " + e.getMessage());
             System.err.println("Жишээ: ./run.sh --input \"7,12,19,3,18,4,2,6,15,8\" --algo merge   (тусламж: --help)");
@@ -53,7 +61,57 @@ public final class Main {
                 cfg.left.key, cfg.left.create(),
                 cfg.right.key, cfg.right.create());
         boolean ok = print(r, cfg.full);
+        if (cfg.tracePath != null) {
+            ok &= writeTrace(cfg, input, r);
+        }
         if (!ok) System.exit(1);
+    }
+
+    /**
+     * Repeats the same run with tracing enabled and writes the JSON trace.
+     * The untraced run above gives the reference time (tracing adds overhead).
+     */
+    static boolean writeTrace(Config cfg, int[] input, SortResult untraced) throws InterruptedException {
+        TraceRecorder rec = new TraceRecorder(System.nanoTime());
+        SortResult traced = MultithreadedSorter.sort(input,
+                cfg.left.key, cfg.left.create(),
+                cfg.right.key, cfg.right.create(), rec);
+        boolean same = Arrays.equals(traced.result, untraced.result);
+        String json = TraceJson.toJson(traced, rec, untraced.totalNanos);
+        Path out = Path.of(cfg.tracePath);
+        try {
+            if (out.getParent() != null) Files.createDirectories(out.getParent());
+            Files.writeString(out, json, StandardCharsets.UTF_8);
+        } catch (IOException | RuntimeException e) {
+            System.err.println("Алдаа: trace файлыг бичиж чадсангүй: " + cfg.tracePath + " (" + e.getMessage() + ")");
+            return false;
+        }
+        List<TraceEvent> events = rec.snapshot();
+        System.out.println();
+        System.out.println("=== Event trace ===");
+        System.out.println("Файл: " + out.toAbsolutePath() + " (" + json.length() / 1024 + " KB)");
+        System.out.println("Event-ийн тоо: " + events.size() + (rec.truncated() ? " (ХЯЗГААРТ ХҮРЧ ТАСАЛСАН)" : ""));
+        System.out.println("Төрлөөр: " + TraceJson.countByType(events));
+        Map<String, Integer> byThread = new TreeMap<>();
+        for (TraceEvent e : events) byThread.merge(e.thread, 1, Integer::sum);
+        System.out.println("Thread-ээр: " + byThread);
+        System.out.printf("Хугацаа: trace-гүй %.3f ms, trace-тэй %.3f ms (trace бүртгэлийн нэмэгдэл)%n",
+                untraced.totalNanos / 1e6, traced.totalNanos / 1e6);
+        System.out.println("Trace-тэй ажиллалтын үр дүн trace-гүйтэй " + (same ? "ИЖИЛ" : "ЗӨРҮҮТЭЙ"));
+        int show = Math.min(12, events.size());
+        System.out.println("Эхний " + show + " event:");
+        for (int i = 0; i < show; i++) System.out.println("  " + format(events.get(i)));
+        return same && !rec.truncated();
+    }
+
+    static String format(TraceEvent e) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("#%-4d %9.3f ms  %-8s %-9s", e.seq, e.t / 1e6, e.thread, e.type));
+        if (e.a != TraceEvent.NONE) sb.append(" a=").append(e.a);
+        if (e.b != TraceEvent.NONE) sb.append(" b=").append(e.b);
+        if (e.c != TraceEvent.NONE) sb.append(" c=").append(e.c);
+        if (e.note != null) sb.append(" ").append(e.note);
+        return sb.toString();
     }
 
     /** Mongolian text must print correctly regardless of the OS default charset. */
@@ -80,6 +138,7 @@ public final class Main {
         System.out.println("Бусад:");
         System.out.println("  --force               O(n^2) алгоритмын n ≤ " + Algorithm.MAX_N_QUADRATIC + " хязгаарыг үл тоох");
         System.out.println("  --full                n > " + PREVIEW_LIMIT + " үед ч массивыг бүтнээр хэвлэх");
+        System.out.println("  --trace FILE          thread бүрийн алхмыг JSON event trace болгон бичих (n ≤ " + Limits.TRACE_MAX_N + ")");
         System.out.println("  -h, --help            энэ тусламж");
         System.out.println("Хязгаар: O(n^2) (insertion/bubble/selection) n ≤ " + Algorithm.MAX_N_QUADRATIC
                 + ", O(n log n) (merge/quick) n ≤ " + Algorithm.MAX_N_LOGLINEAR + ", утга нь int муж.");
