@@ -1,8 +1,8 @@
 # II-4-6 · Multithreaded Sorting Application
 
-**Хичээл:** F.CSM302 Үйлдлийн систем · Бие даалт 1
-**Хуваарилалтын код: II-4-6
-**Эх сурвалж:** Silberschatz, Galvin, Gagne — *Operating System Concepts*, 10th ed. (2018), Chapter 4 "Threads & Concurrency", Programming Projects — Multithreaded Sorting Application
+Хичээл: F.CSM302 Үйлдлийн систем · Бие даалт 1
+Хуваарилалтын код: II-4-6
+Эх сурвалж: Silberschatz, Galvin, Gagne — Operating System Concepts, 10th ed. (2018), Chapter 4 "Threads & Concurrency", Programming Projects — Multithreaded Sorting Application
 
 ## Зорилго
 
