@@ -10,11 +10,18 @@
 'use strict';
 
 const $ = (id) => document.getElementById(id);
-const COLORS = {
-  left: '#2F5BEA', right: '#D9860B', merge: '#0E9A73', parent: '#6B7385',
-  cmp: '#C2185B', mov: '#1B2433', used: '#C9CFD8', ink: '#1B2433', muted: '#5E6878', line: '#D5DBE3',
-  grid: '#EEF1F4'
+// Canvas colours come from the CSS custom properties in style.css.
+const COLORS = {};
+const COLOR_VARS = {
+  left: '--c-left', right: '--c-right', merge: '--c-merge', parent: '--c-parent', cmp: '--c-cmp',
+  mov: '--c-mov', used: '--c-used', ink: '--ink', muted: '--muted', line: '--line', grid: '--c-grid'
 };
+function readColors() {
+  const cs = getComputedStyle(document.documentElement);
+  for (const [k, v] of Object.entries(COLOR_VARS)) COLORS[k] = cs.getPropertyValue(v).trim() || '#888';
+}
+readColors();
+
 const BOOK_EXAMPLE = '7, 12, 19, 3, 18, 4, 2, 6, 15, 8';
 const THREADS = ['Parent', 'Sorter-L', 'Sorter-R', 'Merger'];
 const THREAD_CLASS = { 'Parent': 'p', 'Sorter-L': 'l', 'Sorter-R': 'r', 'Merger': 'm' };
@@ -166,7 +173,16 @@ function drawBars(cv, values, colorOf, opts) {
     }
     const y = padT + plotH * ((range.hi - val) / (range.hi - range.lo));
     ctx.fillStyle = colorOf(i);
-    ctx.fillRect(x, Math.min(y, yZero), bw, Math.max(Math.abs(yZero - y), 1.5));
+    const top = Math.min(y, yZero), bh = Math.max(Math.abs(yZero - y), 1.5);
+    if (bw >= 6 && ctx.roundRect) {
+      // rounded on the end away from zero, square on the baseline
+      const r = Math.min(4, bw / 3, bh);
+      ctx.beginPath();
+      ctx.roundRect(x, top, bw, bh, val >= 0 ? [r, r, 0, 0] : [0, 0, r, r]);
+      ctx.fill();
+    } else {
+      ctx.fillRect(x, top, bw, bh);
+    }
     if (n <= 40) {
       ctx.fillStyle = COLORS.muted;
       ctx.font = '11px system-ui, sans-serif';
