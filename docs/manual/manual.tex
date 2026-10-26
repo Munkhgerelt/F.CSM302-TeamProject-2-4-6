@@ -39,12 +39,12 @@
 \usepackage{caption}
 \usepackage[hidelinks]{hyperref}
 
-\definecolor{cleft}{HTML}{2F5BEA}
-\definecolor{cright}{HTML}{D9860B}
-\definecolor{cmerge}{HTML}{0E9A73}
-\definecolor{ccmp}{HTML}{C2185B}
+\definecolor{cleft}{HTML}{5B8CFF}
+\definecolor{cright}{HTML}{F5A524}
+\definecolor{cmerge}{HTML}{2FD39A}
+\definecolor{ccmp}{HTML}{FF5C8A}
 \definecolor{cmov}{HTML}{1B2433}
-\definecolor{cused}{HTML}{C9CFD8}
+\definecolor{cused}{HTML}{3B4763}
 \definecolor{codebg}{HTML}{F4F6F8}
 
 \newcommand{\sw}[1]{\textcolor{#1}{\rule{0.9em}{0.9em}}}
@@ -173,7 +173,7 @@ javac -version
 \subsection*{Оролтын дүрэм}
 \begin{itemize}
   \item Зөвхөн \textbf{бүхэл тоо} (int муж: $-2\,147\,483\,648 \dots 2\,147\,483\,647$).
-  \item Тусгаарлагч: таслал, цэг таслал, зай эсвэл шинэ мөр. Давхар таслалыг (\code{1,,2}) хоосон зай гэж үзээд алгасна.
+  \item Тусгаарлагч: таслал, цэг таслал, зай эсвэл шинэ мөр. Давхар таслал (\code{1,,2}) дунд хоосон утгыг алгасна.
   \item Сөрөг тоо (\code{-5}) болон \code{+} тэмдэг (\code{+3}) зөвшөөрнө. Давхардсан утга зөвшөөрнө.
   \item Файлд \code{\#} тэмдгээс хойших бичвэр тайлбар гэж тооцогдоно.
   \item \textbf{Сондгой n} зөвшөөрнө. Зүүн хэсэг $\lceil n/2\rceil$, баруун хэсэг $\lfloor n/2\rfloor$ элементтэй болно
@@ -320,9 +320,9 @@ Terminal дээр \code{Sorting animation сервер ажиллаж байна
 \sw{cright}\ Улбар шар & Sorter-R-ийн хэсэг \code{[mid, n)} \\
 \sw{cmerge}\ Ногоон & Merger-ийн \code{result[]}-д бичсэн утга \\
 \sw{ccmp}\ Ягаан улаан & Яг одоо харьцуулж буй элементүүд \\
-\sw{cmov}\ Хар & Яг одоо сольсон эсвэл бичсэн элемент \\
-\sw{cused}\ Саарал & Merger аль хэдийн авсан элемент \\
-\textcolor{cmov}{\rule{1.5pt}{0.9em}}\ Босоо зураас & Хуваалтын цэг \code{mid} \\
+\fcolorbox{black!40}{white}{\rule{0pt}{0.6em}\rule{0.6em}{0pt}}\ Цагаан & Яг одоо сольсон эсвэл бичсэн элемент \\
+\sw{cused}\ Бараан саарал & Merger аль хэдийн авсан элемент \\
+\textcolor{black!60}{\rule{1.5pt}{0.9em}}\ Босоо цагаан зураас & Хуваалтын цэг \code{mid} \\
 \bottomrule
 \end{tabularx}
 
@@ -372,7 +372,7 @@ TERMINATED & Дууссан \\
   \item \code{./run.sh --web} ажиллуулж, \url{http://localhost:8080} хаягийг нээнэ.
   \item “Номын жишээ” товчийг дарна: \code{7, 12, 19, 3, 18, 4, 2, 6, 15, 8}.
   \item Sorter-L-д \code{insertion}, Sorter-R-д \code{merge} сонгоно.
-  \item \textbf{Ажиллуулах}, дараа нь \textbf{Алхам ▸}-ийг хэд дарж, Sorter-L өөрийн хэсгийг insertion sort-оор
+  \item \textbf{Ажиллуулах}, дараа нь \textbf{Алхам ▸}-ийг хэд хэдэн удаа дарж, Sorter-L өөрийн хэсгийг insertion sort-оор
         эрэмбэлж буйг харна (Зураг~\ref{fig:sorting}).
   \item \textbf{Байрлал} гулсуурыг төгсгөл рүү чирвэл Merger \code{result[]}-ийг ногооноор бөглөж буй нь харагдана
         (Зураг~\ref{fig:merge}).
@@ -406,7 +406,7 @@ TERMINATED & Дууссан \\
 
 \subsection*{Жишээ 3. Санамсаргүй 60 тоо (Web UI)}
 “Санамсаргүй” сонгож n = 60, Seed = 42, Sorter-L = \code{bubble}, Sorter-R = \code{quick} гэж тохируулаад
-Ажиллуулна. Хоёр sorter-ийн хугацааны шугам давхцаж байгаа нь тэд \textbf{зэрэг} ажилласныг харуулна.
+“Ажиллуулах” дарна. Хоёр sorter-ийн хугацааны шугам давхцаж байгаа нь тэд \textbf{зэрэг} ажилласныг харуулна.
 
 \shot{05-random-60.png}{Санамсаргүй 60 тоо, bubble + quick}
 
@@ -435,7 +435,7 @@ TERMINATED & Дууссан \\
 \code{Оролт хоосон байна} & Хоосон жагсаалт & Дор хаяж нэг тоо \\
 \code{3-р утга 'abc' нь бүхэл тоо биш.} & Тоо биш утга & Зөвхөн бүхэл тоо \\
 \code{2-р утга '2.5' нь бутархай тоо.} & Бутархай тоо & Бүхэл тоо оруулна \\
-\code{2-р утга '3000000000' нь int мужаас хэтэрсэн.} & Хэт том/бага тоо & int мужид оруулна \\
+\code{2-р утга '3000000000' нь int мужаас хэтэрсэн.} & Хэт том/бага тоо & int мужид багтах тоо оруулна \\
 \code{insertion нь O(n\textasciicircum 2) алгоритм тул n ≤ 20000 ...} & O(n²)-д n хэт их & \code{merge}/\code{quick}, n багасгах, эсвэл \code{--force} \\
 \code{'foo' гэсэн алгоритм байхгүй} & Алгоритмын нэр буруу & \code{--list-algos} \\
 \code{Файл олдсонгүй: ...} & Файлын зам буруу & Төслийн хавтсаас эхлэх зам \\
@@ -501,10 +501,11 @@ Build & \code{./build.sh} & \code{build.bat} \\
 CLI & \code{./run.sh --file examples/book-example.txt} & \code{run.bat --file examples\textbackslash book-example.txt} \\
 Web UI & \code{./run.sh --web} & \code{run.bat --web} \\
 Тест & \code{./test.sh} & \code{test.bat} \\
+Хугацааны хэмжилт & \code{./bench.sh} & \code{bench.bat} \\
 \bottomrule
 \end{tabularx}
 
-Скрипт ажиллуулах эрхгүй бол \code{chmod +x build.sh run.sh test.sh} хийнэ. \code{build.sh} нь:
+Скрипт ажиллуулах эрхгүй бол \code{chmod +x build.sh run.sh test.sh bench.sh} хийнэ. \code{build.sh} нь:
 \begin{enumerate}
   \item \code{javac}-ийн хувилбарыг шалгана (17-оос доош бол алдаа өгч, зааварчилгаа хэвлэнэ);
   \item \code{src/main/java} доторх бүх \code{.java} файлыг \code{out/} руу хөрвүүлнэ;
@@ -552,7 +553,7 @@ empty.txt & Зөвхөн тайлбар & Алдаа, exit code 2 \\
 Номын жишээ & 26 & 5 × 5 = 25 алгоритмын хослол, хуваалт ба хоёр хэсэг \\
 Захын тохиолдол & 17 & n = 1, 2, 3, бүгд ижил, сөрөг, INT\_MIN/MAX, эрэмбэтэй/урвуу, ⌈n/2⌉/⌊n/2⌋ \\
 Буруу оролт & 18 & Хоосон, тоо биш, бутархай, int-ээс гадуур, O(n²)/trace/дээд хязгаар, буруу файл \\
-Давхардал ба хэлбэр & 6 & 4 хэлбэр × 25 хослол, 2000 санамсаргүй ажиллагаа \\
+Давхардал ба хэлбэр & 6 & 4 хэлбэр × 25 хослол, 2000 санамсаргүй ажиллалт \\
 Том өгөгдөл & 4 & n = 1 000 000 (merge/quick), n = 20 000 (O(n²)) \\
 Thread & 5 & 3 тусдаа thread, параметр, TERMINATED, Merger-ийн дараалал, муж зөрчөөгүй \\
 Event trace & 7 & Replay = бодит үр дүн, JSON формат, Parent-ийн event дараалал \\
@@ -640,7 +641,7 @@ java -Dfile.encoding=UTF-8 -cp out sorting.Main --web
 \end{cmd}
   \item \textbf{Хугацааны хэмжилт шуугиантай.} n бага үед хугацаа миллисекундээс бага бөгөөд JIT, thread үүсгэх
         зардал, OS-ийн scheduler-ээс хамаарч ажиллах бүрд өөр гарна. Мөн n бага үед thread үүсгэх зардал эрэмбэлэх
-        ажлаас их байдаг тул Sorter-L Sorter-R эхлэхээс өмнө дуусчихсан байж болно. Энэ нь алдаа биш. Тиймээс
+        ажлаас их байдаг тул Sorter-L Sorter-R эхлэхээс өмнө дууссан байж болно. Энэ нь алдаа биш. Тиймээс
         CLI ба trace нь дулаацуулсны дараах медиан хугацааг тусад нь хэвлэдэг.
   \item \textbf{Trace-тэй хугацаа удаан.} Event бүрийг бүртгэх зардлаас болж trace-тэй ажиллалт удаан.
         Хурдыг харьцуулахдаа “trace-гүй” хугацааг ашиглана.
@@ -658,6 +659,7 @@ F.CSM302-TeamProject-2-4-6/
 |-- build.sh, build.bat          хөрвүүлэх
 |-- run.sh, run.bat              ажиллуулах
 |-- test.sh, test.bat            автомат тест
+|-- bench.sh, bench.bat          хугацааны хэмжилт
 |-- src/main/java/sorting/
 |   |-- Main.java, Config.java   CLI оролт, сонголт
 |   |-- algo/                    5 эрэмбэлэх алгоритм
@@ -667,10 +669,11 @@ F.CSM302-TeamProject-2-4-6/
 |   `-- web/                     WebServer, LiveSession
 |-- src/main/resources/web/      index.html, app.js, style.css
 |-- tests/TestRunner.java        100 автомат тест
-|-- tests/results/               test-results.md
+|-- tests/Benchmark.java         хугацааны хэмжилт
+|-- tests/results/               test-results.md, benchmark.md, benchmark.csv
 |-- examples/                    тестийн өгөгдөл
-|-- docs/                        Manual.md, manual/manual.tex, images/
-`-- report/                      LaTeX тайлан
+|-- docs/                        Manual.md, manual/ (manual.tex, manual.pdf), images/
+`-- report/                      LaTeX тайлан: main.tex, main.pdf, sections/, images/
 \end{cmd}
 
 \section*{2.11 Нөөц ба эх сурвалж}\addcontentsline{toc}{section}{2.11 Нөөц ба эх сурвалж}
