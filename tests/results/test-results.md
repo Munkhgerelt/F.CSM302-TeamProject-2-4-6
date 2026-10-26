@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| Огноо | 2026-10-24 21:03 |
+| Огноо | 2026-10-26 17:10 |
 | Java | Eclipse Adoptium 17.0.21+9 |
 | OS | Mac OS X 27.0.1 (aarch64) |
 | CPU цөм | 10 |
@@ -102,10 +102,10 @@
 
 | № | Тест | Оролт | Хүлээгдсэн | Бодит | Үр дүн |
 |---:|---|---|---|---|:---:|
-| 68 | n = 1 000 000, merge + quick | `random, seed=1` | Arrays.sort-той ижил | Arrays.sort-той ижил (43 ms) | ✅ |
-| 69 | n = 1 000 000, quick + quick | `random, seed=1` | Arrays.sort-той ижил | Arrays.sort-той ижил (36 ms) | ✅ |
-| 70 | n = 20 000, insertion + bubble | `random, seed=1` | Arrays.sort-той ижил | Arrays.sort-той ижил (33 ms) | ✅ |
-| 71 | n = 20 000, selection + merge | `random, seed=1` | Arrays.sort-той ижил | Arrays.sort-той ижил (16 ms) | ✅ |
+| 68 | n = 1 000 000, merge + quick | `random, seed=1` | Arrays.sort-той ижил | Arrays.sort-той ижил (41 ms) | ✅ |
+| 69 | n = 1 000 000, quick + quick | `random, seed=1` | Arrays.sort-той ижил | Arrays.sort-той ижил (38 ms) | ✅ |
+| 70 | n = 20 000, insertion + bubble | `random, seed=1` | Arrays.sort-той ижил | Arrays.sort-той ижил (31 ms) | ✅ |
+| 71 | n = 20 000, selection + merge | `random, seed=1` | Arrays.sort-той ижил | Arrays.sort-той ижил (30 ms) | ✅ |
 
 ## Thread (5/5)
 
