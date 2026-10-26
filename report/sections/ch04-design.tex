@@ -1,0 +1,121 @@
+% !TEX root = ../main.tex
+\chapter{Системийн зохиомж}\label{ch:design}
+
+\section{Бүрэлдэхүүн хэсгүүд}
+Програмын төв нь \code{core} багц бөгөөд номын бүтцийг (parent, хоёр sorter, merger) хэрэгжүүлдэг
+(Зураг~\ref{fig:arch}). CLI ба web сервер хоёулаа энэ нэг цөмийг дууддаг. Тиймээс UI дээр харагдаж буй
+thread-үүд нь командын мөрийн thread-үүдтэй яг ижил код юм. Бусад багцын үүрэг: \code{algo} (5 алгоритм),
+\code{input} (оролт задлах, хязгаар, санамсаргүй өгөгдөл), \code{trace} (event бүртгэх, JSON), \code{web} (HTTP
+сервер, Lockstep session). Нийт ойролцоогоор 2\,200 мөр Java код байна.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, align=center, font=\small, minimum height=1cm, fill=white},
+  ar/.style={-{Stealth[length=2mm]}, thick},
+  layer/.style={draw=cused, dashed, rounded corners=5pt, inner sep=7pt}]
+  \node[box, minimum width=3.4cm] (cli) {\textbf{CLI}\\\code{Main}, \code{Config}};
+  \node[box, minimum width=3.4cm, right=1.2cm of cli] (web) {\textbf{Web сервер}\\\code{WebServer}, \code{LiveSession}};
+  \node[box, minimum width=3.4cm, right=1.2cm of web] (ui) {\textbf{Хөтөч}\\\code{index.html}, \code{app.js}};
+  \node[box, minimum width=3.4cm, below=1.1cm of cli] (input) {\textbf{input}\\\code{InputParser}, \code{Limits},\\\code{DataGenerator}};
+  \node[box, minimum width=5.6cm, below=1.1cm of web, xshift=0.6cm, fill=codebg] (core) {\textbf{core}\\\code{MultithreadedSorter} (parent)\\\code{SortingThread} ×2, \code{MergingThread}\\\code{SharedData}, \code{Ops}, \code{StepGate}};
+  \node[box, minimum width=3.4cm, below=1.1cm of core, xshift=-3.0cm] (algo) {\textbf{algo}\\5 алгоритм};
+  \node[box, minimum width=3.4cm, below=1.1cm of core, xshift=3.0cm] (trace) {\textbf{trace}\\\code{TraceRecorder},\\\code{TraceJson}};
+  \draw[ar] (cli) -- (input);
+  \draw[ar] (cli.south east) -- (core.north west);
+  \draw[ar] (web) -- (core);
+  \draw[ar] (web.west) -- (input.north east);
+  \draw[ar, <->] (ui) -- node[above, font=\scriptsize] {HTTP/JSON} (web);
+  \draw[ar] (core) -- (algo);
+  \draw[ar] (core) -- (trace);
+\end{tikzpicture}
+\caption{Програмын бүтэц. Сум нь “ашигладаг” харьцааг заана}
+\label{fig:arch}
+\end{figure}
+
+\section{Өгөгдөл ба урсгал}
+\code{SharedData} нь хоёр “global” массивтай: \code{list} (sorter-ууд хэсгээ энд эрэмбэлнэ) ба ижил хэмжээтэй
+\code{result} (merger энд бичнэ). Thread бүр \code{SortParams} (нэр, \code{startIndex}, \code{endIndex}, алгоритм)
+эсвэл \code{MergeParams} (\code{leftStart}, \code{mid}, \code{end}) параметрийг авна. Номын жишээн дээрх урсгалыг
+Зураг~\ref{fig:flow}-т үзүүлэв.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  cell/.style={draw, minimum width=0.72cm, minimum height=0.62cm, font=\small, inner sep=0pt},
+  thr/.style={draw, rounded corners=3pt, font=\small\bfseries, minimum width=2.3cm, minimum height=0.75cm},
+  ar/.style={-{Stealth[length=2mm]}, thick}]
+  % original list
+  \node[font=\small, anchor=east] at (-0.5,0) {\code{list[]}};
+  \foreach \v [count=\i from 0] in {7,12,19,3,18} \node[cell, fill=cleft!18] (a\i) at (\i*0.72,0) {\v};
+  \foreach \v [count=\i from 5] in {4,2,6,15,8} \node[cell, fill=cright!22] (a\i) at (\i*0.72,0) {\v};
+  \draw[very thick] ($(a4.north east)+(0,0.15)$) -- ($(a4.south east)+(0,-0.15)$);
+  \node[font=\scriptsize, above=1pt of a4.north east] {mid = 5};
+  % threads
+  \node[thr, draw=cleft, text=cleft] (tl) at (1.44,-1.6) {Sorter-L};
+  \node[thr, draw=cright, text=cright] (tr) at (5.04,-1.6) {Sorter-R};
+  \draw[ar, cleft] (a2.south) -- (tl);
+  \draw[ar, cright] (a7.south) -- (tr);
+  \node[font=\scriptsize, left=3pt of tl, align=right] {\code{[0, 5)}};
+  \node[font=\scriptsize, right=3pt of tr, align=left] {\code{[5, 10)}};
+  % sorted halves
+  \node[font=\small, anchor=east] at (-0.5,-3.2) {\code{list[]}};
+  \foreach \v [count=\i from 0] in {3,7,12,18,19} \node[cell, fill=cleft!18] (b\i) at (\i*0.72,-3.2) {\v};
+  \foreach \v [count=\i from 5] in {2,4,6,8,15} \node[cell, fill=cright!22] (b\i) at (\i*0.72,-3.2) {\v};
+  \draw[very thick] ($(b4.north east)+(0,0.15)$) -- ($(b4.south east)+(0,-0.15)$);
+  \draw[ar, cleft] (tl) -- (b2.north);
+  \draw[ar, cright] (tr) -- (b7.north);
+  % merger
+  \node[thr, draw=cmerge, text=cmerge] (tm) at (3.24,-4.8) {Merger};
+  \draw[ar, cmerge] (b2.south) -- (tm);
+  \draw[ar, cmerge] (b7.south) -- (tm);
+  % result
+  \node[font=\small, anchor=east] at (-0.5,-6.4) {\code{result[]}};
+  \foreach \v [count=\i from 0] in {2,3,4,6,7,8,12,15,18,19} \node[cell, fill=cmerge!20] (c\i) at (\i*0.72,-6.4) {\v};
+  \draw[ar, cmerge] (tm) -- (c4.north east);
+  % parent
+  \node[draw, dashed, rounded corners=4pt, font=\small, align=left, text width=4.3cm, anchor=west] at (8.3,-3.2)
+    {\textbf{Parent thread}\\[2pt]
+     1. хуваана ($mid=\lceil n/2\rceil$)\\
+     2. \code{L.start(); R.start();}\\
+     3. \code{L.join(); R.join();}\\
+     4. \code{M.start(); M.join();}\\
+     5. \code{result[]}-ийг хэвлэнэ};
+\end{tikzpicture}
+\caption{Номын жишээн дээрх өгөгдлийн урсгал}
+\label{fig:flow}
+\end{figure}
+
+\section{Синхрончлол: яагаад lock хэрэггүй вэ}\label{sec:nolock}
+Sorter-L зөвхөн \code{[0, mid)}, Sorter-R зөвхөн \code{[mid, n)} мужид бичдэг тул тэдгээрийн хооронд race condition
+үүсэхгүй. Merger нь \code{list[]}-ийг уншдаг боловч parent хоёр sorter-ийг \code{join()} хийсний \emph{дараа} л
+\code{start()} хийдэг. Happens-before дүрмээр sorter-уудын бүх бичилт merger-д заавал харагдана. Parent мөн
+\code{result[]}-ийг merger-ийг join хийсний дараа уншина. Ингэснээр синхрончлолыг бүхэлд нь \code{start()}/\code{join()}
+хангаж, lock огт хэрэггүй болно. Үүнийг тест trace-ээс баталсан (\ref{ch:method}-р бүлэг). Цорын ганц тусгай
+синхрончлол нь event бүртгэл (lock-гүй \code{ConcurrentLinkedQueue}, \code{AtomicLong}) ба Lockstep горимд байдаг.
+
+\section{Lockstep горим}\label{sec:lockstep}
+Lockstep горимд sorting ба merging thread бүр compare, swap, write үйлдэл бүрийн өмнө fair \code{Semaphore}-оос
+нэг permit авна. Permit байхгүй үед thread бодитоор \code{WAITING} төлөвт зогсоно. UI-ийн “Алхам” товч серверт
+\code{release(1)} хийлгэж, нэг thread яг нэг үйлдэл хийнэ. FIFO дарааллаас болж хоёр sorter ээлжилнэ (L, R, L, R).
+Харин эхний permit-ийг аль sorter авах нь аль нь gate-д түрүүлж хүрэхээс хамаарна. Session-ийг цуцлахад бүх
+хүлээж буй thread сэрж гарна.
+
+\section{Хязгаар ба хамгаалалт}\label{sec:limits}
+\begin{table}[H]
+\centering\small
+\caption{Оролтын хязгаар}\label{tab:limits}
+\begin{tabularx}{\linewidth}{@{}YlY@{}}
+\toprule
+Зүйл & Хязгаар & Шалтгаан \\
+\midrule
+Утга & \code{int} муж & $-2^{31} \dots 2^{31}-1$ \\
+O($n^2$) алгоритм & $n \le 20\,000$ (\code{--force}) & Удаан ажиллахаас сэргийлнэ \\
+O($n\log n$) алгоритм & $n \le 10^6$ & Санах ой, хугацаа \\
+Event trace & $n \le 1000$ / $10\,000$ & O($n^2$) / merge, quick. Файл хэт томрохоос сэргийлнэ \\
+Animation (Replay / Lockstep) & $n \le 300$ / $100$ & Уншигдахуйц байх, серверийн ачаалал \\
+\bottomrule
+\end{tabularx}
+\end{table}
+Web сервер зөвхөн \code{127.0.0.1} дээр сонсож, зэрэг 4 хүртэл Lockstep session зөвшөөрнө. 10 минут
+хөдөлгөөнгүй session автоматаар цуцлагдана.

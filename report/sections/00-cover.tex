@@ -1,0 +1,40 @@
+% !TEX root = ../main.tex
+% ---------------------------------------------------------------- нүүр хуудас
+% Лого: report/images/logo.png. Файл байхгүй бол хүрээтэй хоосон зай гарна.
+\begin{titlepage}
+    \centering
+    \onehalfspacing
+
+    {\large \bfseries \University} \\[0.5cm]
+    {\large \School} \\[2cm]
+
+    \IfFileExists{images/logo.png}{%
+        \includegraphics[width=8cm]{images/logo.png}%
+    }{%
+        \fbox{\parbox[c][4cm][c]{8cm}{\centering\color{cparent} Лого:\\ \texttt{report/images/logo.png}}}%
+    } \\[1cm]
+
+    {\Large \bfseries БИЕ ДААЛТ 1} \\[0.3cm]
+    {\Large \bfseries ТАЙЛАН} \\[0.5cm]
+    {\large \bfseries Үйлдлийн систем (F.CSM302)} \\[2.0cm]
+
+    \begin{raggedleft}
+        \begin{tabular}{ll}
+            \textbf{Сэдэв:} & Multithreaded Sorting Application, \\
+            & Sorting animation \\[0.4cm]
+            \textbf{Хуваарилалтын код:} & II-4-6 \\[0.4cm]
+            \textbf{Хичээл заасан багш:} & \Teacher \\[0.4cm]
+            \textbf{Гүйцэтгэсэн оюутнууд:} & Б. Отгондалай /B241940132/ \\
+            & М. Мөнхгэрэлт /B232270012/ \\
+            & А. Базарсад /B242270065/ \\
+            & Б. Хаш-Эрдэнэ /B241930006/ \\
+            & Е. Мичидмаа /B221960015/ \\
+            & Ж. Суварнабазар /B251940118/ \\
+        \end{tabular}
+    \end{raggedleft}
+
+    \vfill
+
+    {\large Улаанбаатар хот, 2026}
+
+\end{titlepage}

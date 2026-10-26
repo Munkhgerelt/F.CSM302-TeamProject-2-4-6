@@ -1,6 +1,7 @@
 # Build output (never commit)
 out/
 out-test/
+out-vscode/
 *.class
 *.jar
 sources.txt

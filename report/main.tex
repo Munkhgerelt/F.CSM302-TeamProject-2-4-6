@@ -1,0 +1,189 @@
+% =====================================================================
+% F.CSM302 Үйлдлийн систем - Бие даалт 1
+% II-4-6 Multithreaded Sorting Application - Тайлан
+%
+% Хөрвүүлэх (XeLaTeX шаардлагатай):
+%   cd report
+%   xelatex main.tex
+%   xelatex main.tex        (агуулга, лавлагааг шинэчлэхийн тулд 2 дахь удаа)
+% Overleaf: бүх repository-г (src/, docs/images/, tests/results/ хамт) upload хийж,
+%   Menu -> Compiler -> XeLaTeX, Main document -> report/main.tex гэж тохируулна.
+%
+% Зураг: images/ хавтас эсвэл ../docs/images/ хавтсаас хайна. Файл олдохгүй бол
+% \shot{...} нь хүрээтэй "энд зураг оруулна" гэсэн хоосон зай зурна.
+% =====================================================================
+\documentclass[12pt,a4paper,oneside]{report}
+
+% ---------------------------------------------------------------- fonts & language
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setdefaultlanguage{russian}   % Cyrillic hyphenation (polyglossia has no Mongolian module)
+\setotherlanguage{english}
+\IfFontExistsTF{DejaVu Serif}{
+  \def\mainfam{DejaVu Serif}\def\sansfam{DejaVu Sans}\def\monofam{DejaVu Sans Mono}
+}{
+  \def\mainfam{Times New Roman}\def\sansfam{Arial}
+  \IfFontExistsTF{Menlo}{\def\monofam{Menlo}}{\def\monofam{Courier New}}
+}
+\setmainfont{\mainfam}
+\setsansfont{\sansfam}
+\setmonofont{\monofam}[Scale=0.84]
+\newfontfamily\cyrillicfont{\mainfam}
+\newfontfamily\cyrillicfontsf{\sansfam}
+\newfontfamily\cyrillicfonttt{\monofam}[Scale=0.84]
+
+% Mongolian names for the automatic headings
+\gappto\captionsrussian{%
+  \renewcommand{\contentsname}{Агуулга}%
+  \renewcommand{\listfigurename}{Зургийн жагсаалт}%
+  \renewcommand{\listtablename}{Хүснэгтийн жагсаалт}%
+  \renewcommand{\figurename}{Зураг}%
+  \renewcommand{\tablename}{Хүснэгт}%
+  \renewcommand{\chaptername}{Бүлэг}%
+  \renewcommand{\appendixname}{Хавсралт}%
+  \renewcommand{\bibname}{Ашигласан материал}%
+  \renewcommand{\abstractname}{Хураангуй}}
+
+% ---------------------------------------------------------------- packages
+\usepackage[a4paper,left=3cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{setspace}
+\setstretch{1.15}
+\usepackage{graphicx}
+\graphicspath{{images/}{../docs/images/}}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{etoolbox}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,shapes.geometric,decorations.pathreplacing,matrix}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=1.17}
+\usepackage{tocloft}
+\setlength{\cftchapnumwidth}{2.0em}
+\setlength{\cftsecnumwidth}{2.6em}
+\setlength{\cftsubsecnumwidth}{3.4em}
+\renewcommand{\cftchapdotsep}{\cftdotsep}
+\usepackage[hidelinks]{hyperref}
+
+\setlist{itemsep=2pt,topsep=4pt}
+\emergencystretch=5em
+\renewcommand{\arraystretch}{1.25}
+\captionsetup{font=small,labelsep=period}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+% chapter heading: "1. Удиртгал"
+\titleformat{\chapter}[hang]{\normalfont\Large\bfseries\raggedright}{\thechapter.}{0.6em}{}
+
+% Chapters continue on the same page (no page break before each chapter), like the other team reports
+\makeatletter
+\patchcmd{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi}{\par\vspace{1.2em}}{}{}
+\makeatother
+\titlespacing*{\chapter}{0pt}{6pt}{10pt}
+
+
+\setlength{\headheight}{15pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small II-4-6 Multithreaded Sorting Application}
+\fancyhead[R]{\small\nouppercase{\leftmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+% ---------------------------------------------------------------- colours (same as the web UI)
+\definecolor{cleft}{HTML}{2F5BEA}
+\definecolor{cright}{HTML}{D9860B}
+\definecolor{cmerge}{HTML}{0E9A73}
+\definecolor{cparent}{HTML}{6B7385}
+\definecolor{ccmp}{HTML}{C2185B}
+\definecolor{cink}{HTML}{1B2433}
+\definecolor{cused}{HTML}{C9CFD8}
+\definecolor{codebg}{HTML}{F5F7F9}
+
+% ---------------------------------------------------------------- code listings
+\lstdefinestyle{java}{
+  language=Java,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{cleft}\bfseries,
+  commentstyle=\color{cparent}\itshape,
+  stringstyle=\color{cmerge},
+  backgroundcolor=\color{codebg},
+  frame=single, rulecolor=\color{cused},
+  numbers=left, numberstyle=\tiny\color{cparent}, numbersep=6pt,
+  xleftmargin=1.6em, framexleftmargin=1.4em,
+  breaklines=true, showstringspaces=false, tabsize=4,
+  extendedchars=true, inputencoding=utf8,
+  captionpos=b
+}
+\lstdefinestyle{shell}{
+  basicstyle=\ttfamily\footnotesize, backgroundcolor=\color{codebg},
+  frame=single, rulecolor=\color{cused}, breaklines=true, columns=fullflexible,
+  extendedchars=true
+}
+\lstset{style=java}
+\renewcommand{\lstlistingname}{Код}
+\renewcommand{\lstlistlistingname}{Кодын жагсаалт}
+
+% ---------------------------------------------------------------- helpers
+\newcommand{\code}[1]{\texttt{#1}}
+% \shot{file}{caption}{label}: real screenshot if the file exists, otherwise a framed placeholder
+\newcommand{\shot}[3]{%
+  \begin{figure}[htbp]\centering
+  \IfFileExists{images/#1}{\includegraphics[width=0.82\linewidth]{#1}}{%
+  \IfFileExists{../docs/images/#1}{\includegraphics[width=0.82\linewidth]{#1}}{%
+    \fbox{\parbox[c][5.5cm][c]{0.9\linewidth}{\centering\color{cparent}
+      Энд зураг оруулна:\\[4pt]\texttt{report/images/#1}}}}}
+  \caption{#2}\label{#3}
+  \end{figure}}
+
+% pgfplots: keep only the rows whose column #1 equals #2 (used for benchmark.csv)
+\pgfplotsset{
+  only/.style 2 args={
+    x filter/.append code={
+      \edef\tempa{\thisrow{#1}}\edef\tempb{#2}%
+      \ifx\tempa\tempb\else\def\pgfmathresult{inf}\fi}}}
+\newcommand{\benchcsv}{../tests/results/benchmark.csv}
+
+% ---------------------------------------------------------------- document data (засах шаардлагатай бол энд)
+\newcommand{\University}{ШИНЖЛЭХ УХААН ТЕХНОЛОГИЙН ИХ СУРГУУЛЬ}
+\newcommand{\School}{МЭДЭЭЛЭЛ, ХОЛБООНЫ ТЕХНОЛОГИЙН СУРГУУЛЬ}
+\newcommand{\Course}{F.CSM302 Үйлдлийн систем}
+\newcommand{\Teacher}{Г. Ганбат /F.CS10/}
+\newcommand{\RepoURL}{https://github.com/Munkhgerelt/F.CSM302-TeamProject-2-4-6}
+
+\begin{document}
+
+\input{sections/00-cover}
+\pagenumbering{roman}
+\input{sections/01-abstract}
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\input{sections/ch01-introduction}
+\input{sections/ch02-requirements}
+\input{sections/ch03-theory}
+\input{sections/ch04-design}
+\input{sections/ch05-implementation}
+\input{sections/ch06-ui}
+\input{sections/ch07-method}
+\input{sections/ch08-results}
+\input{sections/ch09-discussion}
+\input{sections/ch10-conclusion}
+
+\input{sections/references}
+
+
+\end{document}

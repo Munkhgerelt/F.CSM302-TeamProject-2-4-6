@@ -75,30 +75,45 @@
 \date{2026}
 
 \begin{document}
-\maketitle
-
-\begin{center}\small
-Эх сурвалж: Silberschatz, Galvin, Gagne. \emph{Operating System Concepts}, 10th ed., Chapter~4,\\
-Programming Projects: “Multithreaded Sorting Application”.
-\end{center}
+\begin{titlepage}
+    \centering
+    {\large \bfseries ШИНЖЛЭХ УХААН ТЕХНОЛОГИЙН ИХ СУРГУУЛЬ} \\[0.5cm]
+    {\large МЭДЭЭЛЭЛ, ХОЛБООНЫ ТЕХНОЛОГИЙН СУРГУУЛЬ} \\[1.6cm]
+    \IfFileExists{../../report/images/logo.png}{\includegraphics[width=6cm]{../../report/images/logo.png}}{%
+      \fbox{\parbox[c][3.5cm][c]{6cm}{\centering Лого:\\ \texttt{report/images/logo.png}}}} \\[1cm]
+    {\Large \bfseries БИЕ ДААЛТ 1} \\[0.3cm]
+    {\Large \bfseries ГАРЫН АВЛАГА} \\[0.3cm]
+    {\normalsize (Хэрэглэгчийн ба operational заавар)} \\[0.5cm]
+    {\large \bfseries Үйлдлийн систем (F.CSM302)} \\[1.8cm]
+    \begin{tabular}{ll}
+        \textbf{Сэдэв:} & Multithreaded Sorting Application, Sorting animation \\[0.3cm]
+        \textbf{Хуваарилалтын код:} & II-4-6 \\[0.3cm]
+        \textbf{Хичээл заасан багш:} & Г. Ганбат /F.CS10/ \\[0.3cm]
+        \textbf{Гүйцэтгэсэн оюутнууд:} & Б. Отгондалай /B241940132/ \\
+        & М. Мөнхгэрэлт /B232270012/ \\
+        & А. Базарсад /B242270065/ \\
+        & Б. Хаш-Эрдэнэ /B241930006/ \\
+        & Е. Мичидмаа /B221960015/ \\
+        & Ж. Суварнабазар /B251940118/ \\
+    \end{tabular}
+    \vfill
+    {\large Улаанбаатар хот, 2026}
+\end{titlepage}
 
 Энэ гарын авлага хоёр хэсэгтэй:
 \begin{itemize}
-  \item \textbf{А хэсэг. Хэрэглэгчийн заавар:} програмыг ашиглах хүнд зориулсан. Оролт оруулах, ажиллуулах,
+  \item \textbf{1. Хэрэглэгчийн заавар:} програмыг ашиглах хүнд зориулсан. Оролт оруулах, ажиллуулах,
         animation удирдах, өнгө ба төлөвийг унших, түгээмэл алдааг засахыг тайлбарлана.
-  \item \textbf{Б хэсэг. Ашиглалтын (operational) заавар:} төслийг шинэ машин дээр татаж, build хийж, тест ажиллуулж,
+  \item \textbf{2. Operational заавар:} төслийг шинэ машин дээр татаж, build хийж, тест ажиллуулж,
         үр дүнг шалгах хүнд (багш, шалгагч, багийн гишүүн) зориулсан.
 \end{itemize}
 
 \tableofcontents
 \newpage
 
-% =====================================================================
-\part*{А хэсэг. Хэрэглэгчийн заавар}
-\addcontentsline{toc}{part}{А хэсэг. Хэрэглэгчийн заавар}
+\section*{1. Хэрэглэгчийн заавар}\addcontentsline{toc}{part}{1. Хэрэглэгчийн заавар}
 
-\section*{А1. Програмын зорилго}\addcontentsline{toc}{section}{А1. Програмын зорилго}
-
+\section*{1.1 Програмын зорилго}\addcontentsline{toc}{section}{1.1 Програмын зорилго}
 Програм бүхэл тоон жагсаалтыг \textbf{гурван бодит Java thread} ашиглан эрэмбэлнэ:
 \begin{enumerate}
   \item \textbf{Parent thread} жагсаалтыг хоёр хэсэгт хуваана: зүүн хэсэг \code{[0, mid)}, баруун хэсэг \code{[mid, n)},
@@ -120,22 +135,20 @@ Programming Projects: “Multithreaded Sorting Application”.
 
 \shot{01-start.png}{Web UI-ийн эхлэл}
 
-\section*{А2. Шаардлагатай орчин}\addcontentsline{toc}{section}{А2. Шаардлагатай орчин}
-
+\section*{1.2 Дэмжих орчин}\addcontentsline{toc}{section}{1.2 Дэмжих орчин}
 \begin{tabularx}{\linewidth}{@{}lY@{}}
 \toprule
 Зүйл & Шаардлага \\
 \midrule
 Java & \textbf{JDK 17} буюу түүнээс дээш (\code{javac} хэрэгтэй, зөвхөн JRE хангалтгүй) \\
-OS & macOS, Linux, Windows (Windows-ийн скриптийг бодит машин дээр туршаагүй, Б8-ыг үзнэ үү) \\
+OS & macOS, Linux, Windows (Windows-ийн скриптийг бодит машин дээр туршаагүй, 2.9-р хэсгийг үзнэ үү) \\
 Хөтөч & Web UI-д: Chrome, Edge, Firefox, Safari-ийн сүүлийн хувилбар \\
 Гадны сан & Хэрэггүй (Maven, Gradle, JUnit, npm ашиглаагүй) \\
 Сүлжээ & Хэрэггүй. Web сервер зөвхөн \code{127.0.0.1} дээр сонсоно \\
 \bottomrule
 \end{tabularx}
 
-\section*{А3. Суулгах}\addcontentsline{toc}{section}{А3. Суулгах}
-
+\section*{1.3 Суулгах, нээх}\addcontentsline{toc}{section}{1.3 Суулгах, нээх}
 \textbf{macOS (Homebrew):}
 \begin{cmd}
 brew install --cask temurin@17
@@ -156,8 +169,71 @@ javac -version
 \code{javac -version} нь \code{javac 17.x} (эсвэл түүнээс дээш) гэж харуулах ёстой. Дараа нь төслийн хавтсанд
 \code{./build.sh} (Windows: \code{build.bat}) ажиллуулна. \code{Build OK (javac 17) -> out/} гэж гарвал бэлэн.
 
-\section*{А4. Ажиллуулах ба зогсоох}\addcontentsline{toc}{section}{А4. Ажиллуулах ба зогсоох}
+\section*{1.4 Оролт ба тохиргоо}\addcontentsline{toc}{section}{1.4 Оролт ба тохиргоо}
+\subsection*{Оролтын дүрэм}
+\begin{itemize}
+  \item Зөвхөн \textbf{бүхэл тоо} (int муж: $-2\,147\,483\,648 \dots 2\,147\,483\,647$).
+  \item Тусгаарлагч: таслал, цэг таслал, зай эсвэл шинэ мөр. Давхар таслалыг (\code{1,,2}) хоосон зай гэж үзээд алгасна.
+  \item Сөрөг тоо (\code{-5}) болон \code{+} тэмдэг (\code{+3}) зөвшөөрнө. Давхардсан утга зөвшөөрнө.
+  \item Файлд \code{\#} тэмдгээс хойших бичвэр тайлбар гэж тооцогдоно.
+  \item \textbf{Сондгой n} зөвшөөрнө. Зүүн хэсэг $\lceil n/2\rceil$, баруун хэсэг $\lfloor n/2\rfloor$ элементтэй болно
+        (жишээ нь n = 11 үед 6 ба 5).
+\end{itemize}
 
+\subsection*{CLI сонголтууд}
+\begin{longtable}{@{}>{\ttfamily}p{0.32\linewidth}p{0.62\linewidth}@{}}
+\toprule
+\normalfont Сонголт & Утга \\
+\midrule\endhead
+--input "a,b,c" & Тоонуудыг шууд оруулах \\
+a b c ... & Тоонуудыг аргумент болгон оруулах \\
+--file PATH & Текст файлаас унших \\
+--random N & N ширхэг санамсаргүй тоо үүсгэх \\
+--seed S & Санамсаргүй тооны seed (ижил seed бол ижил жагсаалт) \\
+--min A --max B & Санамсаргүй утгын муж (анхдагч 1..100) \\
+--pattern P & \code{random}, \code{sorted}, \code{reversed}, \code{duplicates} \\
+--algo NAME & Хоёр sorter-т ижил алгоритм (анхдагч \code{merge}) \\
+--algo-left NAME & Sorter-L-ийн алгоритм \\
+--algo-right NAME & Sorter-R-ийн алгоритм \\
+--list-algos & Боломжит алгоритмын жагсаалт \\
+--force & O(n²) алгоритмын n ≤ 20 000 хязгаарыг үл тоох \\
+--full & n > 50 үед ч массивыг бүтнээр хэвлэх \\
+--trace FILE & Бүх алхмыг JSON event trace болгон хадгалах (2.8) \\
+--web [--port P] & Web UI-г эхлүүлэх (анхдагч порт 8080) \\
+-h, --help & Тусламж \\
+\bottomrule
+\end{longtable}
+Оролтын эх үүсвэрээс (\code{--input}, тоонууд, \code{--file}, \code{--random}) \textbf{яг нэгийг} өгнө.
+
+\subsection*{Алгоритмууд}
+\begin{tabularx}{\linewidth}{@{}>{\ttfamily}lYl@{}}
+\toprule
+\normalfont Нэр & Алгоритм & Хүндрэл \\
+\midrule
+insertion & Insertion sort & O(n²) \\
+bubble & Bubble sort (эрт зогсолттой) & O(n²) \\
+selection & Selection sort & O(n²) \\
+merge & Merge sort (top-down, туслах буфертэй) & O(n log n) \\
+quick & Quick sort (Hoare partition, дунд pivot) & O(n log n) дундаж \\
+\bottomrule
+\end{tabularx}
+
+Зүүн ба баруун sorter-т \textbf{өөр өөр} алгоритм сонгож болно.
+
+\subsection*{Web UI-ийн тохиргоо}
+\begin{tabularx}{\linewidth}{@{}llY@{}}
+\toprule
+Хэсэг & Талбар & Тайлбар \\
+\midrule
+Өгөгдөл & Гараар / Санамсаргүй & Өгөгдлийн эх үүсвэр \\
+ & Бүхэл тоонууд & Гараар оруулах жагсаалт. “Номын жишээ” товч номын жишээг бөглөнө \\
+ & n, Seed, Min, Max, Хэлбэр & Санамсаргүй жагсаалт үүсгэх тохиргоо \\
+Алгоритм & Sorter-L, Sorter-R & Хэсэг тус бүрийн алгоритм \\
+Удирдлага & Replay / Lockstep & Ажиллах горим (1.5) \\
+\bottomrule
+\end{tabularx}
+
+\section*{1.5 Ажиллуулах, зогсоох, reset хийх}\addcontentsline{toc}{section}{1.5 Ажиллуулах, зогсоох, reset хийх}
 \subsection*{Командын мөр}
 \begin{cmd}
 ./run.sh --input "7,12,19,3,18,4,2,6,15,8"
@@ -198,73 +274,6 @@ Terminal дээр \code{Sorting animation сервер ажиллаж байна
   \item Хөтчийн цонхыг хаахад ажиллаж буй Lockstep session автоматаар цуцлагдана.
 \end{itemize}
 
-\section*{А5. Оролт ба тохиргоо}\addcontentsline{toc}{section}{А5. Оролт ба тохиргоо}
-
-\subsection*{Оролтын дүрэм}
-\begin{itemize}
-  \item Зөвхөн \textbf{бүхэл тоо} (int муж: $-2\,147\,483\,648 \dots 2\,147\,483\,647$).
-  \item Тусгаарлагч: таслал, цэг таслал, зай эсвэл шинэ мөр. Давхар таслалыг (\code{1,,2}) хоосон зай гэж үзээд алгасна.
-  \item Сөрөг тоо (\code{-5}) болон \code{+} тэмдэг (\code{+3}) зөвшөөрнө. Давхардсан утга зөвшөөрнө.
-  \item Файлд \code{\#} тэмдгээс хойших бичвэр тайлбар гэж тооцогдоно.
-  \item \textbf{Сондгой n} зөвшөөрнө. Зүүн хэсэг $\lceil n/2\rceil$, баруун хэсэг $\lfloor n/2\rfloor$ элементтэй болно
-        (жишээ нь n = 11 үед 6 ба 5).
-\end{itemize}
-
-\subsection*{CLI сонголтууд}
-\begin{longtable}{@{}>{\ttfamily}p{0.32\linewidth}p{0.62\linewidth}@{}}
-\toprule
-\normalfont Сонголт & Утга \\
-\midrule\endhead
---input "a,b,c" & Тоонуудыг шууд оруулах \\
-a b c ... & Тоонуудыг аргумент болгон оруулах \\
---file PATH & Текст файлаас унших \\
---random N & N ширхэг санамсаргүй тоо үүсгэх \\
---seed S & Санамсаргүй тооны seed (ижил seed бол ижил жагсаалт) \\
---min A --max B & Санамсаргүй утгын муж (анхдагч 1..100) \\
---pattern P & \code{random}, \code{sorted}, \code{reversed}, \code{duplicates} \\
---algo NAME & Хоёр sorter-т ижил алгоритм (анхдагч \code{merge}) \\
---algo-left NAME & Sorter-L-ийн алгоритм \\
---algo-right NAME & Sorter-R-ийн алгоритм \\
---list-algos & Боломжит алгоритмын жагсаалт \\
---force & O(n²) алгоритмын n ≤ 20 000 хязгаарыг үл тоох \\
---full & n > 50 үед ч массивыг бүтнээр хэвлэх \\
---trace FILE & Бүх алхмыг JSON event trace болгон хадгалах (Б7) \\
---web [--port P] & Web UI-г эхлүүлэх (анхдагч порт 8080) \\
--h, --help & Тусламж \\
-\bottomrule
-\end{longtable}
-Оролтын эх үүсвэрээс (\code{--input}, тоонууд, \code{--file}, \code{--random}) \textbf{яг нэгийг} өгнө.
-
-\subsection*{Алгоритмууд}
-\begin{tabularx}{\linewidth}{@{}>{\ttfamily}lYl@{}}
-\toprule
-\normalfont Нэр & Алгоритм & Хүндрэл \\
-\midrule
-insertion & Insertion sort & O(n²) \\
-bubble & Bubble sort (эрт зогсолттой) & O(n²) \\
-selection & Selection sort & O(n²) \\
-merge & Merge sort (top-down, туслах буфертэй) & O(n log n) \\
-quick & Quick sort (Hoare partition, дунд pivot) & O(n log n) дундаж \\
-\bottomrule
-\end{tabularx}
-
-Зүүн ба баруун sorter-т \textbf{өөр өөр} алгоритм сонгож болно.
-
-\subsection*{Web UI-ийн тохиргоо}
-\begin{tabularx}{\linewidth}{@{}llY@{}}
-\toprule
-Хэсэг & Талбар & Тайлбар \\
-\midrule
-Өгөгдөл & Гараар / Санамсаргүй & Өгөгдлийн эх үүсвэр \\
- & Бүхэл тоонууд & Гараар оруулах жагсаалт. “Номын жишээ” товч номын жишээг бөглөнө \\
- & n, Seed, Min, Max, Хэлбэр & Санамсаргүй жагсаалт үүсгэх тохиргоо \\
-Алгоритм & Sorter-L, Sorter-R & Хэсэг тус бүрийн алгоритм \\
-Удирдлага & Replay / Lockstep & Ажиллах горим (А6) \\
-\bottomrule
-\end{tabularx}
-
-\section*{А6. Animation удирдах}\addcontentsline{toc}{section}{А6. Animation удирдах}
-
 \subsection*{Хоёр горим}
 \begin{tabularx}{\linewidth}{@{}>{\raggedright}p{0.17\linewidth}YY@{}}
 \toprule
@@ -301,8 +310,7 @@ quick & Quick sort (Hoare partition, дунд pivot) & O(n log n) дундаж \
 Горимыг солиход өмнөх дүрслэл цэвэрлэгдэж, ажиллаж байсан Lockstep session цуцлагдана. Дараа нь
 “Ажиллуулах”-ыг дахин дарна.
 
-\section*{А7. Өнгө, төлөв, тайлбар}\addcontentsline{toc}{section}{А7. Өнгө, төлөв, тайлбар}
-
+\section*{1.6 Дүрслэлийн тэмдэг, өнгө, төлөв}\addcontentsline{toc}{section}{1.6 Дүрслэлийн тэмдэг, өнгө, төлөв}
 \subsection*{Баганы өнгө}
 \begin{tabularx}{\linewidth}{@{}lY@{}}
 \toprule
@@ -357,8 +365,7 @@ TERMINATED & Дууссан \\
 \bottomrule
 \end{tabularx}
 
-\section*{А8. Жишээнүүд}\addcontentsline{toc}{section}{А8. Жишээнүүд}
-
+\section*{1.7 Жишээ}\addcontentsline{toc}{section}{1.7 Жишээ}
 \subsection*{Жишээ 1. Номын жишээ (Web UI, Replay)}
 \begin{enumerate}
   \item \code{./run.sh --web} ажиллуулж, \url{http://localhost:8080} хаягийг нээнэ.
@@ -404,7 +411,7 @@ TERMINATED & Дууссан \\
 
 \subsection*{Жишээ 4. Lockstep горим}
 \begin{enumerate}
-  \item Удирдлага хэсэгт \textbf{Lockstep} сонгоно.
+  \item Дээд самбарын “Горим” хэсэгт \textbf{Lockstep} сонгоно.
   \item \textbf{Ажиллуулах} дарна. Карт дээр Sorter-L ба Sorter-R: \code{Java: WAITING, Semaphore permit хүлээж байна},
         Parent: \code{Java: WAITING, join() дээр} гэж гарна.
   \item \textbf{Алхам ▸} бүрд нэг thread нэг үйлдэл хийнэ. Fair (FIFO) semaphore ашигладаг тул хоёр sorter ээлжилнэ
@@ -415,28 +422,12 @@ TERMINATED & Дууссан \\
 
 \shot{06-lockstep.png}{Lockstep горим: бодит thread-үүд Semaphore дээр WAITING}
 
-\section*{А9. Хязгаарлалт}\addcontentsline{toc}{section}{А9. Хязгаарлалт}
-\begin{tabularx}{\linewidth}{@{}>{\raggedright}p{0.36\linewidth}>{\raggedright}p{0.26\linewidth}Y@{}}
-\toprule
-Зүйл & Хязгаар & Шалтгаан \\
-\midrule
-Утга & int муж & Java \code{int} \\
-O(n²) алгоритм (insertion, bubble, selection) & n ≤ 20 000 (\code{--force}-оор давж болно) & Удаан ажиллахаас сэргийлнэ \\
-O(n log n) алгоритм (merge, quick) & n ≤ 1 000 000 & Санах ой, хугацаа \\
-\code{--trace}, O(n²) алгоритмтай & n ≤ 1 000 & Алхам бүр нэг event тул файл хэт томорно \\
-\code{--trace}, merge/quick & n ≤ 10 000 & Мөн адил \\
-Web UI, Replay & n ≤ 300 & Animation уншигдахуйц байх \\
-Web UI, Lockstep & n ≤ 100 & Алхам бүр серверт хүсэлт явуулна \\
-Зэрэг Lockstep session & 4 & 10 минут хөдөлгөөнгүй session автоматаар цуцлагдана \\
-\bottomrule
-\end{tabularx}
-
-\section*{А10. Түгээмэл алдаа ба шийдэл}\addcontentsline{toc}{section}{А10. Түгээмэл алдаа ба шийдэл}
+\section*{1.8 Түгээмэл алдаа ба шийдэл}\addcontentsline{toc}{section}{1.8 Түгээмэл алдаа ба шийдэл}
 \begin{longtable}{@{}>{\raggedright}p{0.40\linewidth}>{\raggedright}p{0.22\linewidth}>{\raggedright\arraybackslash}p{0.32\linewidth}@{}}
 \toprule
 Алдааны мессеж & Шалтгаан & Шийдэл \\
 \midrule\endhead
-\code{javac олдсонгүй} & JDK суугаагүй & А3-ыг үзнэ үү \\
+\code{javac олдсонгүй} & JDK суугаагүй & 1.3-р хэсгийг үзнэ үү \\
 \code{JDK 17+ хэрэгтэй, гэтэл одоогийн javac хувилбар: 11} & Хуучин Java PATH-д байна & macOS: \code{export JAVA\_HOME=}\newline\code{\$(/usr/libexec/java\_home -v 17)} \\
 \code{out/ олдсонгүй. Эхлээд ./build.sh ажиллуулна уу.} & Build хийгээгүй & \code{./build.sh} \\
 \code{Оролтын өгөгдөл өгөөгүй байна} & Оролтын эх үүсвэр алга & \code{--input}, \code{--file} эсвэл \code{--random} \\
@@ -457,31 +448,50 @@ zsh: \code{command not found: \#} & Командыг тайлбартай нь �
 
 \shot{07-error.png}{Буруу оролтын алдааны мессеж}
 
-% =====================================================================
-\clearpage
-\part*{Б хэсэг. Ашиглалтын (operational) заавар}
-\addcontentsline{toc}{part}{Б хэсэг. Ашиглалтын (operational) заавар}
+\section*{1.9 Хязгаарлалт}\addcontentsline{toc}{section}{1.9 Хязгаарлалт}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright}p{0.36\linewidth}>{\raggedright}p{0.26\linewidth}Y@{}}
+\toprule
+Зүйл & Хязгаар & Шалтгаан \\
+\midrule
+Утга & int муж & Java \code{int} \\
+O(n²) алгоритм (insertion, bubble, selection) & n ≤ 20 000 (\code{--force}-оор давж болно) & Удаан ажиллахаас сэргийлнэ \\
+O(n log n) алгоритм (merge, quick) & n ≤ 1 000 000 & Санах ой, хугацаа \\
+\code{--trace}, O(n²) алгоритмтай & n ≤ 1 000 & Алхам бүр нэг event тул файл хэт томорно \\
+\code{--trace}, merge/quick & n ≤ 10 000 & Мөн адил \\
+Web UI, Replay & n ≤ 300 & Animation уншигдахуйц байх \\
+Web UI, Lockstep & n ≤ 100 & Алхам бүр серверт хүсэлт явуулна \\
+Зэрэг Lockstep session & 4 & 10 минут хөдөлгөөнгүй session автоматаар цуцлагдана \\
+\bottomrule
+\end{tabularx}
 
-\section*{Б1. Repository татах}\addcontentsline{toc}{section}{Б1. Repository татах}
+\clearpage
+\section*{2. Operational заавар}\addcontentsline{toc}{part}{2. Operational заавар}
+
+\section*{2.1 Repository clone хийх}\addcontentsline{toc}{section}{2.1 Repository clone хийх}
 \begin{cmd}
 git clone https://github.com/Munkhgerelt/F.CSM302-TeamProject-2-4-6.git
 cd F.CSM302-TeamProject-2-4-6
 \end{cmd}
 
-\section*{Б2. Туршсан орчин}\addcontentsline{toc}{section}{Б2. Туршсан орчин}
+\section*{2.2 OS, compiler/runtime, хувилбар}\addcontentsline{toc}{section}{2.2 OS, compiler/runtime, хувилбар}
 \begin{tabularx}{\linewidth}{@{}>{\raggedright}p{0.24\linewidth}>{\raggedright}p{0.27\linewidth}>{\raggedright}p{0.25\linewidth}Y@{}}
 \toprule
 Орчин & OS & JDK & Үр дүн \\
 \midrule
 Багийн гишүүний компьютер & macOS 27 (Apple Silicon, aarch64), 10 цөм & Eclipse Temurin 17.0.21+9 & Build OK, тест 100/100 \\
 Хөгжүүлэлтийн Linux контейнер & Ubuntu 24.04 (amd64), 2 цөм & OpenJDK 21 (\code{--release 17}) & Build OK, тест 100/100 \\
-Windows & Туршаагүй & & Б8 \\
+Windows & Туршаагүй & & 2.9 \\
 \bottomrule
 \end{tabularx}
 
 \code{build.sh} нь \code{javac --release 17} ашигладаг. Тиймээс JDK 21 дээр build хийсэн ч Java 17-д ажиллах код гарна.
 
-\section*{Б3. Build ба ажиллуулах}\addcontentsline{toc}{section}{Б3. Build ба ажиллуулах}
+\section*{2.3 Dependency суулгах}\addcontentsline{toc}{section}{2.3 Dependency суулгах}
+Програм нь гадны ямар ч сан ашигладаггүй тул зөвхөн JDK 17 буюу түүнээс дээш хувилбар хэрэгтэй (1.3-р хэсэг).
+Maven, Gradle, npm, JUnit суулгах шаардлагагүй. Web UI нь JDK-д багтсан \code{com.sun.net.httpserver}-ийг ашигладаг
+тул тусдаа web сервер ч хэрэггүй.
+
+\section*{2.4 Build ба Run}\addcontentsline{toc}{section}{2.4 Build ба Run}
 \begin{tabularx}{\linewidth}{@{}lYY@{}}
 \toprule
 Үйлдэл & macOS / Linux & Windows \\
@@ -501,7 +511,7 @@ Web UI & \code{./run.sh --web} & \code{run.bat --web} \\
 \end{enumerate}
 \code{out/}, \code{out-test/} хавтас, \code{.class} файлууд нь \code{.gitignore}-д орсон тул commit хийгдэхгүй.
 
-\section*{Б4. Тестийн өгөгдөл}\addcontentsline{toc}{section}{Б4. Тестийн өгөгдөл}
+\section*{2.5 Үндсэн тестийн өгөгдөл}\addcontentsline{toc}{section}{2.5 Үндсэн тестийн өгөгдөл}
 \begin{tabularx}{\linewidth}{@{}>{\ttfamily}l>{\raggedright}p{0.27\linewidth}Y@{}}
 \toprule
 \normalfont Файл (\code{examples/}) & Агуулга & Хүлээгдэх үр дүн \\
@@ -520,7 +530,7 @@ empty.txt & Зөвхөн тайлбар & Алдаа, exit code 2 \\
 
 Санамсаргүй өгөгдлийг \code{--random N --seed S --pattern P} сонголтоор давтагдахуйц үүсгэнэ.
 
-\section*{Б5. Автомат тест}\addcontentsline{toc}{section}{Б5. Автомат тест}
+\section*{2.6 Автомат тест ба хүлээгдсэн үр дүн}\addcontentsline{toc}{section}{2.6 Автомат тест ба хүлээгдсэн үр дүн}
 \begin{cmd}
 ./test.sh
 \end{cmd}
@@ -552,7 +562,7 @@ Lockstep & 5 & WAITING, 1 permit = 1 үйлдэл, L/R ээлжлэх, дуус�
 \bottomrule
 \end{tabularx}
 
-\section*{Б6. Захын ба алдааны тохиолдлыг гараар шалгах}\addcontentsline{toc}{section}{Б6. Захын ба алдааны тохиолдлыг гараар шалгах}
+\section*{2.7 Нэмэлт boundary ба error тест}\addcontentsline{toc}{section}{2.7 Нэмэлт boundary ба error тест}
 Exit code-ийг \code{echo \$?} (Windows: \code{echo \%errorlevel\%})-ээр харна.
 
 \begin{longtable}{@{}>{\raggedright\ttfamily\small}p{0.50\linewidth}>{\raggedright}p{0.38\linewidth}c@{}}
@@ -579,7 +589,7 @@ Exit code-ийг \code{echo \$?} (Windows: \code{echo \%errorlevel\%})-ээр х
 \bottomrule
 \end{longtable}
 
-\section*{Б7. Event trace (JSON)}\addcontentsline{toc}{section}{Б7. Event trace (JSON)}
+\section*{2.8 Event trace (JSON)}\addcontentsline{toc}{section}{2.8 Event trace (JSON)}
 \begin{cmd}
 ./run.sh --file examples/book-example.txt --algo-left insertion --algo-right quick --trace book.trace.json
 \end{cmd}
@@ -616,7 +626,7 @@ MW & Merger & \code{result[a] = list[b]}, \code{c} = бичсэн утга \\
 Trace-ийн event-үүдийг эх жагсаалт дээр дахин хэрэглэвэл (replay) бодит \code{result[]} яг гарч ирдэг.
 Үүнийг автомат тест шалгадаг.
 
-\section*{Б8. Мэдэгдэж буй асуудал}\addcontentsline{toc}{section}{Б8. Мэдэгдэж буй асуудал}
+\section*{2.9 Known issues (мэдэгдэж буй асуудал)}\addcontentsline{toc}{section}{2.9 Known issues (мэдэгдэж буй асуудал)}
 \begin{enumerate}
   \item \textbf{Windows скрипт туршаагүй.} \code{build.bat}, \code{run.bat}, \code{test.bat}-ийг бодит Windows машин
         дээр ажиллуулж үзээгүй. Асуудал гарвал Command Prompt дээр гараар build хийж болно (хавтасны замд зай
@@ -640,7 +650,7 @@ java -Dfile.encoding=UTF-8 -cp out sorting.Main --web
   \item \textbf{Web сервер зөвхөн локал.} \code{127.0.0.1} дээр сонсдог тул өөр компьютерээс нээгдэхгүй (зориуд ингэсэн).
 \end{enumerate}
 
-\section*{Б9. Файлын бүтэц}\addcontentsline{toc}{section}{Б9. Файлын бүтэц}
+\section*{2.10 Файлын бүтэц}\addcontentsline{toc}{section}{2.10 Файлын бүтэц}
 \begin{cmd}
 F.CSM302-TeamProject-2-4-6/
 |-- README.md
@@ -662,7 +672,16 @@ F.CSM302-TeamProject-2-4-6/
 `-- report/                      LaTeX тайлан
 \end{cmd}
 
+\section*{2.11 Нөөц ба эх сурвалж}\addcontentsline{toc}{section}{2.11 Нөөц ба эх сурвалж}
+\begin{itemize}
+  \item Repository: \url{https://github.com/Munkhgerelt/F.CSM302-TeamProject-2-4-6}
+  \item Тайлан: \code{report/main.pdf}; тестийн үр дүн: \code{tests/results/test-results.md}; хэмжилт: \code{tests/results/benchmark.md}
+  \item A. Silberschatz, P. B. Galvin, G. Gagne. \emph{Operating System Concepts}, 10th ed., Wiley, 2018, Chapter~4
+  \item Java SE 17 API: \url{https://docs.oracle.com/en/java/javase/17/docs/api/}
+  \item Temurin JDK: \url{https://adoptium.net}
+\end{itemize}
+
 \vfill
-\small\emph{Энэ гарын авлагын нооргийг Claude (AI) ашиглан бэлтгэсэн. Багийн гишүүд уншиж, командуудыг ажиллуулж шалгасан.}
+\small\emph{Энэ гарын авлагын нооргийг Claude хиймэл оюун ухаан ашиглан бэлтгэсэн. Багийн гишүүд уншиж, командуудыг ажиллуулж шалгасан.}
 
 \end{document}

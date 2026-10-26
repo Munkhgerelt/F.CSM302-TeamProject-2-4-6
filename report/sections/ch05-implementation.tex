@@ -1,0 +1,54 @@
+% !TEX root = ../main.tex
+\chapter{Хэрэгжилт}\label{ch:impl}
+
+\section{Хэл, сан, орчин}
+Java 17 (\code{javac --release 17}) дээр зөвхөн стандарт сан ашиглан бичсэн. Thread-д \code{java.lang.Thread},
+Lockstep-д \code{java.util.concurrent.Semaphore}, web серверт JDK-д багтсан \code{com.sun.net.httpserver},
+UI-д framework-гүй HTML/CSS/JavaScript (\code{<canvas>}) ашигласан. Maven, Gradle, JUnit хэрэглээгүй.
+Build, ажиллуулах, тест, хэмжилтийг \code{build.sh}, \code{run.sh}, \code{test.sh}, \code{bench.sh} скриптүүд
+(Windows: \code{.bat}) хийнэ.
+
+\section{Parent, sorting ба merging thread}
+Parent-ийн логик (Код~\ref{lst:parent}) номын тайлбарыг шууд дагадаг: хуваах, хоёр sorter-ийг эхлүүлэх,
+хоёуланг нь хүлээх, merger-ийг эхлүүлэх, хүлээх.
+
+\begin{lstlisting}[caption={Parent thread (\code{MultithreadedSorter.sort}, trace ба gate-ийн мөрийг товчлов)},label={lst:parent}]
+int mid = (n + 1) / 2;                          // ceil(n/2)
+SharedData data = new SharedData(input);        // list[] and result[]
+SortingThread left  = new SortingThread(data, new SortParams("Sorter-L", 0, mid, la, leftAlgo), ...);
+SortingThread right = new SortingThread(data, new SortParams("Sorter-R", mid, n, ra, rightAlgo), ...);
+left.start();  right.start();
+left.join();   right.join();
+MergingThread merger = new MergingThread(data, new MergeParams("Merger", 0, mid, n), ...);
+merger.start();
+merger.join();
+return new SortResult(input.clone(), data.result, mid, left, right, merger, sortPhase, total);
+\end{lstlisting}
+
+\code{SortingThread.run()} нь параметрээр авсан \code{[startIndex, endIndex)} мужийг сонгосон алгоритмаар
+эрэмбэлнэ. \code{MergingThread} нь зүүн хэсгийн заагч \code{i}, баруун хэсгийн заагч \code{j}-ийг харьцуулж багыг
+нь \code{result[k]}-д бичнэ (тэнцүү үед зүүнийхийг авна). Thread дотор алдаа гарвал тэр нь parent руу автоматаар
+дамжихгүй тул thread бүр алдааг хадгалж, parent join хийсний дараа шалгадаг.
+
+Алгоритмууд массивт шууд хандахын оронд \code{Ops} объектын \code{compare}, \code{swap}, \code{set} аргуудыг
+дууддаг. Thread бүр өөрийн \code{Ops}-той тул үйлдлийн тоолуурт lock хэрэггүй. Trace асаалттай бол үйлдэл бүрийг
+event болгон бүртгэж, Lockstep горимд үйлдэл бүрийн өмнө permit хүлээнэ. Хоёулаа унтраалттай үед энэ нь ердийн
+массивын хандалт болно.
+
+\section{Оролт ба event trace}
+\code{InputParser} нь таслал, зай, шинэ мөрөөр тусгаарласан утга бүрийг бүхэл, бутархай, тоо биш гэж ангилж,
+\code{int} мужийг шалгана. Алдааны мессеж байрлалыг нэрлэнэ (жишээ: “3-р утга 'abc' нь бүхэл тоо биш.”).
+\code{Limits} нь \ref{sec:limits}-р хэсгийн хязгаарыг шалгаж, сондгой $n$-ийн үед тэмдэглэл гаргана. Оролтын
+алдаанд CLI exit code 2, амжилттай үед 0 буцаана.
+
+\code{TraceRecorder} нь event бүрт \code{AtomicLong}-оос дэс дугаар өгч, lock-гүй дараалалд нэмнэ. Event нь
+\code{\{seq, t, th, type, a, b, c\}} бүтэцтэй (\code{CMP}, \code{SWP}, \code{SET}, \code{MCMP}, \code{MW},
+\code{START}, \code{JOIN} гэх мэт) бөгөөд \code{--trace FILE}-аар JSON болгон хадгална. Хоосон талбарын
+тэмдэглэгээг эхэндээ \code{Integer.MIN\_VALUE} гэж сонгосон нь бодит утгатай давхцаж байсан тул \code{long} талбар
+ба \code{Long.MIN\_VALUE} болгож зассан.
+
+\section{GitHub ба эх код}
+Эх код \url{\RepoURL} хаягт байрладаг. Ажлыг 11 үе шатад хувааж, үе шат бүрийн төгсгөлд зөвхөн
+хэрэгтэй файлыг сонгон Монгол мессежтэй commit хийсэн. Build-ийн файлуудыг \code{.gitignore}-оор хассан.
+Repository-д \code{src/} (код), \code{tests/} (тест, хэмжилт, үр дүнгийн хүснэгт), \code{examples/} (тестийн
+өгөгдөл), \code{docs/} (гарын авлага), \code{report/} (тайлан) хавтас байна.

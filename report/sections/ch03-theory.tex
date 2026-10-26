@@ -1,0 +1,51 @@
+% !TEX root = ../main.tex
+\chapter{Онолын үндэс}\label{ch:theory}
+
+\section{Thread ба зэрэгцээ ажиллагаа}
+Thread бол CPU-г ашиглах үндсэн нэгж бөгөөд өөрийн регистр, программ тоолуур, stack-тай. Нэг процессын
+thread-үүд code, data хэсэг болон нээлттэй файлаа хуваалцдаг~\cite[4.1]{osc10}. Иймээс манай хоёр sorting thread
+ба merging thread нэг процессын хоёр массивт шууд ханддаг. \emph{Concurrency} нь хэд хэдэн ажил зэрэг урагшлахыг,
+\emph{parallelism} нь тэдгээр бодитоор өөр өөр цөм дээр нэгэн агшинд гүйцэтгэгдэхийг хэлнэ~\cite[4.2]{osc10}.
+Хоёр sorter ижил үйлдлийг өгөгдлийн хоёр хэсэг дээр хийдэг тул энэ нь \emph{өгөгдлийн зэрэгцээ} юм. Parent
+thread хүүхэд thread-үүдийг үүсгэж (fork), дуусахыг нь хүлээж (join), дараа нь нэгтгэдэг загварыг
+\emph{fork--join} гэнэ~\cite[4.5.2]{osc10}.
+
+\section{Амдалын хууль}
+Програмын дараалсан хэсгийн эзлэх хувийг $S$, цөмийн тоог $N$ гэвэл хамгийн их хурдсалт~\cite{amdahl67}
+\begin{equation}
+  \text{speedup} \le \frac{1}{S + (1-S)/N}.
+  \label{eq:amdahl}
+\end{equation}
+Манай төсөлд нэгтгэх үе дан thread-ээр явдаг тул $S > 0$ бөгөөд $N = 2$ үед ч хурдсалт 2-т хүрэхгүй.
+
+\section{Java дахь thread ба синхрончлол}
+Java-д thread-ийг \code{java.lang.Thread}-ээр төлөөлнө. \code{start()} нь шинэ native thread үүсгэж \code{run()}-ийг
+тэнд ажиллуулна, \code{join()} нь тухайн thread дуустал хүлээнэ. Энэ нь Pthreads-ийн \code{pthread\_create},
+\code{pthread\_join}-той дүйцнэ~\cite[4.4]{osc10}. Thread-ийн төлөвийг \code{Thread.getState()} буцаана
+(\code{NEW}, \code{RUNNABLE}, \code{WAITING}, \code{TERMINATED} гэх мэт)~\cite{javadoc-thread}.
+
+Java Memory Model-ийн \emph{happens-before} дүрмээр \code{t.start()}-ийн өмнө parent-ийн хийсэн бүх зүйл thread
+\code{t}-д харагдана. Мөн \code{t}-ийн хийсэн бүх зүйл \code{t.join()} буцсаны дараа parent-д харагдана~\cite{jls17,goetz}.
+Энэ хоёр дүрэм манай шийдлийн зөв байдлын үндэс болдог (\ref{sec:nolock}-р хэсэг).
+
+Semaphore нь \code{acquire()} (тоолуур 0 бол хүлээнэ) ба \code{release()} гэсэн хоёр атомар үйлдэлтэй тоолуур юм~\cite[6.6]{osc10}.
+\code{new Semaphore(0, true)} гэж \emph{fair} горимоор үүсгэвэл хамгийн удаан хүлээсэн thread түрүүлж permit авна~\cite{javadoc-semaphore}.
+
+\section{Эрэмбэлэх алгоритмууд}
+\begin{table}[H]
+\centering\small
+\caption{Хэрэгжүүлсэн алгоритмууд~\cite{clrs,hoare62}}\label{tab:algos}
+\begin{tabularx}{\linewidth}{@{}lllY@{}}
+\toprule
+Алгоритм & Дундаж & Муу & Онцлог \\
+\midrule
+Insertion & $O(n^2)$ & $O(n^2)$ & Хөрш элементүүдийг сольж байрлуулна \\
+Bubble & $O(n^2)$ & $O(n^2)$ & Солилт хийгээгүй бол эрт зогсоно \\
+Selection & $O(n^2)$ & $O(n^2)$ & Хамгийн багыг олж нэг солилтоор байрлуулна \\
+Merge & $O(n\log n)$ & $O(n\log n)$ & Top-down, туслах буфертэй, тогтвортой \\
+Quick & $O(n\log n)$ & $O(n^2)$ & Hoare partition, дунд pivot, stack $O(\log n)$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+Хоёр эрэмбэлэгдсэн хэсгийг нэгтгэх нь хоёр заагчтай $O(n)$ алгоритм бөгөөд тэнцүү үед зүүн хэсгийнхийг авснаар
+тогтвортой болно~\cite{clrs}.

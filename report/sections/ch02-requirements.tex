@@ -1,0 +1,40 @@
+% !TEX root = ../main.tex
+\chapter{Сурах бичгийн шаардлага}\label{ch:req}
+
+\section{Номын үндсэн шаардлага}
+Бүхэл тоон жагсаалтыг ижил хэмжээтэй хоёр хэсэгт хувааж, хоёр тусдаа thread тус бүр нэг хэсгийг дурын алгоритмаар
+эрэмбэлнэ. Гурав дахь thread хоёр хэсгийг эх массивтай ижил хэмжээтэй хоёр дахь global массив руу нэгтгэнэ.
+Parent thread бүх sorting thread дуусахыг хүлээж, дараа нь merging thread-ийг эхлүүлж, түүнийг дуустал хүлээгээд
+үр дүнг хэвлэнэ. Thread бүрд эрэмбэлэх хэсгийн эхлэх индекс зэрэг параметрийг дамжуулна~\cite[Ch.~4, Programming Projects]{osc10}.
+
+\section{Нэмэлт шаардлага}
+Сэдвийн хуваарилалтаар \emph{Sorting animation} нэмэгдсэн: дүрслэл нь бодит thread-тэй холбоотой байж, хэмжээ ба
+утгыг өөрчлөх, Run / Step / Pause / Reset, хурдны удирдлагатай байна. Мөн багшийн заавраар гарын авлага, тайлан,
+GitHub repository шаардлагатай. Баг өөрөө оролтын бүрэн шалгалт (хоосон, тоо биш, хэт том утга, $n = 0\dots3$,
+давхардал, сондгой $n$) болон зөвхөн стандарт сан ашиглах шаардлагыг тавьсан.
+
+\section{Шаардлагын хангалт}
+\begin{table}[H]
+\centering\small
+\caption{Номын шаардлага ба хэрэгжүүлэлт}\label{tab:req}
+\begin{tabularx}{\linewidth}{@{}YY@{}}
+\toprule
+Шаардлага & Хэрэгжүүлэлт \\
+\midrule
+Жагсаалтыг хоёр хуваах & \code{splitIndex(n)} $=\lceil n/2\rceil$; зүүн \code{[0, mid)}, баруун \code{[mid, n)} \\
+Хоёр sorting thread & \code{SortingThread extends Thread}; 5 алгоритмаас хэсэг тус бүрд сонгоно \\
+Global жагсаалт ба хоёр дахь массив & \code{SharedData.list}, \code{SharedData.result = new int[n]} \\
+Merging thread & \code{MergingThread}: хоёр заагчтай, тогтвортой нэгтгэл \\
+Parent хүлээгээд нэгтгэнэ & \code{left.join(); right.join(); merger.start(); merger.join();} \\
+Параметр дамжуулах & \code{SortParams(name, startIndex, endIndex, algorithm)}, \code{MergeParams} \\
+Үр дүн хэвлэх & Үр дүн, thread бүрийн статистик, \code{Arrays.sort}-той харьцуулсан шалгалт \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Номын жишээ ба сондгой $n$}
+Номын жишээ \code{7, 12, 19, 3, 18, 4, 2, 6, 15, 8}-ийн хоёр хэсэг \code{3 7 12 18 19 | 2 4 6 8 15} болж эрэмбэлэгдээд,
+\code{2 3 4 6 7 8 12 15 18 19} гэж нэгтгэгдэнэ. Номд хэсгүүдийг “ижил хэмжээтэй” гэсэн ч сондгой $n$ үед энэ
+боломжгүй. Бид сондгой $n$-ийг алдаа гэж үзэхийн оронд хэсгүүдийг $\lceil n/2\rceil$ ба $\lfloor n/2\rfloor$ болгосон.
+Нэгтгэх алгоритм тэнцүү хэмжээ шаарддаггүй бөгөөд ялгаа нь ердөө 1 элемент юм. $n = 1$ үед баруун хэсэг хоосон
+байх ч номын бүтцийг хадгалж Sorter-R thread ажиллаад шууд дуусна.
