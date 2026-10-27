@@ -134,7 +134,11 @@ function seek(target) {
 // ----------------------------------------------------------------- drawing
 function setupCanvas(cv) {
   const dpr = window.devicePixelRatio || 1;
-  const w = cv.clientWidth, h = Number(cv.getAttribute('height'));
+  // The CSS height comes from the HTML height attribute, read once: cv.height below
+  // overwrites that attribute with the pixel size, which on HiDPI screens (dpr = 2)
+  // would otherwise double the canvas on every render.
+  if (cv._baseH === undefined) cv._baseH = Number(cv.getAttribute('height'));
+  const w = cv.clientWidth, h = cv._baseH;
   if (cv.width !== Math.round(w * dpr) || cv._h !== h) {
     cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cv._h = h;
     cv.style.height = h + 'px';
