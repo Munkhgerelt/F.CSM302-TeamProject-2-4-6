@@ -22,11 +22,11 @@
 \setmainfont{\mainfam}
 \setsansfont{\sansfam}
 \setmonofont{\monofam}[Scale=0.86]
-\newfontfamily\cyrillicfont{\mainfam}
-\newfontfamily\cyrillicfontsf{\sansfam}
+\newfontfamily\cyrillicfont{\mainfam}[Ligatures=TeX]
+\newfontfamily\cyrillicfontsf{\sansfam}[Ligatures=TeX]
 \newfontfamily\cyrillicfonttt{\monofam}[Scale=0.86]
 
-\usepackage[hmargin=2cm,vmargin=1.8cm]{geometry}
+\usepackage[hmargin=2cm,vmargin=1.5cm]{geometry}
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{booktabs}
@@ -209,27 +209,26 @@ git clone https://github.com/Munkhgerelt/F.CSM302-TeamProject-2-4-6.git
 cd F.CSM302-TeamProject-2-4-6
 \end{cmd}
 
-\msub{Runtime ба хувилбар}
-\code{javac -version} нь 17 буюу түүнээс дээш байна (\code{build.sh} нь \code{javac --release 17} ашигладаг).
-Туршсан орчин: macOS 27 + Temurin 17.0.21, Ubuntu 24.04 + OpenJDK 21.
+\msub{OS, compiler/runtime, хувилбар}
+JDK 17 буюу түүнээс дээш (\code{javac -version}); \code{build.sh} нь \code{javac --release 17} ашигладаг.
+Туршсан орчин: macOS 27 (Apple Silicon) + Temurin 17.0.21, Ubuntu 24.04 (amd64) + OpenJDK 21.
 
-\msub{Dependency суулгах, build ба run}
-Гадны dependency байхгүй, Web сервер нь JDK-д багтсан \code{com.sun.net.httpserver}. Скрипт ажиллахгүй бол
-\code{chmod +x *.sh} хийнэ.
+\msub{Dependency суулгах}
+Гадны dependency байхгүй: зөвхөн JDK хэрэгтэй. Web сервер нь JDK-д багтсан \code{com.sun.net.httpserver}.
+
+\msub{Build ба Run команд}
 \begin{cmd}
 ./build.sh && ./run.sh --file examples/book-example.txt
 ./run.sh --web
 \end{cmd}
-Windows: \code{build.bat}, \code{run.bat --web}. Хөрвүүлсэн файлууд \code{out/}-д гарна (commit хийгдэхгүй).
+Windows: \code{build.bat}, \code{run.bat --web}. Скрипт ажиллахгүй бол \code{chmod +x *.sh}. Хөрвүүлсэн
+файлууд \code{out/}-д гарна (commit хийгдэхгүй).
 
-\msub{Алгоритмын тест ажиллуулах}
-\code{tests/TestRunner.java} нь JUnit биш, \code{main()}-тэй бие даасан тестийн runner (100 тест).
-Командууд: \code{./test.sh} (тест), \code{./bench.sh} (1 thread ба 3 thread-ийн хугацааны харьцуулалт).
-Windows: \code{test.bat}, \code{bench.bat}.
-
-\msub{Хүлээгдсэн үр дүн}
-\code{Нийт: 100, амжилттай: 100, алдаатай: 0}. Тест бүрийн оролт, хүлээгдсэн ба бодит утга
-\code{tests/results/test-results.md}-д, хэмжилт \code{tests/results/benchmark.md}-д бичигдэнэ.
+\msub{Үндсэн тестийн өгөгдөл}
+\code{examples/} хавтас: \code{book-example.txt} (номын жишээ), \code{odd-11.txt}, \code{duplicates.txt},
+\code{reversed.txt}, \code{int-limits.txt}, \code{single.txt}; алдаатай: \code{invalid-letters.txt},
+\code{invalid-overflow.txt}, \code{empty.txt}. Автомат тест: \code{./test.sh} (Windows: \code{test.bat}),
+JUnit-гүй 100 тест (\code{tests/TestRunner.java}). Хугацааны хэмжилт: \code{./bench.sh}.
 
 \msub{Нэмэлт boundary/error тест}
 \begin{itemize}
@@ -239,7 +238,12 @@ Windows: \code{test.bat}, \code{bench.bat}.
   \item Алдаатай оролт: \code{--input ""}, \code{--input "5,3,abc"}, \code{--input "1,2.5"} → алдааны мессеж, exit code 2.
 \end{itemize}
 
-\msub{Known issues / анхаарах зүйл}
+\msub{Хүлээгдсэн үр дүн}
+Номын жишээ: \code{[2, 3, 4, 6, 7, 8, 12, 15, 18, 19]}, \code{Шалгалт: ЗӨВ}, exit code 0. Автомат тест:
+\code{Нийт: 100, амжилттай: 100, алдаатай: 0}. Тест бүрийн оролт, хүлээгдсэн ба бодит утга
+\code{tests/results/test-results.md}-д, хэмжилт \code{tests/results/benchmark.md}-д бичигдэнэ.
+
+\msub{Known issues}
 \begin{itemize}
   \item Windows-ийн \code{.bat} скриптийг бодит Windows машин дээр туршаагүй.
   \item n бага үед хугацааны хэмжилт шуугиантай (JIT, thread үүсгэх зардал); trace-тэй ажиллалт удаан.
@@ -247,12 +251,8 @@ Windows: \code{test.bat}, \code{bench.bat}.
 \end{itemize}
 
 \msub{Нөөц ба эх сурвалж}
-\begin{itemize}
-  \item Repository: \url{https://github.com/Munkhgerelt/F.CSM302-TeamProject-2-4-6}
-  \item A. Silberschatz, P. B. Galvin, G. Gagne. \emph{Operating System Concepts}, 10th ed., Chapter~4.
-  \item Java SE 17 API: \url{https://docs.oracle.com/en/java/javase/17/docs/api/}
-  \item Temurin JDK: \url{https://adoptium.net}
-\end{itemize}
+Silberschatz, Galvin, Gagne. \emph{Operating System Concepts}, 10th ed., Ch.~4;
+Java SE 17 API: \url{https://docs.oracle.com/en/java/javase/17/docs/api/}; Temurin JDK: \url{https://adoptium.net}.
 
 {\small\emph{Энэ гарын авлагын нооргийг Claude хиймэл оюун ухаан ашиглан бэлтгэсэн; багийн гишүүд уншиж шалгасан.}}
 

@@ -113,28 +113,26 @@ git clone https://github.com/Munkhgerelt/F.CSM302-TeamProject-2-4-6.git
 cd F.CSM302-TeamProject-2-4-6
 ```
 
-### Runtime ба хувилбар
+### OS, compiler/runtime, хувилбар
 
-`javac -version` нь 17 буюу түүнээс дээш байна (`build.sh` нь `javac --release 17` ашигладаг). Туршсан орчин: macOS 27 + Temurin 17.0.21, Ubuntu 24.04 + OpenJDK 21.
+JDK 17 буюу түүнээс дээш (`javac -version`); `build.sh` нь `javac --release 17` ашигладаг. Туршсан орчин: macOS 27 (Apple Silicon) + Temurin 17.0.21, Ubuntu 24.04 (amd64) + OpenJDK 21.
 
-### Dependency суулгах, build ба run
+### Dependency суулгах
 
-Гадны dependency байхгүй, Web сервер нь JDK-д багтсан `com.sun.net.httpserver`. Скрипт ажиллахгүй бол `chmod +x *.sh` хийнэ.
+Гадны dependency байхгүй: зөвхөн JDK хэрэгтэй. Web сервер нь JDK-д багтсан `com.sun.net.httpserver`.
+
+### Build ба Run команд
 
 ```
 ./build.sh && ./run.sh --file examples/book-example.txt
 ./run.sh --web
 ```
 
-Windows: `build.bat`, `run.bat --web`. Хөрвүүлсэн файлууд `out/`-д гарна (commit хийгдэхгүй).
+Windows: `build.bat`, `run.bat --web`. Скрипт ажиллахгүй бол `chmod +x *.sh`. Хөрвүүлсэн файлууд `out/`-д гарна (commit хийгдэхгүй).
 
-### Алгоритмын тест ажиллуулах
+### Үндсэн тестийн өгөгдөл
 
-`tests/TestRunner.java` нь JUnit биш, `main()`-тэй бие даасан тестийн runner (100 тест). Командууд: `./test.sh` (тест), `./bench.sh` (1 thread ба 3 thread-ийн хугацааны харьцуулалт). Windows: `test.bat`, `bench.bat`.
-
-### Хүлээгдсэн үр дүн
-
-`Нийт: 100, амжилттай: 100, алдаатай: 0`. Тест бүрийн оролт, хүлээгдсэн ба бодит утга [tests/results/test-results.md](../tests/results/test-results.md)-д, хэмжилт [tests/results/benchmark.md](../tests/results/benchmark.md)-д бичигдэнэ.
+`examples/` хавтас: `book-example.txt` (номын жишээ), `odd-11.txt`, `duplicates.txt`, `reversed.txt`, `int-limits.txt`, `single.txt`; алдаатай: `invalid-letters.txt`, `invalid-overflow.txt`, `empty.txt`. Автомат тест: `./test.sh` (Windows: `test.bat`), JUnit-гүй 100 тест (`tests/TestRunner.java`). Хугацааны хэмжилт: `./bench.sh`.
 
 ### Нэмэлт boundary/error тест
 
@@ -143,7 +141,11 @@ Windows: `build.bat`, `run.bat --web`. Хөрвүүлсэн файлууд `out/
 - Хязгаар: `--file examples/int-limits.txt` → `-2147483648` ба `2147483647` зөв байрлана.
 - Алдаатай оролт: `--input ""`, `--input "5,3,abc"`, `--input "1,2.5"` → алдааны мессеж, exit code 2.
 
-### Known issues / анхаарах зүйл
+### Хүлээгдсэн үр дүн
+
+Номын жишээ: `[2, 3, 4, 6, 7, 8, 12, 15, 18, 19]`, `Шалгалт: ЗӨВ`, exit code 0. Автомат тест: `Нийт: 100, амжилттай: 100, алдаатай: 0`. Тест бүрийн оролт, хүлээгдсэн ба бодит утга [tests/results/test-results.md](../tests/results/test-results.md)-д, хэмжилт [tests/results/benchmark.md](../tests/results/benchmark.md)-д бичигдэнэ.
+
+### Known issues
 
 - Windows-ийн `.bat` скриптийг бодит Windows машин дээр туршаагүй.
 - n бага үед хугацааны хэмжилт шуугиантай (JIT, thread үүсгэх зардал); trace-тэй ажиллалт удаан.
@@ -151,7 +153,6 @@ Windows: `build.bat`, `run.bat --web`. Хөрвүүлсэн файлууд `out/
 
 ### Нөөц ба эх сурвалж
 
-- Repository: https://github.com/Munkhgerelt/F.CSM302-TeamProject-2-4-6
 - A. Silberschatz, P. B. Galvin, G. Gagne. *Operating System Concepts*, 10th ed., Chapter 4.
 - Java SE 17 API: https://docs.oracle.com/en/java/javase/17/docs/api/
 - Temurin JDK: https://adoptium.net

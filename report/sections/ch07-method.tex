@@ -33,7 +33,8 @@ Lockstep & 5 & \code{WAITING}, 1 permit = 1 үйлдэл, ээлжлэх, цуц
 Тест нь зөвхөн үр дүнг биш, номын дотоод нөхцлийг ч шалгадаг. Trace-ийн бүх event-ээр Sorter-L нь
 \code{[0, mid)}-ээс, Sorter-R нь \code{[mid, n)}-ээс гадуур хандаагүйг баталсан. Мөн merger хоёр sorter дууссаны дараа
 эхэлснийг 100 удаа шалгасан. Lockstep-ийн тестийг 30 удаа дараалан болон нэг цөм дээр (\code{taskset -c 0}) ажиллуулсан.
-Web UI-г Playwright (Chromium)-оор автоматаар шалгаж, JavaScript алдаа 0 байгааг баталсан.
+Web UI-г хөгжүүлэлтийн явцад Playwright (Chromium)-оор дэлгэцийн 1, 1.5, 2 масштабтай автоматаар шалгаж,
+JavaScript алдаа 0 байгааг баталсан.
 
 \section{Хугацааны хэмжилтийн арга}
 \code{tests/Benchmark.java} (\code{./bench.sh}) нь гурван хувилбарыг харьцуулна: \emph{1 thread} (нэг thread бүх массивыг
