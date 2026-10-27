@@ -400,7 +400,7 @@ function renderLiveSummary() {
   const t = app.trace, r = app.response, L = app.live;
   const preview = (a) => (a.length <= 30 ? a.join(', ') : a.slice(0, 15).join(', ') + ', …, ' + a.slice(-5).join(', '));
   const rows = [
-    ['Горим', 'Lockstep: thread-үүд амьд, үйлдэл бүрийн өмнө permit хүлээнэ'],
+    ['Горим', 'Lockstep: thread-үүд үйлдэл бүрийн өмнө зогсож, зөвшөөрөл хүлээнэ'],
     ['Өгөгдөл', escapeHtml(r.source)],
     ['Оролт', preview(t.input)],
     ['Олгосон алхам', String(L.consumed) + ' (compare/swap/write)'],
@@ -434,7 +434,7 @@ function frame(ts) {
   }
   if (app.pos >= app.trace.events.length) {
     app.playing = false;
-    setStatus('Тоглуулж дууслаа. “Ажиллуулах” дахин дарвал thread-үүд шинээр ажиллаж, шинэ trace гарна.', 'ok');
+    setStatus('Тоглуулж дууслаа. Үр дүнг доорх “Үр дүн” хэсгээс харна уу. “Ажиллуулах” дахин дарвал шинэ ажиллалт эхэлнэ.', 'ok');
     render();
     return;
   }
@@ -495,7 +495,7 @@ function absorbLive(st) {
   seek(app.trace.events.length);
   if (L.finished) {
     app.playing = false;
-    setStatus(L.error ? 'Session зогслоо: ' + L.error : 'Дууслаа. Бүх thread TERMINATED. Үр дүн зөв эсэхийг баруун талд харна уу.', L.error ? '' : 'ok');
+    setStatus(L.error ? 'Session зогслоо: ' + L.error : 'Бүх thread TERMINATED. Үр дүн ба шалгалтыг доорх “Үр дүн” хэсгээс харна уу.', L.error ? '' : 'ok');
     render();
   }
 }
@@ -551,7 +551,7 @@ async function startLive() {
   if (!st.ok) throw new Error(st.error);
   absorbLive(st);
   $('btnReset').disabled = false;
-  setStatus('Lockstep: thread-үүд эхэлж, Semaphore дээр зогсож байна. “Алхам ▸” бүр нэг үйлдлийг зөвшөөрнө.', 'ok');
+  setStatus('Lockstep: thread-үүд эхэлж, анхны үйлдлийнхээ өмнө зогсож байна. “Алхам ▸” дарах бүрд нэг thread нэг үйлдэл хийнэ.', 'ok');
 }
 
 // ----------------------------------------------------------------- server calls
@@ -575,8 +575,8 @@ function applyModeLimits() {
   $('n').max = String(max);
   if (Number($('n').value) > max) $('n').value = String(max);
   $('modeHint').textContent = live
-    ? 'Lockstep: Java thread-үүд амьд байж, compare/swap/write бүрийн өмнө Semaphore permit хүлээнэ. “Алхам ▸” серверт нэг permit өгнө. n ≤ ' + max + '. Хойш алхах боломжгүй.'
-    : 'Replay: Java дээр жинхэнэ 3 thread ажиллаж дуусаад, бүртгэсэн event-үүдийг энд урагш, хойш тоглуулна. n ≤ ' + max + '.';
+    ? 'Lockstep: Java thread-үүд дуусалгүй, үйлдэл бүрийн өмнө зогсож хүлээнэ. “Алхам ▸” бүрд нэг thread нэг үйлдэл хийнэ. Хойш алхахгүй (бодит thread-ийг ухрааж болохгүй). n ≤ ' + max + '.'
+    : 'Replay: Java дээр 3 бодит thread эхлээд бүрэн ажиллаж дуусна. Дараа нь тэдний хийсэн алхмуудыг бичлэг шиг урагш, хойш тоглуулж харна. n ≤ ' + max + '.';
 }
 
 // Clears the picture of an earlier run (used when the mode is switched).
