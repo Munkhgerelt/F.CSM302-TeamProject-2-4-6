@@ -115,7 +115,7 @@ cd F.CSM302-TeamProject-2-4-6
 
 ### OS, compiler/runtime, хувилбар
 
-JDK 17 буюу түүнээс дээш (`javac -version`); `build.sh` нь `javac --release 17` ашигладаг. Туршсан орчин: macOS 27 (Apple Silicon) + Temurin 17.0.21, Ubuntu 24.04 (amd64) + OpenJDK 21.
+JDK 17 буюу түүнээс дээш (`javac -version`); `build.sh` нь `javac --release 17` ашигладаг. Туршсан орчин: БД1-ийн хувилбар: macOS 27 (Apple Silicon) + Temurin 17.0.21, Ubuntu 24.04 (amd64) + OpenJDK 21. БД2-ын засварын дараах хувилбар: macOS 27 (Apple M4) + Temurin 17.0.21; Linux дээр дахин туршаагүй.
 
 ### Dependency суулгах
 
