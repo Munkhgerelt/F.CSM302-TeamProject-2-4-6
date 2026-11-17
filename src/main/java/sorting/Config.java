@@ -37,6 +37,8 @@ final class Config {
 
     /** Human-readable description of where the data came from (filled by {@link #resolveInput()}). */
     String sourceDescription;
+    /** Notes about the input itself, e.g. skipped empty values (filled by {@link #resolveInput()}). */
+    List<String> inputNotes = List.of();
 
     static Config parse(String[] args) {
         Config c = new Config();
@@ -112,11 +114,16 @@ final class Config {
     int[] resolveInput() {
         if (inputText != null) {
             sourceDescription = "гараас оруулсан";
-            return InputParser.parseList(inputText);
+            int[] values = InputParser.parseList(inputText);
+            inputNotes = InputParser.emptyFieldNotes(inputText);
+            return values;
         }
         if (file != null) {
             sourceDescription = "файл: " + file;
-            return InputParser.parseFile(file);
+            String text = InputParser.readFileText(file);
+            int[] values = InputParser.parseList(text);
+            inputNotes = InputParser.emptyFieldNotes(text);
+            return values;
         }
         long s = (seed != null) ? seed : System.currentTimeMillis();
         sourceDescription = "random n=" + randomN + " seed=" + s + " муж=[" + min + "," + max + "] хэлбэр=" + pattern.key;

@@ -5,11 +5,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Parses and validates user-supplied integer lists.
  * Accepted separators: comma, semicolon, any whitespace (incl. new lines).
+ * Several separators in a row count as one, so an empty value such as the one in
+ * "1,,2" or "1,2," is skipped; {@link #emptyFieldNotes(String)} reports such places
+ * so that the program can tell the user instead of skipping them silently.
  * In files, everything after '#' on a line is a comment.
  * All errors are reported as {@link InputException} with a user-facing
  * (Mongolian) message that names the offending token and its position.
@@ -58,8 +64,46 @@ public final class InputParser {
         }
     }
 
+    /**
+     * Finds empty values between commas / semicolons (also at the start or the end),
+     * which {@link #parseList(String)} skips. Whitespace alone (spaces, blank lines)
+     * never counts as an empty value.
+     *
+     * @return one user-facing note, or an empty list when there is nothing to report
+     */
+    public static List<String> emptyFieldNotes(String text) {
+        if (text == null) return List.of();
+        String[] fields = text.split("[,;]", -1);
+        if (fields.length < 2) return List.of();        // no comma or semicolon at all
+        Set<String> where = new LinkedHashSet<>();   // distinct places, in input order
+        int empty = 0;
+        int valuesBefore = 0;
+        for (String field : fields) {
+            String t = field.trim();
+            if (t.isEmpty()) {
+                empty++;
+                where.add(valuesBefore == 0 ? "эхэнд" : valuesBefore + "-р утгын дараа");
+            } else {
+                valuesBefore += t.split("\\s+").length;
+            }
+        }
+        if (empty == 0) return List.of();
+        List<String> shown = new ArrayList<>(where).subList(0, Math.min(3, where.size()));
+        return List.of("Тэмдэглэл: таслал/цэг таслалын хооронд " + empty + " хоосон утга байсныг алгаслаа ("
+                + String.join(", ", shown) + (where.size() > shown.size() ? ", …" : "")
+                + "). Тоо дутуу ороогүй эсэхийг шалгана уу.");
+    }
+
     /** Reads integers from a text file; '#' starts a comment. */
     public static int[] parseFile(String path) {
+        return parseList(readFileText(path));
+    }
+
+    /**
+     * Reads a number file as text with the '#' comments removed
+     * (throws {@link InputException} when it is missing or has no numbers).
+     */
+    public static String readFileText(String path) {
         List<String> lines;
         try {
             lines = Files.readAllLines(Path.of(path), StandardCharsets.UTF_8);
@@ -78,7 +122,7 @@ public final class InputParser {
         if (sb.toString().trim().isEmpty()) {
             throw new InputException("Файл хоосон байна (тайлбараас өөр тоо алга): " + path);
         }
-        return parseList(sb.toString());
+        return sb.toString();
     }
 
     /** Parses an integer option value such as --random 100. */
