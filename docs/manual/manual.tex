@@ -119,8 +119,9 @@
 
 \msub{Оролт ба тохиргоо}
 \begin{itemize}
-  \item \textbf{Тоонууд:} бүхэл тоонуудыг таслал эсвэл зайгаар тусгаарлана. Жишээ: \code{7, 12, 19, 3, 18}.
-        Сөрөг тоо, давхардсан утга, сондгой n зөвшөөрнө.
+  \item \textbf{Тоонууд:} бүхэл тоонуудыг таслал, цэг таслал эсвэл зай (шинэ мөр)-аар тусгаарлана. Жишээ: \code{7, 12, 19, 3, 18}.
+        Сөрөг тоо, давхардсан утга, сондгой n зөвшөөрнө. Таслалын хоорондох хоосон утгыг (\code{1,,2}, \code{1,2,})
+        алгасаж, энэ тухай тэмдэглэл гаргана.
   \item \textbf{Гараар / Санамсаргүй:} санамсаргүй үед n, Seed, Min, Max, Хэлбэр (random, sorted, reversed,
         duplicates)-ийг тохируулна.
   \item \textbf{Алгоритм:} Sorter-L ба Sorter-R тус бүрт insertion, bubble, selection, merge, quick-ээс сонгоно.
@@ -140,7 +141,7 @@
 ◂ Алхам / Алхам ▸ & Нэг алхам ухрах (зөвхөн Replay) эсвэл урагшлах (← / →) \\
 Эхнээс нь & Replay: эхлэл рүү буцна. Lockstep: шинэ session эхлүүлнэ \\
 Хурд & 1--5000 алхам/сек \\
-Байрлал & Гулсуураар дурын алхам руу шууд очно (зөвхөн Replay) \\
+Байрлал / Явц & Replay: гулсуураар дурын алхам руу шууд очно. Lockstep: ирсэн event болон олгосон үйлдлийн (permit) тоог харуулна \\
 \bottomrule
 \end{tabularx}
 
@@ -163,7 +164,7 @@
 
 Thread-ийн карт дээр төлөв гарна: \emph{Үүсээгүй → start() дуудагдсан → Ажиллаж байна → Дууссан}, Parent-д
 \emph{join() дээр хүлээж байна}. Lockstep горимд Java-гийн бодит төлөв (\code{NEW}, \code{RUNNABLE},
-\code{WAITING}, \code{TERMINATED}) нэмж харагдана.
+\code{WAITING}, \code{TERMINATED}) нэмж харагдана; Semaphore дээр зогсож буй thread-ийн картад \emph{Permit хүлээж байна} гэж гарна.
 
 \msub{Хоёроос доошгүй жишээ}
 \textbf{Жишээ 1 — Номын жишээ (Web UI, Replay)}
@@ -228,7 +229,7 @@ Windows: \code{build.bat}, \code{run.bat --web}. Скрипт ажиллахгү
 \code{examples/} хавтас: \code{book-example.txt} (номын жишээ), \code{odd-11.txt}, \code{duplicates.txt},
 \code{reversed.txt}, \code{int-limits.txt}, \code{single.txt}; алдаатай: \code{invalid-letters.txt},
 \code{invalid-overflow.txt}, \code{empty.txt}. Автомат тест: \code{./test.sh} (Windows: \code{test.bat}),
-JUnit-гүй 100 тест (\code{tests/TestRunner.java}). Хугацааны хэмжилт: \code{./bench.sh}.
+JUnit-гүй 114 тест (\code{tests/TestRunner.java}, Web серверийн HTTP шалгалт орно). Хугацааны хэмжилт: \code{./bench.sh}.
 
 \msub{Нэмэлт boundary/error тест}
 \begin{itemize}
@@ -240,7 +241,7 @@ JUnit-гүй 100 тест (\code{tests/TestRunner.java}). Хугацааны х�
 
 \msub{Хүлээгдсэн үр дүн}
 Номын жишээ: \code{[2, 3, 4, 6, 7, 8, 12, 15, 18, 19]}, \code{Шалгалт: ЗӨВ}, exit code 0. Автомат тест:
-\code{Нийт: 100, амжилттай: 100, алдаатай: 0}. Тест бүрийн оролт, хүлээгдсэн ба бодит утга
+\code{Нийт: 114, амжилттай: 114, алдаатай: 0}. Тест бүрийн оролт, хүлээгдсэн ба бодит утга
 \code{tests/results/test-results.md}-д, хэмжилт \code{tests/results/benchmark.md}-д бичигдэнэ.
 
 \msub{Known issues}
@@ -248,6 +249,8 @@ JUnit-гүй 100 тест (\code{tests/TestRunner.java}). Хугацааны х�
   \item Windows-ийн \code{.bat} скриптийг бодит Windows машин дээр туршаагүй.
   \item n бага үед хугацааны хэмжилт шуугиантай (JIT, thread үүсгэх зардал); trace-тэй ажиллалт удаан.
   \item Lockstep-д хойш алхах боломжгүй; Web сервер зөвхөн \code{127.0.0.1} дээр сонсоно.
+  \item Зэрэг 4 хүртэл Lockstep session ажиллана. 5 дахь нь эхлэхэд хамгийн удаан идэвхгүй байсан session хаагдаж,
+        тэр цонхонд шалтгаан нь бичигдэнэ; 10 минут идэвхгүй session мөн хаагдана.
 \end{itemize}
 
 \msub{Нөөц ба эх сурвалж}
