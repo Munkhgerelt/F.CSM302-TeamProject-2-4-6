@@ -39,7 +39,7 @@
 \renewcommand{\tablename}{Хүснэгт}
 \renewcommand{\contentsname}{Гарчиг}
 \captionsetup{labelsep=period,labelfont=bf,font=normalsize,justification=centering,skip=6pt}
-\captionsetup[table]{justification=raggedright,singlelinecheck=false,position=top}
+\captionsetup[table]{justification=raggedright,singlelinecheck=false,position=bottom}
 
 \newcommand{\sw}[1]{\textcolor{#1}{\rule{0.8em}{0.8em}}}
 \newcommand{\code}[1]{\texttt{#1}}
@@ -179,7 +179,6 @@ Web UI-ийн удирдлагын товчнуудыг Хүснэгт~\ref{tab:
 үүднээс мөрүүдийг дэлгэц дээрх байрлалын дарааллаар жагсааж, товч бүрийн үүргийг зэрэгцүүлэн бичив.
 
 \begin{table}[H]
-\caption{Web UI-ийн удирдлагын товч ба үүрэг}\label{tab:ctl}
 \begin{tabularx}{\linewidth}{|L{4.6cm}|Y|}
 \hline
 \hd{Товч} & \hd{Үүрэг} \\ \hline
@@ -190,6 +189,7 @@ Web UI-ийн удирдлагын товчнуудыг Хүснэгт~\ref{tab:
 Хурд & Секундэд 1--5000 алхам \\ \hline
 Байрлал / Явц & \term{Replay}: гулсуураар дурын алхам руу очно. \term{Lockstep}: ирсэн \term{event} ба олгосон \term{permit}-ийн тоог харуулна \\ \hline
 \end{tabularx}
+\caption{Web UI-ийн удирдлагын товч ба үүрэг}\label{tab:ctl}
 \end{table}
 
 Хүснэгтээс харахад \term{Lockstep} горимд бодит \term{thread}-ийг ухрааж болохгүй тул зөвхөн урагш алхана. Горимыг солиход дүрслэл
@@ -201,7 +201,6 @@ Web UI-ийн удирдлагын товчнуудыг Хүснэгт~\ref{tab:
 (\term{legend}) дарааллаар нь утгатай нь харьцуулав.
 
 \begin{table}[H]
-\caption{Дүрслэлийн өнгө ба тэмдгийн утга}\label{tab:col}
 \begin{tabularx}{\linewidth}{|L{4.6cm}|Y|}
 \hline
 \hd{Тэмдэг} & \hd{Утга} \\ \hline
@@ -213,6 +212,7 @@ Web UI-ийн удирдлагын товчнуудыг Хүснэгт~\ref{tab:
 \sw{cused}\ Бараан саарал & Merger аль хэдийн авсан элемент \\ \hline
 \textcolor{gray}{\rule{1.5pt}{0.9em}}\ Босоо зураас & Хуваалтын цэг \code{mid} \\ \hline
 \end{tabularx}
+\caption{Дүрслэлийн өнгө ба тэмдгийн утга}\label{tab:col}
 \end{table}
 
 Хүснэгтийн өнгөнүүдийг ашиглан аль \term{thread} массивын аль хэсэгт ажиллаж байгааг шууд ялгана. Зураг~\ref{fig:ui}-д \term{Replay} горимын бодит дэлгэцийг харуулав. Дээд хэсэгт тохиргоо, дунд хэсэгт эх массив ба
@@ -256,7 +256,6 @@ Web UI-ийн удирдлагын товчнуудыг Хүснэгт~\ref{tab:
 оролтын алдаа, сүүлийн мөрүүд нь орчин ба холболтын алдаа юм.
 
 \begin{table}[H]
-\caption{Түгээмэл алдаа ба шийдэл}\label{tab:err}
 \begin{tabularx}{\linewidth}{|L{7.6cm}|Y|}
 \hline
 \hd{Алдаа, нөхцөл} & \hd{Шийдэл} \\ \hline
@@ -270,6 +269,7 @@ Web UI-д n > 300 (\term{Lockstep}: n > 100) & n-ийг багасгана \\ \h
 \code{Сервертэй холбогдож чадсангүй} & \code{./run.sh --web}-ийг дахин ажиллуулна \\ \hline
 \term{Lockstep} \term{session} хаагдсан тухай мессеж & «Ажиллуулах» дарж шинэ \term{session} эхлүүлнэ \\ \hline
 \end{tabularx}
+\caption{Түгээмэл алдаа ба шийдэл}\label{tab:err}
 \end{table}
 
 Хүснэгтэд заасан оролтын алдаа гарахад Web UI шалтгааныг мэдээлж, дараагийн оролтыг хүлээн авна. Командын мөрөөр ажиллуулсан үед программ алдааны мессеж хэвлээд exit code 2-оор дуусна.
@@ -318,7 +318,6 @@ Windows дээр \code{build.bat}, \code{run.bat --web} скриптийг аш�
 файл бүрийн шалгах зорилгыг зэрэгцүүлэв.
 
 \begin{table}[H]
-\caption{Туршилтын өгөгдлийн файл ба зорилго}\label{tab:data}
 \begin{tabularx}{\linewidth}{|L{6.2cm}|Y|}
 \hline
 \hd{Файл} & \hd{Шалгах зүйл} \\ \hline
@@ -332,6 +331,7 @@ Windows дээр \code{build.bat}, \code{run.bat --web} скриптийг аш�
 \code{invalid-overflow.txt} & int мужаас хэтэрсэн утга (алдаа гарна) \\ \hline
 \code{empty.txt} & Хоосон файл (алдаа гарна) \\ \hline
 \end{tabularx}
+\caption{Туршилтын өгөгдлийн файл ба зорилго}\label{tab:data}
 \end{table}
 
 Хүснэгтийн эхний зургаан файл амжилттай эрэмбэлэгдэх ёстой бол сүүлийн гурав нь алдааны мессеж ба exit code 2 буцаах ёстой.
@@ -343,7 +343,6 @@ Windows дээр \code{build.bat}, \code{run.bat --web} скриптийг аш�
 Команд бүрийг ажиллуулж, гаралтыг баруун баганатай тулгаснаар зөв ажиллагааг шалгана.
 
 \begin{table}[H]
-\caption{Boundary ба error тестийн команд, хүлээгдэх үр дүн}\label{tab:bnd}
 \begin{tabularx}{\linewidth}{|L{8.2cm}|Y|}
 \hline
 \hd{Команд} & \hd{Хүлээгдэх үр дүн} \\ \hline
@@ -356,6 +355,7 @@ Windows дээр \code{build.bat}, \code{run.bat --web} скриптийг аш�
 \code{./run.sh --input "5,3,abc"} & Алдааны мессеж, exit code 2 \\ \hline
 \code{./run.sh --input "1,2.5"} & Алдааны мессеж, exit code 2 \\ \hline
 \end{tabularx}
+\caption{Boundary ба error тестийн команд, хүлээгдэх үр дүн}\label{tab:bnd}
 \end{table}
 
 Хүснэгтийн эхний таван мөр программын зөв ажиллагааг, сүүлийн гурван мөр буруу оролтыг таних чадварыг шалгана.
@@ -385,7 +385,6 @@ IV-2-13 багийн шүүмжийн дагуу хэрэглэгчид шууд
 ба хэрэглэгчийн харах өөрчлөлтийг зэрэгцүүлсэн тул өмнөх хувилбарыг ашиглаж байсан хэрэглэгч ялгааг шууд харна.
 
 \begin{table}[H]
-\caption{БД2-т хэрэглэгчид нөлөөлөх өөрчлөлт}\label{tab:chg}
 \begin{tabularx}{\linewidth}{|L{2.4cm}|Y|}
 \hline
 \hd{Шүүмж} & \hd{Хэрэглэгчийн харах өөрчлөлт} \\ \hline
@@ -398,6 +397,7 @@ F-06 & Хоосон утгыг алгасахдаа хаана байсныг т
 F-07 & Автомат тестийн тоо 100-аас 114 болж, Web серверийн HTTP шалгалт нэмэгдсэн \\ \hline
 F-08 & \term{Permit} хүлээж буй \term{thread}-ийн картад «Permit хүлээж байна» гэж гарна \\ \hline
 \end{tabularx}
+\caption{БД2-т хэрэглэгчид нөлөөлөх өөрчлөлт}\label{tab:chg}
 \end{table}
 
 Эдгээр өөрчлөлт нь эрэмбэлэлтийн үр дүн болон командын мөрийн өмнөх хэрэглээг өөрчлөөгүй. F-09 нь Git түүхтэй холбоотой тул
