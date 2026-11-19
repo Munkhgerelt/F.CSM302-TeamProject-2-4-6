@@ -48,6 +48,51 @@ const app = {
   live: null          // {id, next, finished, consumed, waiting, javaStates:{name:{state,tid}}, busy}
 };
 
+// Every "Run" gets a number; switching the mode increases it too. A reply that
+// arrives for an older number is stale (e.g. a Replay answer that comes back after
+// the user already switched to Lockstep) and is ignored instead of being drawn.
+let runSeq = 0;
+
+// Error types, so that the page can tell the user what actually went wrong.
+class ServerError extends Error {}    // the server answered with ok:false (e.g. invalid input)
+class NetworkError extends Error {}   // the server could not be reached at all
+const MSG_NO_SERVER = 'Сервертэй холбогдож чадсангүй. Terminal дээр ./run.sh --web ажиллаж байгаа эсэхийг шалгана уу.';
+
+// fetch() + JSON with the error types above.
+async function request(path, init) {
+  let res;
+  try {
+    res = await fetch(path, init);
+  } catch (e) {
+    throw new NetworkError(MSG_NO_SERVER);
+  }
+  let data;
+  try {
+    data = await res.json();
+  } catch (e) {
+    throw new ServerError('Серверээс буруу хэлбэрийн хариу ирлээ (HTTP ' + res.status + ').');
+  }
+  if (!data.ok) throw new ServerError(data.error || 'Тодорхойгүй алдаа');
+  return data;
+}
+
+// Shows an error: server and connection errors as they are, anything else as an
+// internal page error (the technical details go to the browser console).
+function reportError(err, serverStatus) {
+  app.playing = false;
+  if (err instanceof ServerError) {
+    showError(err.message);
+    setStatus(serverStatus || 'Алдаа гарлаа. Өгөгдлөө засаад дахин оролдоно уу.', '');
+  } else if (err instanceof NetworkError) {
+    showError(err.message);
+    setStatus('Сервертэй холбогдож чадсангүй.', '');
+  } else {
+    console.error(err);
+    showError('Хуудасны дотоод алдаа гарлаа (оролтын алдаа биш). Хуудсыг дахин ачаална уу (F5).');
+    setStatus('Дотоод алдаа гарлаа. Хуудсыг дахин ачаална уу.', '');
+  }
+}
+
 function freshView(trace) {
   const v = {
     list: trace.input.slice(),
@@ -211,7 +256,8 @@ function drawBars(cv, values, colorOf, opts) {
 
 function render() {
   const t = app.trace;
-  if (!t) return;
+  // nothing to draw yet, or Lockstep mode without a session (e.g. right after a mode switch)
+  if (!t || !app.view || (app.mode === 'live' && !app.live)) return;
   const v = app.view, mid = t.mid, n = t.n;
   const range = valueRange(t.input);
   const ptr = v.mergePtr;
@@ -238,7 +284,16 @@ function render() {
   const total = t.events.length;
   $('scrub').max = String(total);
   $('scrub').value = String(app.pos);
-  $('posOut').textContent = app.pos + ' / ' + total;
+  if (app.mode === 'live') {
+    // Lockstep: the total is not known in advance, so show progress instead of "N / N".
+    // One "Step" = one permit = one compare/swap/write; the events that arrive with it
+    // can be more (thread start/end, join, ...).
+    $('posLabel').textContent = 'Явц';
+    $('posOut').textContent = app.pos + ' event, ' + app.live.consumed + ' үйлдэл (permit)';
+  } else {
+    $('posLabel').textContent = 'Байрлал';
+    $('posOut').textContent = app.pos + ' / ' + total;
+  }
   if (app.mode === 'live') {
     const fin = app.live.finished;
     $('scrub').disabled = true;
@@ -324,7 +379,7 @@ function renderThreads() {
     if (name === 'Parent') detail = 'main, join() хийж үр дүнг хэвлэнэ';
     else if (name === 'Merger') detail = 'list[0,' + i.mid + ') + list[' + i.mid + ',' + i.end + ') → result[]';
     else detail = i.algorithm + ', муж [' + i.start + ',' + i.end + ')';
-    const js = app.mode === 'live' ? app.live.javaStates[name] : null;
+    const js = app.mode === 'live' && app.live ? app.live.javaStates[name] : null;
     const tidVal = js ? js.tid : (i && i.tid);
     const tid = tidVal ? ', tid ' + tidVal : '';
     const ops = name === 'Parent' ? '' :
@@ -335,8 +390,11 @@ function renderThreads() {
       if (js && js.state === 'WAITING') text = name === 'Parent' ? 'WAITING, join() дээр' : 'WAITING, Semaphore permit хүлээж байна';
       java = '<div class="kv java">Java: ' + text + '</div>';
     }
+    // Lockstep: a started worker that is blocked on the semaphore is not "running"
+    const waitsForPermit = js && js.state === 'WAITING' && name !== 'Parent';
+    const stateText = waitsForPermit ? 'Permit хүлээж байна' : STATE_TEXT[s.state];
     return '<div class="thread ' + THREAD_CLASS[name] + '"><div class="name">' + name + tid + '</div>' +
-      '<div class="state" data-s="' + s.state + '">' + STATE_TEXT[s.state] + '</div>' +
+      '<div class="state" data-s="' + s.state + '">' + stateText + '</div>' +
       '<div class="kv">' + detail + '</div>' + ops + java + '</div>';
   }).join('');
   $('threads').innerHTML = html;
@@ -468,15 +526,12 @@ function stepBack() {
 }
 
 // ----------------------------------------------------------------- lockstep (live) mode
-async function postForm(path, params) {
-  const res = await fetch(path, {
+function postForm(path, params) {
+  return request(path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
     body: params.toString()
   });
-  const data = await res.json();
-  if (!data.ok) throw new Error(data.error || 'Тодорхойгүй алдаа');
-  return data;
 }
 
 // Takes a state reply from the server, appends its new events and applies them.
@@ -508,8 +563,8 @@ async function liveStep(count) {
     const p = new URLSearchParams({ id: L.id, count: String(count), from: String(L.next) });
     absorbLive(await postForm('/api/live/step', p));
   } catch (err) {
-    app.playing = false;
-    showError(err.message);
+    // the input was already accepted; a server error here means the session itself stopped
+    reportError(err, 'Lockstep session зогслоо. “Ажиллуулах” дарж шинээр эхлүүлнэ үү.');
   } finally {
     L.busy = false;
     render();
@@ -535,9 +590,14 @@ async function liveStop() {
   try { await postForm('/api/live/stop', new URLSearchParams({ id: L.id })); } catch (e) { /* session already gone */ }
 }
 
-async function startLive() {
+async function startLive(mySeq) {
   await liveStop();
   const data = await postForm('/api/live/start', readForm());
+  if (mySeq !== runSeq) {
+    // the mode was switched while the session was starting: do not leave its threads waiting
+    try { await postForm('/api/live/stop', new URLSearchParams({ id: data.id })); } catch (e) { /* already gone */ }
+    return;
+  }
   app.response = data;
   app.trace = { input: data.input, n: data.n, mid: data.mid, events: [], threads: [
     { name: 'Sorter-L', algorithm: data.algorithms.left, start: 0, end: data.mid },
@@ -547,8 +607,7 @@ async function startLive() {
   app.view = freshView(app.trace);
   app.pos = 0;
   app.live = { id: data.id, next: 0, finished: false, consumed: 0, waiting: 0, javaStates: {}, busy: false };
-  const st = await (await fetch('/api/live/state?id=' + encodeURIComponent(data.id) + '&from=0')).json();
-  if (!st.ok) throw new Error(st.error);
+  const st = await request('/api/live/state?id=' + encodeURIComponent(data.id) + '&from=0');
   absorbLive(st);
   $('btnReset').disabled = false;
   setStatus('Lockstep: thread-үүд эхэлж, анхны үйлдлийнхээ өмнө зогсож байна. “Алхам ▸” дарах бүрд нэг thread нэг үйлдэл хийнэ.', 'ok');
@@ -597,12 +656,14 @@ function resetStage(message) {
   $('btnPlay').textContent = 'Тоглуулах';
   $('scrub').max = '0';
   $('scrub').value = '0';
+  $('posLabel').textContent = 'Байрлал';
   $('posOut').textContent = '0 / 0';
   showError(null);
   setStatus(message, '');
 }
 
 async function onModeChange() {
+  runSeq++;   // a reply to a run started before the switch is now stale
   applyModeLimits();
   if (!app.trace) return;
   // a lockstep session keeps real threads waiting on the server: stop it
@@ -631,48 +692,38 @@ function readForm() {
 }
 
 async function runOnServer() {
-  pause();
-  showError(null);
-  setStatus('Java thread-үүд ажиллаж байна…', 'busy');
-  $('btnRun').disabled = true;
-  app.mode = currentMode();
-  if (app.mode === 'live') {
-    try {
-      await startLive();
-    } catch (err) {
-      showError(err.message.includes('Failed to fetch')
-        ? 'Сервертэй холбогдож чадсангүй. Terminal дээр ./run.sh --web ажиллаж байгаа эсэхийг шалгана уу.'
-        : err.message);
-      setStatus('Алдаа гарлаа. Өгөгдлөө засаад дахин оролдоно уу.', '');
-    } finally {
-      $('btnRun').disabled = false;
-      render();
-    }
-    return;
-  }
-  await liveStop();
+  const mySeq = ++runSeq;
   try {
-    const res = await fetch('/api/run', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
-      body: readForm().toString()
-    });
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error || 'Тодорхойгүй алдаа');
+    pause();
+    showError(null);
+    setStatus('Java thread-үүд ажиллаж байна…', 'busy');
+    $('btnRun').disabled = true;
+    app.mode = currentMode();
+    if (app.mode === 'live') {
+      await startLive(mySeq);
+      if (mySeq !== runSeq) setStatus('Горим солигдлоо. “Ажиллуулах” дарна уу.', '');
+      return;
+    }
+    await liveStop();
+    const data = await postForm('/api/run', readForm());
+    if (mySeq !== runSeq) {
+      // stale reply: the mode was switched while the threads were running
+      setStatus('Горим солигдлоо. “Ажиллуулах” дарна уу.', '');
+      return;
+    }
+    const view = freshView(data.trace);   // build first, then switch all state at once
     app.response = data;
     app.trace = data.trace;
-    app.view = freshView(app.trace);
+    app.view = view;
     app.pos = 0;
     ['btnReset', 'scrub'].forEach((id) => { $(id).disabled = false; });
     setStatus('Бэлэн: ' + data.trace.eventCount + ' бодит event бүртгэгдлээ. “Тоглуулах” эсвэл “Алхам ▸” дарна уу.', 'ok');
     render();
   } catch (err) {
-    showError(err.message.includes('Failed to fetch')
-      ? 'Сервертэй холбогдож чадсангүй. Terminal дээр ./run.sh --web ажиллаж байгаа эсэхийг шалгана уу.'
-      : err.message);
-    setStatus('Алдаа гарлаа. Өгөгдлөө засаад дахин оролдоно уу.', '');
+    if (mySeq === runSeq) reportError(err);   // an error of a stale run is not shown
   } finally {
     $('btnRun').disabled = false;
+    if (app.mode === 'live') render();
   }
 }
 

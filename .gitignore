@@ -14,6 +14,8 @@ traces/
 # LaTeX build artifacts
 *.aux
 *.log
+# ...but keep the logs of real test runs that serve as BD2 evidence
+!tests/results/bd2-evidence/*.log
 *.out
 *.toc
 *.lof

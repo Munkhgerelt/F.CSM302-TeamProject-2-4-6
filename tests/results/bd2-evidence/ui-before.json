@@ -1,0 +1,149 @@
+{
+  "label": "before",
+  "app": "http://127.0.0.1:8391/",
+  "U1_load": {
+    "consoleErrors": [
+      "log: Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:8391/favicon.ico"
+    ],
+    "failedRequests": [
+      "404 http://127.0.0.1:8391/favicon.ico"
+    ],
+    "faviconRequests": [
+      "404 http://127.0.0.1:8391/favicon.ico"
+    ]
+  },
+  "U2_replay": {
+    "ready": "Бэлэн: 60 бодит event бүртгэгдлээ. “Тоглуулах” эсвэл “Алхам ▸” дарна уу.",
+    "s12": "12 / 60",
+    "back": "11 / 60",
+    "arrows": "13 / 60",
+    "scrub": "33 / 60",
+    "reset": "0 / 60"
+  },
+  "U2_play": {
+    "pos": "60 / 60",
+    "button": "Дууссан",
+    "ms": 308,
+    "result": "Үр дүн: 2, 3, 4, 6, 7, 8, 12, 15, 18, 19",
+    "check": "Шалгалт: Эрэмбэлэгдсэн, зөв"
+  },
+  "U3_lockstep": {
+    "start": {
+      "status": "Lockstep: thread-үүд эхэлж, анхны үйлдлийнхээ өмнө зогсож байна. “Алхам ▸” дарах бүрд нэг thread нэг үйлдэл хийнэ.",
+      "error": "",
+      "pos": "Байрлал 5 / 5",
+      "cards": [
+        "Parent: join() дээр хүлээж байна | Java: WAITING, join() дээр",
+        "Sorter-L: Ажиллаж байна | Java: WAITING, Semaphore permit хүлээж байна",
+        "Sorter-R: Ажиллаж байна | Java: WAITING, Semaphore permit хүлээж байна",
+        "Merger: Үүсээгүй | Java: үүсээгүй (new Thread() хийгээгүй)"
+      ]
+    },
+    "steps": [
+      "6 / 6",
+      "7 / 7",
+      "8 / 8",
+      "9 / 9",
+      "10 / 10"
+    ]
+  },
+  "U3_lockstep_end": {
+    "status": "Бүх thread TERMINATED. Үр дүн ба шалгалтыг доорх “Үр дүн” хэсгээс харна уу.",
+    "error": "",
+    "pos": "Байрлал 60 / 60",
+    "cards": [
+      "Parent: Дууссан | Java: TERMINATED, дууссан",
+      "Sorter-L: Дууссан | Java: TERMINATED, дууссан",
+      "Sorter-R: Дууссан | Java: TERMINATED, дууссан",
+      "Merger: Дууссан | Java: TERMINATED, дууссан"
+    ]
+  },
+  "U4_f01": {
+    "attempts": 20,
+    "lockstepStarted": 0,
+    "attemptsWithTypeError": 20,
+    "first": {
+      "afterSwitch": {
+        "status": "Алдаа гарлаа. Өгөгдлөө засаад дахин оролдоно уу.",
+        "error": "Cannot read properties of null (reading 'javaStates')",
+        "pos": "Байрлал 0 / 0",
+        "cards": []
+      },
+      "afterRerun": {
+        "status": "Алдаа гарлаа. Өгөгдлөө засаад дахин оролдоно уу.",
+        "error": "Cannot read properties of null (reading 'javaStates')",
+        "pos": "Байрлал 0 / 0",
+        "cards": []
+      },
+      "lockstepStarted": false,
+      "newConsoleErrors": [
+        "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')"
+      ]
+    }
+  },
+  "U5_f03": {
+    "status": "Lockstep: thread-үүд эхэлж, анхны үйлдлийнхээ өмнө зогсож байна. “Алхам ▸” дарах бүрд нэг thread нэг үйлдэл хийнэ.",
+    "error": "Lockstep session олдсонгүй (хугацаа нь дууссан эсвэл сервер дахин асаасан). \"Ажиллуулах\"-ыг дахин дарна уу.",
+    "pos": "Байрлал 5 / 5",
+    "cards": [
+      "Parent: join() дээр хүлээж байна | Java: WAITING, join() дээр",
+      "Sorter-L: Ажиллаж байна | Java: WAITING, Semaphore permit хүлээж байна",
+      "Sorter-R: Ажиллаж байна | Java: WAITING, Semaphore permit хүлээж байна",
+      "Merger: Үүсээгүй | Java: үүсээгүй (new Thread() хийгээгүй)"
+    ]
+  },
+  "U6_f02_server": {
+    "status": "Алдаа гарлаа. Өгөгдлөө засаад дахин оролдоно уу.",
+    "error": "3-р утга 'abc' нь бүхэл тоо биш.",
+    "pos": "Байрлал 0 / 0",
+    "cards": []
+  },
+  "U6_f02_internal": {
+    "duringError": {
+      "status": "Алдаа гарлаа. Өгөгдлөө засаад дахин оролдоно уу.",
+      "error": "simulated internal error",
+      "pos": "Байрлал 0 / 0",
+      "cards": []
+    },
+    "afterRetryWithoutReload": "Алдаа гарлаа. Өгөгдлөө засаад дахин оролдоно уу."
+  },
+  "U7_f06": {
+    "status": "Бэлэн: 17 бодит event бүртгэгдлээ. “Тоглуулах” эсвэл “Алхам ▸” дарна уу.",
+    "notes": []
+  },
+  "allConsoleErrors": [
+    "log: Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:8391/favicon.ico",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'javaStates')",
+    "log: Failed to load resource: the server responded with a status of 400 (Bad Request) http://127.0.0.1:8391/api/live/step",
+    "log: Failed to load resource: the server responded with a status of 400 (Bad Request) http://127.0.0.1:8391/api/run",
+    "uncaught: TypeError: Cannot read properties of null (reading 'mergePtr')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'mergePtr')",
+    "uncaught: TypeError: Cannot read properties of null (reading 'mergePtr')"
+  ],
+  "allFailedRequests": [
+    "404 http://127.0.0.1:8391/favicon.ico",
+    "400 http://127.0.0.1:8391/api/live/step",
+    "400 http://127.0.0.1:8391/api/run"
+  ]
+}

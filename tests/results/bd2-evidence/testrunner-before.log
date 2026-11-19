@@ -1,0 +1,122 @@
+Build OK (javac 17) -> out/
+
+== Номын жишээ ==
+  [OK  ]   1. Номын жишээ, insertion + insertion
+  [OK  ]   2. Номын жишээ, insertion + bubble
+  [OK  ]   3. Номын жишээ, insertion + selection
+  [OK  ]   4. Номын жишээ, insertion + merge
+  [OK  ]   5. Номын жишээ, insertion + quick
+  [OK  ]   6. Номын жишээ, bubble + insertion
+  [OK  ]   7. Номын жишээ, bubble + bubble
+  [OK  ]   8. Номын жишээ, bubble + selection
+  [OK  ]   9. Номын жишээ, bubble + merge
+  [OK  ]  10. Номын жишээ, bubble + quick
+  [OK  ]  11. Номын жишээ, selection + insertion
+  [OK  ]  12. Номын жишээ, selection + bubble
+  [OK  ]  13. Номын жишээ, selection + selection
+  [OK  ]  14. Номын жишээ, selection + merge
+  [OK  ]  15. Номын жишээ, selection + quick
+  [OK  ]  16. Номын жишээ, merge + insertion
+  [OK  ]  17. Номын жишээ, merge + bubble
+  [OK  ]  18. Номын жишээ, merge + selection
+  [OK  ]  19. Номын жишээ, merge + merge
+  [OK  ]  20. Номын жишээ, merge + quick
+  [OK  ]  21. Номын жишээ, quick + insertion
+  [OK  ]  22. Номын жишээ, quick + bubble
+  [OK  ]  23. Номын жишээ, quick + selection
+  [OK  ]  24. Номын жишээ, quick + merge
+  [OK  ]  25. Номын жишээ, quick + quick
+  [OK  ]  26. Хуваалт: mid ба хоёр хэсэг
+
+== Захын тохиолдол ==
+  [OK  ]  27. n = 1
+  [OK  ]  28. n = 2, эрэмбэтэй
+  [OK  ]  29. n = 2, урвуу
+  [OK  ]  30. n = 3 (сондгой)
+  [OK  ]  31. Бүгд ижил
+  [OK  ]  32. Сөрөг тоо
+  [OK  ]  33. int-ийн хязгаар
+  [OK  ]  34. Эрэмбэтэй
+  [OK  ]  35. Урвуу
+  [OK  ]  36. Хуваалтын хэмжээ n = 1
+  [OK  ]  37. Хуваалтын хэмжээ n = 2
+  [OK  ]  38. Хуваалтын хэмжээ n = 3
+  [OK  ]  39. Хуваалтын хэмжээ n = 4
+  [OK  ]  40. Хуваалтын хэмжээ n = 5
+  [OK  ]  41. Хуваалтын хэмжээ n = 10
+  [OK  ]  42. Хуваалтын хэмжээ n = 11
+  [OK  ]  43. Сондгой n-ийн тэмдэглэл
+
+== Буруу оролт ==
+  [OK  ]  44. Хоосон оролт
+  [OK  ]  45. Зөвхөн зай
+  [OK  ]  46. Тоо биш утга
+  [OK  ]  47. Бутархай тоо
+  [OK  ]  48. int-ээс их
+  [OK  ]  49. int-ээс бага
+  [OK  ]  50. O(n²) хязгаар (insertion, n = 20 001)
+  [OK  ]  51. --force-той O(n²) n = 20 001
+  [OK  ]  52. Дээд хязгаар n = 1 000 001
+  [OK  ]  53. Trace хязгаар O(n²), n = 1001
+  [OK  ]  54. Trace хязгаар merge, n = 10 001
+  [OK  ]  55. Санамсаргүй n = 0
+  [OK  ]  56. min > max
+  [OK  ]  57. Буруу алгоритмын нэр
+  [OK  ]  58. Хоосон файл (зөвхөн тайлбар)
+  [OK  ]  59. Тоо биш утгатай файл
+  [OK  ]  60. int-ээс хэтэрсэн файл
+  [OK  ]  61. Байхгүй файл
+
+== Давхардал ба хэлбэр ==
+  [OK  ]  62. Давхардалтай (жижиг)
+  [OK  ]  63. Хэлбэр random, n = 300, бүх 25 хослол
+  [OK  ]  64. Хэлбэр sorted, n = 300, бүх 25 хослол
+  [OK  ]  65. Хэлбэр reversed, n = 300, бүх 25 хослол
+  [OK  ]  66. Хэлбэр duplicates, n = 300, бүх 25 хослол
+  [OK  ]  67. Санамсаргүй 2000 удаагийн туршилт
+
+== Том өгөгдөл ==
+  [OK  ]  68. n = 1 000 000, merge + quick
+  [OK  ]  69. n = 1 000 000, quick + quick
+  [OK  ]  70. n = 20 000, insertion + bubble
+  [OK  ]  71. n = 20 000, selection + merge
+
+== Thread ==
+  [OK  ]  72. 3 тусдаа thread, нэр
+  [OK  ]  73. Параметр (startIndex, endIndex)
+  [OK  ]  74. Parent join хийсний дараа бүгд TERMINATED
+  [OK  ]  75. Merger хоёр sorter дууссаны дараа эхэлнэ
+  [OK  ]  76. Sorter бүр зөвхөн өөрийн мужид бичнэ
+
+== Event trace ==
+  [OK  ]  77. Trace replay = бодит үр дүн, insertion
+  [OK  ]  78. Trace replay = бодит үр дүн, bubble
+  [OK  ]  79. Trace replay = бодит үр дүн, selection
+  [OK  ]  80. Trace replay = бодит үр дүн, merge
+  [OK  ]  81. Trace replay = бодит үр дүн, quick
+  [OK  ]  82. JSON формат
+  [OK  ]  83. Parent event-ийн дараалал
+
+== Lockstep ==
+  [OK  ]  84. Permit 0 үед sorter-ууд WAITING
+  [OK  ]  85. 1 permit = яг 1 үйлдэл
+  [OK  ]  86. Fair semaphore: L, R ээлжилнэ
+  [OK  ]  87. Хангалттай permit өгөхөд дуусна
+  [OK  ]  88. Цуцлахад thread үлдэхгүй
+
+== Командын мөр ==
+  [OK  ]  89. Номын жишээ файлаас
+  [OK  ]  90. Сондгой n = 11
+  [OK  ]  91. Давхардалтай файл
+  [OK  ]  92. Урвуу файл
+  [OK  ]  93. int-ийн хязгаар файл
+  [OK  ]  94. Ганц элемент
+  [OK  ]  95. Санамсаргүй өгөгдөл
+  [OK  ]  96. Оролтгүй
+  [OK  ]  97. Тоо биш утгатай файл
+  [OK  ]  98. Хоосон файл
+  [OK  ]  99. Буруу алгоритм
+  [OK  ] 100. --help
+
+Нийт: 100, амжилттай: 100, алдаатай: 0
+Хүснэгт: tests/results/test-results.md

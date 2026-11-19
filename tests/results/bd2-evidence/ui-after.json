@@ -1,0 +1,122 @@
+{
+  "label": "after",
+  "app": "http://127.0.0.1:8392/",
+  "U1_load": {
+    "consoleErrors": [],
+    "failedRequests": [],
+    "faviconRequests": []
+  },
+  "U2_replay": {
+    "ready": "Бэлэн: 60 бодит event бүртгэгдлээ. “Тоглуулах” эсвэл “Алхам ▸” дарна уу.",
+    "s12": "12 / 60",
+    "back": "11 / 60",
+    "arrows": "13 / 60",
+    "scrub": "33 / 60",
+    "reset": "0 / 60"
+  },
+  "U2_play": {
+    "pos": "60 / 60",
+    "button": "Дууссан",
+    "ms": 304,
+    "result": "Үр дүн: 2, 3, 4, 6, 7, 8, 12, 15, 18, 19",
+    "check": "Шалгалт: Эрэмбэлэгдсэн, зөв"
+  },
+  "U3_lockstep": {
+    "start": {
+      "status": "Lockstep: thread-үүд эхэлж, анхны үйлдлийнхээ өмнө зогсож байна. “Алхам ▸” дарах бүрд нэг thread нэг үйлдэл хийнэ.",
+      "error": "",
+      "pos": "Явц 5 event, 0 үйлдэл (permit)",
+      "cards": [
+        "Parent: join() дээр хүлээж байна | Java: WAITING, join() дээр",
+        "Sorter-L: Permit хүлээж байна | Java: WAITING, Semaphore permit хүлээж байна",
+        "Sorter-R: Permit хүлээж байна | Java: WAITING, Semaphore permit хүлээж байна",
+        "Merger: Үүсээгүй | Java: үүсээгүй (new Thread() хийгээгүй)"
+      ]
+    },
+    "steps": [
+      "6 event, 1 үйлдэл (permit)",
+      "7 event, 2 үйлдэл (permit)",
+      "8 event, 3 үйлдэл (permit)",
+      "9 event, 4 үйлдэл (permit)",
+      "10 event, 5 үйлдэл (permit)"
+    ]
+  },
+  "U3_lockstep_end": {
+    "status": "Бүх thread TERMINATED. Үр дүн ба шалгалтыг доорх “Үр дүн” хэсгээс харна уу.",
+    "error": "",
+    "pos": "Явц 60 event, 46 үйлдэл (permit)",
+    "cards": [
+      "Parent: Дууссан | Java: TERMINATED, дууссан",
+      "Sorter-L: Дууссан | Java: TERMINATED, дууссан",
+      "Sorter-R: Дууссан | Java: TERMINATED, дууссан",
+      "Merger: Дууссан | Java: TERMINATED, дууссан"
+    ]
+  },
+  "U4_f01": {
+    "attempts": 20,
+    "lockstepStarted": 20,
+    "attemptsWithTypeError": 0,
+    "first": {
+      "afterSwitch": {
+        "status": "Горим солигдлоо. “Ажиллуулах” дарна уу.",
+        "error": "",
+        "pos": "Байрлал 0 / 0",
+        "cards": []
+      },
+      "afterRerun": {
+        "status": "Lockstep: thread-үүд эхэлж, анхны үйлдлийнхээ өмнө зогсож байна. “Алхам ▸” дарах бүрд нэг thread нэг үйлдэл хийнэ.",
+        "error": "",
+        "pos": "Явц 5 event, 0 үйлдэл (permit)",
+        "cards": [
+          "Parent: join() дээр хүлээж байна | Java: WAITING, join() дээр",
+          "Sorter-L: Permit хүлээж байна | Java: WAITING, Semaphore permit хүлээж байна",
+          "Sorter-R: Permit хүлээж байна | Java: WAITING, Semaphore permit хүлээж байна",
+          "Merger: Үүсээгүй | Java: үүсээгүй (new Thread() хийгээгүй)"
+        ]
+      },
+      "lockstepStarted": true,
+      "newConsoleErrors": []
+    }
+  },
+  "U5_f03": {
+    "status": "Lockstep session зогслоо. “Ажиллуулах” дарж шинээр эхлүүлнэ үү.",
+    "error": "Энэ Lockstep session хаагдсан: өөр цонх эсвэл tab дээр шинэ session эхэлсэн бөгөөд зэрэг хамгийн ихдээ 4 session ажиллана (хамгийн удаан идэвхгүй байсныг нь хаадаг). \"Ажиллуулах\"-ыг дахин дарна уу.",
+    "pos": "Явц 5 event, 0 үйлдэл (permit)",
+    "cards": [
+      "Parent: join() дээр хүлээж байна | Java: WAITING, join() дээр",
+      "Sorter-L: Permit хүлээж байна | Java: WAITING, Semaphore permit хүлээж байна",
+      "Sorter-R: Permit хүлээж байна | Java: WAITING, Semaphore permit хүлээж байна",
+      "Merger: Үүсээгүй | Java: үүсээгүй (new Thread() хийгээгүй)"
+    ]
+  },
+  "U6_f02_server": {
+    "status": "Алдаа гарлаа. Өгөгдлөө засаад дахин оролдоно уу.",
+    "error": "3-р утга 'abc' нь бүхэл тоо биш.",
+    "pos": "Байрлал 0 / 0",
+    "cards": []
+  },
+  "U6_f02_internal": {
+    "duringError": {
+      "status": "Дотоод алдаа гарлаа. Хуудсыг дахин ачаална уу.",
+      "error": "Хуудасны дотоод алдаа гарлаа (оролтын алдаа биш). Хуудсыг дахин ачаална уу (F5).",
+      "pos": "Байрлал 0 / 0",
+      "cards": []
+    },
+    "afterRetryWithoutReload": "Бэлэн: 60 бодит event бүртгэгдлээ. “Тоглуулах” эсвэл “Алхам ▸” дарна уу."
+  },
+  "U7_f06": {
+    "status": "Бэлэн: 17 бодит event бүртгэгдлээ. “Тоглуулах” эсвэл “Алхам ▸” дарна уу.",
+    "notes": [
+      "Тэмдэглэл: таслал/цэг таслалын хооронд 1 хоосон утга байсныг алгаслаа (1-р утгын дараа). Тоо дутуу ороогүй эсэхийг шалгана уу."
+    ]
+  },
+  "allConsoleErrors": [
+    "log: Failed to load resource: the server responded with a status of 400 (Bad Request) http://127.0.0.1:8392/api/live/step",
+    "log: Failed to load resource: the server responded with a status of 400 (Bad Request) http://127.0.0.1:8392/api/run",
+    "console.error: TypeError: simulated internal error"
+  ],
+  "allFailedRequests": [
+    "400 http://127.0.0.1:8392/api/live/step",
+    "400 http://127.0.0.1:8392/api/run"
+  ]
+}

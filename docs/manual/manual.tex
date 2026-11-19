@@ -1,40 +1,31 @@
-% II-4-6 Multithreaded Sorting Application - Manual (8.1 User guide, 8.2 Operational guide)
-% Compile with XeLaTeX twice (for the table of contents):
-%   cd docs/manual
-%   xelatex manual.tex
-%   xelatex manual.tex
-% Overleaf: Menu -> Compiler -> XeLaTeX. The logo path is ../../report/images/logo.png.
-\documentclass[11pt,a4paper]{article}
+% II-4-6 Multithreaded Sorting Application - Final Manual (БД2)
+% Compile with XeLaTeX or Tectonic from this folder:
+%   tectonic manual.tex
+% Figures are read from ../../report/bd2/figures and the logo from ../../report/images.
+\documentclass[12pt,a4paper]{article}
 
 \usepackage{fontspec}
-\usepackage{polyglossia}
-\setdefaultlanguage{russian}   % Cyrillic hyphenation; Mongolian is not packaged in polyglossia
-\setotherlanguage{english}
+\setmainfont{Times New Roman}
+\setsansfont{Times New Roman}
+\setmonofont{Courier New}[Scale=0.92]
+\newfontfamily\symfont{Menlo}[Scale=0.8]
 
-% Fonts with Mongolian Cyrillic (Ө, Ү). DejaVu is on Overleaf and most Linux systems,
-% Times New Roman / Menlo are on macOS and Windows.
-\IfFontExistsTF{DejaVu Serif}{
-  \def\mainfam{DejaVu Serif}\def\sansfam{DejaVu Sans}\def\monofam{DejaVu Sans Mono}
-}{
-  \def\mainfam{Times New Roman}\def\sansfam{Arial}
-  \IfFontExistsTF{Menlo}{\def\monofam{Menlo}}{\def\monofam{Courier New}}
-}
-\setmainfont{\mainfam}
-\setsansfont{\sansfam}
-\setmonofont{\monofam}[Scale=0.86]
-\newfontfamily\cyrillicfont{\mainfam}[Ligatures=TeX]
-\newfontfamily\cyrillicfontsf{\sansfam}[Ligatures=TeX]
-\newfontfamily\cyrillicfonttt{\monofam}[Scale=0.86]
-
-\usepackage[hmargin=2cm,vmargin=1.5cm]{geometry}
+\usepackage[left=3cm,right=1.5cm,top=2cm,bottom=2cm]{geometry}
 \usepackage{graphicx}
 \usepackage{xcolor}
-\usepackage{booktabs}
+\usepackage{colortbl}
 \usepackage{tabularx}
 \usepackage{array}
+\usepackage{float}
 \usepackage{enumitem}
 \usepackage{fancyvrb}
 \usepackage{fvextra}
+\usepackage{caption}
+\usepackage{tocloft}
+\renewcommand{\cftsecaftersnum}{.}
+\renewcommand{\cftsecfont}{\normalfont\bfseries}
+\renewcommand{\cftsecpagefont}{\normalfont\bfseries}
+\renewcommand{\cftsecleader}{\hfill}
 \usepackage[hidelinks]{hyperref}
 
 \definecolor{cleft}{HTML}{5B8CFF}
@@ -42,40 +33,52 @@
 \definecolor{cmerge}{HTML}{2FD39A}
 \definecolor{ccmp}{HTML}{FF5C8A}
 \definecolor{cused}{HTML}{3B4763}
+\definecolor{headgray}{HTML}{E7E6E6}
 
-\newcommand{\sw}[1]{\textcolor{#1}{\rule{0.9em}{0.9em}}}
+\renewcommand{\figurename}{Зураг}
+\renewcommand{\tablename}{Хүснэгт}
+\renewcommand{\contentsname}{Гарчиг}
+\captionsetup{labelsep=period,labelfont=bf,font=normalsize,justification=centering,skip=6pt}
+\captionsetup[table]{justification=raggedright,singlelinecheck=false,position=top}
+
+\newcommand{\sw}[1]{\textcolor{#1}{\rule{0.8em}{0.8em}}}
 \newcommand{\code}[1]{\texttt{#1}}
-\DefineVerbatimEnvironment{cmd}{Verbatim}{fontsize=\small,frame=single,framesep=1.5mm,rulecolor=\color{cused},breaklines}
-\setlist{itemsep=1pt,topsep=2pt,parsep=0pt}
-\gappto\captionsrussian{\renewcommand{\contentsname}{Агуулга}}
-\emergencystretch=3em
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{2pt}
-\renewcommand{\arraystretch}{1.15}
+\newcommand{\term}[1]{\emph{#1}}
+\newcommand{\stepback}{{\symfont ◂}}
+\newcommand{\stepfwd}{{\symfont ▸}}
+\DefineVerbatimEnvironment{cmd}{Verbatim}{fontsize=\small,frame=single,framesep=2mm,breaklines}
+\setlist{itemsep=2pt,topsep=3pt,parsep=0pt}
+\hyphenpenalty=10000
+\exhyphenpenalty=50
+\emergencystretch=4em
+\setlength{\parindent}{1cm}
+\setlength{\parskip}{4pt}
+\renewcommand{\arraystretch}{1.2}
+\setlength{\arrayrulewidth}{0.4pt}
+\arrayrulecolor{gray}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
-
-% Unnumbered headings that still appear in the table of contents
-\newcommand{\msec}[1]{\section*{#1}\addcontentsline{toc}{section}{#1}}
-\newcommand{\msub}[1]{\subsection*{#1}\addcontentsline{toc}{subsection}{#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\hd}[1]{\cellcolor{headgray}\textbf{#1}}
+\setcounter{tocdepth}{1}
 \makeatletter
-\renewcommand\section{\@startsection{section}{1}{\z@}{-2ex}{1ex}{\normalfont\Large\bfseries}}
-\renewcommand\subsection{\@startsection{subsection}{2}{\z@}{-1.1ex}{0.4ex}{\normalfont\large\bfseries}}
+\def\@seccntformat#1{\csname the#1\endcsname.\quad}
+\renewcommand\section{\@startsection{section}{1}{\z@}{-2.2ex plus -.5ex}{1.2ex}{\normalfont\fontsize{14}{17}\selectfont\bfseries}}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}{-1.8ex plus -.4ex}{0.8ex}{\normalfont\normalsize\bfseries}}
 \makeatother
 
 \begin{document}
 \begin{titlepage}
     \centering
-    {\large \bfseries ШИНЖЛЭХ УХААН ТЕХНОЛОГИЙН ИХ СУРГУУЛЬ} \\[0.5cm]
-    {\large МЭДЭЭЛЭЛ, ХОЛБООНЫ ТЕХНОЛОГИЙН СУРГУУЛЬ} \\[1.6cm]
-    \IfFileExists{../../report/images/logo.png}{\includegraphics[width=5cm]{../../report/images/logo.png}}{%
-      \fbox{\parbox[c][3.5cm][c]{5cm}{\centering Лого:\\ \texttt{report/images/logo.png}}}} \\[1cm]
-    {\Large \bfseries ГАРЫН АВЛАГА} \\[0.3cm]
-    {\large \bfseries F.CSM302 ҮЙЛДЛИЙН СИСТЕМ, БИЕ ДААЛТ 1} \\[0.2cm]
-    {\normalsize 2026--2027 оны хичээлийн жилийн намар} \\[1.8cm]
-    \begin{tabular}{ll}
-        \textbf{Сэдэв:} & Multithreaded Sorting Application, Sorting animation \\[0.3cm]
-        \textbf{Хичээл заасан багш:} & Г. Ганбат /F.CS10/ \\[0.3cm]
-        \textbf{Хуваарилалтын код:} & II-4-6 \\[0.3cm]
+    {\bfseries ШИНЖЛЭХ УХААН ТЕХНОЛОГИЙН ИХ СУРГУУЛЬ} \\[0.3cm]
+    {МЭДЭЭЛЭЛ, ХОЛБООНЫ ТЕХНОЛОГИЙН СУРГУУЛЬ} \\[1.3cm]
+    \includegraphics[width=3.2cm]{../../report/images/logo.png} \\[1.2cm]
+    {\fontsize{18}{22}\selectfont\bfseries БИЕ ДААЛТ 2} \\[0.3cm]
+    {\fontsize{16}{20}\selectfont\bfseries ГАРЫН АВЛАГА (MANUAL)} \\[0.3cm]
+    {\bfseries Үйлдлийн систем (F.CSM302)} \\[1.5cm]
+    \begin{tabular}{@{}L{5.2cm}L{10cm}@{}}
+        \textbf{Сэдэв:} & Multithreaded Sorting Application, Sorting animation \\[0.15cm]
+        \textbf{Хуваарилалтын код:} & II-4-6 \\[0.15cm]
+        \textbf{Хичээл заасан багш:} & Г. Ганбат /F.CS10/ \\[0.15cm]
         \textbf{Гүйцэтгэсэн оюутнууд:} & Б. Отгондалай /B241940132/ \\
         & М. Мөнхгэрэлт /B232270012/ \\
         & А. Базарсад /B242270065/ \\
@@ -84,176 +87,328 @@
         & Ж. Суварнабазар /B251940118/ \\
     \end{tabular}
     \vfill
-    {\large Улаанбаатар хот, 2026}
+    Улаанбаатар хот, 2026
 \end{titlepage}
 
+\setcounter{page}{1}
 \tableofcontents
-\newpage
+\vspace{1em}
 
+\noindent Энэхүү гарын авлага нь программыг суулгах, ажиллуулах, шалгах эцсийн зааварчилгаа юм.
+Гарын авлагад англи нэр томьёог налуу үсгээр, команд, файл, кодын нэрийг \code{Courier New} фонтоор
+энгийн текстээс ялгаж бичив.
+
+\clearpage
 % =====================================================================
-\msec{8.1 Хэрэглэгчийн заавар}
+\section{Хэрэглэгчийн заавар}
 
-\msub{Програмын зорилго}
-Бүхэл тоон жагсаалтыг гурван бодит Java thread-ээр эрэмбэлнэ. Parent thread жагсаалтыг
-\code{[0, mid)} ба \code{[mid, n)} хоёр хэсэгт хуваана ($mid = \lceil n/2\rceil$). Хоёр sorting thread
-(\textbf{Sorter-L}, \textbf{Sorter-R}) өөр өөрийн хэсгийг зэрэг эрэмбэлнэ. Дараа нь \textbf{Merger} thread
-хоёр хэсгийг хоёр дахь global массив \code{result[]} руу нэгтгэнэ. Parent бүх thread-ийг \code{join()}
-хийгээд үр дүнг хэвлэнэ. Web UI нь бодит thread-ийн үйлдэл бүрийг баганан animation-аар харуулна.
+Энэ бүлэгт программын зорилго, дэмжих орчин, суулгах алхам, Web UI-ийн удирдлага, дүрслэлийн утга
+болон түгээмэл алдааны шийдлийг хэрэглэгчийн ажиллах дарааллаар тайлбарлана.
 
-\msub{Дэмжих орчин}
+\subsection{Программын зорилго}
+
+Программ нь бүхэл тоон жагсаалтыг бодит Java \term{thread}-үүдээр эрэмбэлж, энэ ажиллагааг алхам алхмаар
+харуулдаг. Даалгавар нь \emph{Operating System Concepts} номын 4-р бүлгийн Programming Project дээр үндэслэсэн~[1].
+Parent \term{thread} жагсаалтыг \code{[0, mid)} ба \code{[mid, n)} хоёр хэсэгт хуваана ($mid = \lceil n/2\rceil$).
+Sorter-L ба Sorter-R өөр өөрийн хэсгийг зэрэг эрэмбэлж, дараа нь Merger хоёр хэсгийг \code{result[]} массив руу нэгтгэнэ.
+Энэ дарааллыг Зураг~\ref{fig:fj}-д харуулав.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../../report/bd2/figures/fig2-fork-join.png}
+  \caption{Parent, хоёр sorting thread ба merging thread-ийн ажиллах дараалал.}
+  \label{fig:fj}
+\end{figure}
+
+Зурагт цэнхэр хүрээ нь \term{thread} ажиллаж буй үеийг, тасархай хүрээ нь Parent \code{join()} дээр хүлээж буй
+үеийг заана. Merger хоёр \term{sorter} дууссаны дараа л эхэлдэг тул эрэмбэлсэн утгуудыг зөв уншина.
+
+\subsection{Дэмжих орчин}
+
+Программыг ажиллуулахад дараах орчин шаардлагатай. Гадны сан, Maven, Gradle болон интернэт холболт хэрэггүй.
+
 \begin{itemize}
-  \item \textbf{JDK 17} буюу түүнээс дээш (\code{javac} хэрэгтэй, зөвхөн JRE хангалтгүй).
-  \item macOS, Linux эсвэл Windows. Web UI-д Chrome, Edge, Firefox, Safari-ийн сүүлийн хувилбар.
-  \item Гадны сан, Maven, Gradle, интернэт холболт шаардлагагүй.
+  \item JDK 17 буюу түүнээс дээш хувилбар (\code{javac} шаардлагатай, зөвхөн JRE хангалтгүй).
+  \item macOS, Linux эсвэл Windows үйлдлийн систем.
+  \item Web UI-д Chrome, Edge, Firefox эсвэл Safari хөтчийн сүүлийн хувилбар.
 \end{itemize}
 
-\msub{Суулгах / нээх алхам}
-\begin{itemize}
+\subsection{Суулгах ба нээх алхам}
+
+Программыг анх удаа ажиллуулах бүрэн урсгалыг Зураг~\ref{fig:flow}-д харуулав. Эхний эгнээ нь суулгах, ажиллуулах
+алхмыг, хоёр дахь эгнээ нь Web UI дээрх тохиргоог, сүүлийн эгнээ нь сонгож болох хоёр горимыг заана.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../../report/bd2/figures/fig5-usage-flow.png}
+  \caption{Программыг суулгаж, Web UI дээр ажиллуулах урсгал.}
+  \label{fig:flow}
+\end{figure}
+
+Зурагт үзүүлсэн алхмуудыг дараах дарааллаар гүйцэтгэнэ.
+
+\begin{enumerate}
   \item JDK 17 суулгана: macOS дээр \code{brew install --cask temurin@17}, Ubuntu дээр
-        \code{sudo apt install openjdk-17-jdk}, Windows дээр \url{https://adoptium.net}-аас Temurin 17.
-  \item Repository-г clone хийж эсвэл ZIP-ийг задлаад төслийн хавтас руу Terminal-аар орно.
-  \item \code{javac -version} командаар \code{javac 17.x} гарч байгааг шалгана.
+        \code{sudo apt install openjdk-17-jdk}, Windows дээр \url{https://adoptium.net} хаягаас Temurin 17.
+  \item Төслийн хавтас руу Terminal-аар орж, \code{javac -version} командаар хувилбарыг шалгана.
   \item \code{./build.sh} (Windows: \code{build.bat}) ажиллуулна. \code{Build OK (javac 17) -> out/} гарвал бэлэн.
   \item \code{./run.sh --web} ажиллуулж, хөтөч дээр \url{http://localhost:8080} хаягийг нээнэ.
-\end{itemize}
+\end{enumerate}
 
-\msub{Оролт ба тохиргоо}
+\subsection{Оролт ба тохиргоо}
+
+Web UI болон командын мөрөөр дараах тохиргоог өөрчилж, программыг дахин ажиллуулж болно.
+
 \begin{itemize}
-  \item \textbf{Тоонууд:} бүхэл тоонуудыг таслал эсвэл зайгаар тусгаарлана. Жишээ: \code{7, 12, 19, 3, 18}.
-        Сөрөг тоо, давхардсан утга, сондгой n зөвшөөрнө.
-  \item \textbf{Гараар / Санамсаргүй:} санамсаргүй үед n, Seed, Min, Max, Хэлбэр (random, sorted, reversed,
-        duplicates)-ийг тохируулна.
-  \item \textbf{Алгоритм:} Sorter-L ба Sorter-R тус бүрт insertion, bubble, selection, merge, quick-ээс сонгоно.
-  \item \textbf{Горим:} \textbf{Replay}: Java дээр thread-үүд ажиллаж дуусаад, бүртгэсэн event-ийг урагш/хойш
-        тоглуулна (n $\le$ 300). \textbf{Lockstep}: thread-үүд амьд байж, алхам бүрд Semaphore-ийн permit хүлээнэ (n $\le$ 100).
-  \item \textbf{CLI:} \code{./run.sh --input "7,12,19,3"}, \code{--file PATH}, \code{--random N --seed S},
-        \code{--algo-left NAME --algo-right NAME}, \code{--help}.
+  \item \textbf{Тоонууд:} бүхэл тоонуудыг таслал, цэг таслал эсвэл зайгаар тусгаарлана, жишээ нь \code{7, 12, 19, 3, 18}.
+        Сөрөг тоо, давхардсан утга, сондгой n зөвшөөрөгдөнө. \code{1,,2} эсвэл \code{1,2,} гэх мэт хоосон утгыг алгасаж,
+        энэ тухай тэмдэглэл гаргана.
+  \item \textbf{Санамсаргүй өгөгдөл:} n, \term{seed}, хамгийн бага, хамгийн их утга болон хэлбэрийг
+        (\term{random}, \term{sorted}, \term{reversed}, \term{duplicates}) сонгоно.
+  \item \textbf{Алгоритм:} Sorter-L, Sorter-R тус бүрт \term{insertion}, \term{bubble}, \term{selection},
+        \term{merge}, \term{quick} алгоритмаас сонгоно.
+  \item \textbf{Горим:} \term{Replay} горимд \term{thread}-үүд ажиллаж дууссаны дараа бүртгэсэн \term{event}-ийг урагш, хойш
+        тоглуулна (n $\le$ 300). \term{Lockstep} горимд амьд \term{thread}-үүд алхам бүрд \term{Semaphore}-ийн \term{permit} хүлээнэ (n $\le$ 100).
+  \item \textbf{Командын мөр:} \code{--input "7,12,19,3"}, \code{--file PATH}, \code{--random N --seed S},
+        \code{--algo-left NAME}, \code{--algo-right NAME}, \code{--help}.
 \end{itemize}
 
-\msub{Ажиллуулах, зогсоох, reset хийх}
-\begin{tabularx}{\linewidth}{@{}lY@{}}
-\toprule
-Товч & Үүрэг \\
-\midrule
-Ажиллуулах & Оролтыг шалгаж, Java дээр шинэ run эхлүүлнэ \\
-Тоглуулах / Түр зогсоох & Animation-ийг тасралтгүй тоглуулах эсвэл зогсооно (Space) \\
-◂ Алхам / Алхам ▸ & Нэг алхам ухрах (зөвхөн Replay) эсвэл урагшлах (← / →) \\
-Эхнээс нь & Replay: эхлэл рүү буцна. Lockstep: шинэ session эхлүүлнэ \\
-Хурд & 1--5000 алхам/сек \\
-Байрлал & Гулсуураар дурын алхам руу шууд очно (зөвхөн Replay) \\
-\bottomrule
+\subsection{Ажиллуулах, зогсоох, reset хийх}
+
+Web UI-ийн удирдлагын товчнуудыг Хүснэгт~\ref{tab:ctl}-д нэгтгэв. Хэрэглэгч ямар үйлдэл хийхийг хайж олоход дөхөм байлгах
+үүднээс мөрүүдийг дэлгэц дээрх байрлалын дарааллаар жагсааж, товч бүрийн үүргийг зэрэгцүүлэн бичив.
+
+\begin{table}[H]
+\caption{Web UI-ийн удирдлагын товч ба үүрэг}\label{tab:ctl}
+\begin{tabularx}{\linewidth}{|L{4.6cm}|Y|}
+\hline
+\hd{Товч} & \hd{Үүрэг} \\ \hline
+Ажиллуулах & Оролтыг шалгаж, Java дээр шинэ ажиллалт эхлүүлнэ \\ \hline
+Тоглуулах / Түр зогсоох & Дүрслэлийг тасралтгүй тоглуулах эсвэл зогсооно (Space) \\ \hline
+\stepback\ Алхам / Алхам \stepfwd & Нэг алхам ухрах (зөвхөн \term{Replay}) эсвэл урагшлах (сумтай товч) \\ \hline
+Эхнээс нь & \term{Replay}: эхлэл рүү буцна. \term{Lockstep}: шинэ \term{session} эхлүүлнэ \\ \hline
+Хурд & Секундэд 1--5000 алхам \\ \hline
+Байрлал / Явц & \term{Replay}: гулсуураар дурын алхам руу очно. \term{Lockstep}: ирсэн \term{event} ба олгосон \term{permit}-ийн тоог харуулна \\ \hline
 \end{tabularx}
+\end{table}
 
-Горимыг солиход дүрслэл цэвэрлэгдэнэ. Серверийг зогсоохдоо terminal дээр \code{Ctrl+C} дарна.
+Хүснэгтээс харахад \term{Lockstep} горимд бодит \term{thread}-ийг ухрааж болохгүй тул зөвхөн урагш алхана. Горимыг солиход дүрслэл
+цэвэрлэгдэх тул «Ажиллуулах» товчийг дахин дарна. Серверийг зогсоохдоо Terminal дээр \code{Ctrl+C} дарна.
 
-\msub{Дүрслэлийн тэмдэг, өнгө, төлөв}
-\begin{tabularx}{\linewidth}{@{}lY@{}}
-\toprule
-Өнгө & Утга \\
-\midrule
-\sw{cleft}\ Цэнхэр & Sorter-L-ийн хэсэг \code{[0, mid)} \\
-\sw{cright}\ Улбар шар & Sorter-R-ийн хэсэг \code{[mid, n)} \\
-\sw{cmerge}\ Ногоон & Merger-ийн \code{result[]}-д бичсэн утга \\
-\sw{ccmp}\ Ягаан улаан & Яг одоо харьцуулж буй элементүүд \\
-\fcolorbox{black!40}{white}{\rule{0pt}{0.6em}\rule{0.6em}{0pt}}\ Цагаан & Яг одоо сольсон эсвэл бичсэн элемент \\
-\sw{cused}\ Бараан саарал & Merger аль хэдийн авсан элемент \\
-\textcolor{black!60}{\rule{1.5pt}{0.9em}}\ Босоо зураас & Хуваалтын цэг \code{mid} \\
-\bottomrule
+\subsection{Дүрслэлийн тэмдэг, өнгө, төлөв}
+
+Дэлгэц дээрх өнгө бүр тодорхой үйлдэл, эсвэл массивын хэсгийг заадаг. Хүснэгт~\ref{tab:col}-д өнгийг дэлгэцийн тайлбарын
+(\term{legend}) дарааллаар нь утгатай нь харьцуулав.
+
+\begin{table}[H]
+\caption{Дүрслэлийн өнгө ба тэмдгийн утга}\label{tab:col}
+\begin{tabularx}{\linewidth}{|L{4.6cm}|Y|}
+\hline
+\hd{Тэмдэг} & \hd{Утга} \\ \hline
+\sw{cleft}\ Цэнхэр & Sorter-L-ийн хэсэг \code{[0, mid)} \\ \hline
+\sw{cright}\ Улбар шар & Sorter-R-ийн хэсэг \code{[mid, n)} \\ \hline
+\sw{cmerge}\ Ногоон & Merger-ийн \code{result[]}-д бичсэн утга \\ \hline
+\sw{ccmp}\ Ягаан улаан & Яг одоо харьцуулж буй элементүүд \\ \hline
+\fcolorbox{gray}{white}{\rule{0pt}{0.5em}\rule{0.5em}{0pt}}\ Цагаан & Яг одоо сольсон эсвэл бичсэн элемент \\ \hline
+\sw{cused}\ Бараан саарал & Merger аль хэдийн авсан элемент \\ \hline
+\textcolor{gray}{\rule{1.5pt}{0.9em}}\ Босоо зураас & Хуваалтын цэг \code{mid} \\ \hline
 \end{tabularx}
+\end{table}
 
-Thread-ийн карт дээр төлөв гарна: \emph{Үүсээгүй → start() дуудагдсан → Ажиллаж байна → Дууссан}, Parent-д
-\emph{join() дээр хүлээж байна}. Lockstep горимд Java-гийн бодит төлөв (\code{NEW}, \code{RUNNABLE},
-\code{WAITING}, \code{TERMINATED}) нэмж харагдана.
+Хүснэгтийн өнгөнүүдийг ашиглан аль \term{thread} массивын аль хэсэгт ажиллаж байгааг шууд ялгана. Зураг~\ref{fig:ui}-д \term{Replay} горимын бодит дэлгэцийг харуулав. Дээд хэсэгт тохиргоо, дунд хэсэгт эх массив ба
+\code{result[]}, доод хэсэгт \term{thread}-ийн карт, сүүлийн \term{event}-үүд, үр дүн байрлана.
 
-\msub{Хоёроос доошгүй жишээ}
-\textbf{Жишээ 1 — Номын жишээ (Web UI, Replay)}
-\begin{itemize}
-  \item “Номын жишээ” товч: \code{7, 12, 19, 3, 18, 4, 2, 6, 15, 8}. Sorter-L = insertion, Sorter-R = merge.
-  \item “Ажиллуулах”, дараа нь “Алхам ▸” дарж хоёр хэсэг эрэмбэлэгдэж, Merger нэгтгэхийг ажиглана.
-  \item Хүлээгдэх үр дүн: \code{[2, 3, 4, 6, 7, 8, 12, 15, 18, 19]}, Шалгалт: “Эрэмбэлэгдсэн, зөв”.
-\end{itemize}
-\textbf{Жишээ 2 — Сондгой n, өөр алгоритм (CLI)}
-\begin{itemize}
-  \item \code{./run.sh --file examples/odd-11.txt --algo-left bubble --algo-right quick}
-  \item Хуваалт: зүүн 6, баруун 5 элемент. Хүлээгдэх үр дүн: \code{[1, 2, \dots, 11]}, ЗӨВ.
-\end{itemize}
-\textbf{Жишээ 3 — Lockstep горим}
-\begin{itemize}
-  \item Горим = Lockstep, “Ажиллуулах” дарна. Sorter-уудын карт дээр \code{WAITING} гарна.
-  \item “Алхам ▸” бүрд нэг thread яг нэг үйлдэл хийнэ, хоёр sorter ээлжилнэ. Төгсгөлд бүгд \code{TERMINATED}.
-\end{itemize}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=14cm]{../../report/bd2/figures/ss-replay-overview.png}
+  \caption{Replay горим: номын жишээ, 60 event-ийн 12 дахь алхам.}
+  \label{fig:ui}
+\end{figure}
 
-\msub{Түгээмэл алдаа ба шийдэл}
-\begin{tabularx}{\linewidth}{@{}>{\raggedright}p{0.44\linewidth}Y@{}}
-\toprule
-Алдаа / нөхцөл & Шийдэл \\
-\midrule
-Хоосон оролт & Дор хаяж нэг бүхэл тоо оруулна \\
-Тоо биш утга (\code{abc}) эсвэл бутархай (\code{2.5}) & Зөвхөн бүхэл тоо оруулна \\
-int мужаас хэтэрсэн (\code{3000000000}) & $-2^{31}\dots 2^{31}-1$ мужид багтах тоо \\
-O(n²) алгоритмд n > 20 000 & merge/quick сонгох эсвэл \code{--force} \\
-Web UI-д n > 300 (Lockstep: n > 100) & n-ийг багасгана \\
-\code{javac олдсонгүй} / \code{JDK 17+ хэрэгтэй} & JDK 17 суулгаж, \code{JAVA\_HOME}, PATH-ийг шалгана \\
-\code{8080 порт аль хэдийн ашиглагдаж байна} & \code{./run.sh --web --port 8100} \\
-\code{Сервертэй холбогдож чадсангүй} & \code{./run.sh --web}-ийг дахин ажиллуулна \\
-\bottomrule
+\term{Thread}-ийн картад
+«Үүсээгүй», «start() дуудагдсан», «Ажиллаж байна», «Дууссан» гэсэн төлөв гарна. \term{Lockstep} горимд Java-гийн бодит төлөв
+(\code{NEW}, \code{RUNNABLE}, \code{WAITING}, \code{TERMINATED}) нэмж харагдах бөгөөд Зураг~\ref{fig:cards}-т үзүүлснээр
+\term{Semaphore} дээр зогсож буй \term{thread}-ийн картад «Permit хүлээж байна» гэж бичигдэнэ.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{../../report/bd2/figures/ss-f08-cards.png}
+  \caption{Lockstep горимын thread-ийн картууд: Parent join() дээр, хоёр sorter permit хүлээж байна.}
+  \label{fig:cards}
+\end{figure}
+
+\subsection{Ажиллуулах жишээ}
+
+Программын гол боломжийг шалгах гурван жишээг доор өгөв. Жишээ бүрт хийх үйлдэл ба хүлээгдэх үр дүнг бичсэн.
+
+\begin{enumerate}
+  \item \textbf{Номын жишээ (Web UI, \term{Replay}).} «Номын жишээ» товч дарж, Sorter-L-д \term{insertion}, Sorter-R-д \term{merge} сонгоод
+        «Ажиллуулах» дарна. Хүлээгдэх үр дүн: \code{[2, 3, 4, 6, 7, 8, 12, 15, 18, 19]}.
+  \item \textbf{Сондгой n (командын мөр).} \code{./run.sh --file examples/odd-11.txt --algo-left bubble --algo-right quick}
+        командыг ажиллуулна. Зүүн хэсэгт 6, баруун хэсэгт 5 элемент орж, \code{[1, 2, \dots, 11]} гарна.
+  \item \textbf{\term{Lockstep} горим.} Горимыг \term{Lockstep} болгож «Ажиллуулах» дарна. «Алхам \stepfwd» дарах бүрд нэг \term{thread} нэг үйлдэл хийж,
+        төгсгөлд бүх \term{thread} \code{TERMINATED} төлөвт орно.
+\end{enumerate}
+
+\subsection{Түгээмэл алдаа ба шийдэл}
+
+Хэрэглэгчид тохиолдож болох алдааг Хүснэгт~\ref{tab:err}-д нөхцөл, шийдэл гэсэн хоёр баганаар нэгтгэв. Эхний мөрүүд нь
+оролтын алдаа, сүүлийн мөрүүд нь орчин ба холболтын алдаа юм.
+
+\begin{table}[H]
+\caption{Түгээмэл алдаа ба шийдэл}\label{tab:err}
+\begin{tabularx}{\linewidth}{|L{7.6cm}|Y|}
+\hline
+\hd{Алдаа, нөхцөл} & \hd{Шийдэл} \\ \hline
+Хоосон оролт & Дор хаяж нэг бүхэл тоо оруулна \\ \hline
+Тоо биш утга (\code{abc}), бутархай (\code{2.5}) & Зөвхөн бүхэл тоо оруулна \\ \hline
+int мужаас хэтэрсэн (\code{3000000000}) & $-2^{31}\dots 2^{31}-1$ мужид оруулна \\ \hline
+O(n²) алгоритмд n > 20 000 & \term{merge}, \term{quick} сонгох эсвэл \code{--force} \\ \hline
+Web UI-д n > 300 (\term{Lockstep}: n > 100) & n-ийг багасгана \\ \hline
+\code{javac олдсонгүй} & JDK 17 суулгаж, PATH-ийг шалгана \\ \hline
+\code{8080 порт аль хэдийн ашиглагдаж байна} & \code{./run.sh --web --port 8100} \\ \hline
+\code{Сервертэй холбогдож чадсангүй} & \code{./run.sh --web}-ийг дахин ажиллуулна \\ \hline
+\term{Lockstep} \term{session} хаагдсан тухай мессеж & «Ажиллуулах» дарж шинэ \term{session} эхлүүлнэ \\ \hline
 \end{tabularx}
+\end{table}
+
+Хүснэгтэд заасан оролтын алдаа гарахад Web UI шалтгааныг мэдээлж, дараагийн оролтыг хүлээн авна. Командын мөрөөр ажиллуулсан үед программ алдааны мессеж хэвлээд exit code 2-оор дуусна.
 
 % =====================================================================
-\newpage
-\msec{8.2 Operational заавар}
+\section{Operational заавар}
 
-\msub{Repository clone хийх}
+Энэ бүлэгт программыг өөр компьютер дээр дахин бүтээх, ажиллуулах, шалгахад шаардлагатай техникийн мэдээллийг өгнө.
+
+\subsection{Repository clone хийх}
+
+Эх кодыг GitHub-аас дараах командаар татаж авна.
+
 \begin{cmd}
 git clone https://github.com/Munkhgerelt/F.CSM302-TeamProject-2-4-6.git
 cd F.CSM302-TeamProject-2-4-6
 \end{cmd}
 
-\msub{OS, compiler/runtime, хувилбар}
-JDK 17 буюу түүнээс дээш (\code{javac -version}); \code{build.sh} нь \code{javac --release 17} ашигладаг.
-Туршсан орчин: macOS 27 (Apple Silicon) + Temurin 17.0.21, Ubuntu 24.04 (amd64) + OpenJDK 21.
+\subsection{OS, compiler, runtime хувилбар}
 
-\msub{Dependency суулгах}
-Гадны dependency байхгүй: зөвхөн JDK хэрэгтэй. Web сервер нь JDK-д багтсан \code{com.sun.net.httpserver}.
+Төслийг JDK 17 буюу түүнээс дээш хувилбараар хөрвүүлнэ. \code{build.sh} нь \code{javac --release 17} ашигладаг.
+БД2-ын эцсийн хувилбарыг macOS 27 (Apple M4), Temurin 17.0.21 орчинд туршсан. БД1-ийн хувилбарыг мөн Ubuntu 24.04 (amd64),
+OpenJDK 21 дээр туршсан бөгөөд БД2-ын хувилбарыг Linux дээр дахин туршаагүй.
 
-\msub{Build ба Run команд}
+\subsection{Dependency суулгах}
+
+Төсөл гадны \term{dependency}-гүй тул JDK-аас өөр зүйл суулгах шаардлагагүй. Web сервер нь JDK-д багтсан
+\code{com.sun.net.httpserver} санг ашигладаг.
+
+\subsection{Build ба Run команд}
+
+Программыг хөрвүүлж, номын жишээг ажиллуулаад Web UI-г дараах командаар эхлүүлнэ.
+
 \begin{cmd}
-./build.sh && ./run.sh --file examples/book-example.txt
+./build.sh
+./run.sh --file examples/book-example.txt
 ./run.sh --web
 \end{cmd}
-Windows: \code{build.bat}, \code{run.bat --web}. Скрипт ажиллахгүй бол \code{chmod +x *.sh}. Хөрвүүлсэн
-файлууд \code{out/}-д гарна (commit хийгдэхгүй).
 
-\msub{Үндсэн тестийн өгөгдөл}
-\code{examples/} хавтас: \code{book-example.txt} (номын жишээ), \code{odd-11.txt}, \code{duplicates.txt},
-\code{reversed.txt}, \code{int-limits.txt}, \code{single.txt}; алдаатай: \code{invalid-letters.txt},
-\code{invalid-overflow.txt}, \code{empty.txt}. Автомат тест: \code{./test.sh} (Windows: \code{test.bat}),
-JUnit-гүй 100 тест (\code{tests/TestRunner.java}). Хугацааны хэмжилт: \code{./bench.sh}.
+Windows дээр \code{build.bat}, \code{run.bat --web} скриптийг ашиглана. Скрипт ажиллахгүй бол \code{chmod +x *.sh} командыг
+ажиллуулна. Хөрвүүлсэн файлууд \code{out/} хавтаст гарна.
 
-\msub{Нэмэлт boundary/error тест}
-\begin{itemize}
-  \item Нэг элемент: \code{./run.sh 42} → \code{[42]} (баруун хэсэг хоосон). Хоёр элемент: \code{./run.sh 2 1} → \code{[1, 2]}.
-  \item Давхардсан: \code{--file examples/duplicates.txt} → \code{[1, 1, 1, 2, 2, 3, 3, 3, 3, 5, 5, 5]}.
-  \item Хязгаар: \code{--file examples/int-limits.txt} → \code{-2147483648} ба \code{2147483647} зөв байрлана.
-  \item Алдаатай оролт: \code{--input ""}, \code{--input "5,3,abc"}, \code{--input "1,2.5"} → алдааны мессеж, exit code 2.
-\end{itemize}
+\subsection{Үндсэн тестийн өгөгдөл}
 
-\msub{Хүлээгдсэн үр дүн}
-Номын жишээ: \code{[2, 3, 4, 6, 7, 8, 12, 15, 18, 19]}, \code{Шалгалт: ЗӨВ}, exit code 0. Автомат тест:
-\code{Нийт: 100, амжилттай: 100, алдаатай: 0}. Тест бүрийн оролт, хүлээгдсэн ба бодит утга
-\code{tests/results/test-results.md}-д, хэмжилт \code{tests/results/benchmark.md}-д бичигдэнэ.
+Туршилтын өгөгдлийг \code{examples/} хавтаст хадгалсан. Хүснэгт~\ref{tab:data}-д файлуудыг зөв ба алдаатай оролт гэж бүлэглэн,
+файл бүрийн шалгах зорилгыг зэрэгцүүлэв.
 
-\msub{Known issues}
+\begin{table}[H]
+\caption{Туршилтын өгөгдлийн файл ба зорилго}\label{tab:data}
+\begin{tabularx}{\linewidth}{|L{6.2cm}|Y|}
+\hline
+\hd{Файл} & \hd{Шалгах зүйл} \\ \hline
+\code{book-example.txt} & Номын жишээ, 10 элемент \\ \hline
+\code{odd-11.txt} & Сондгой тооны элемент \\ \hline
+\code{duplicates.txt} & Давхардсан утга \\ \hline
+\code{reversed.txt} & Урвуу эрэмбэтэй өгөгдөл \\ \hline
+\code{int-limits.txt} & int төрлийн хязгаарын утга \\ \hline
+\code{single.txt} & Нэг элемент \\ \hline
+\code{invalid-letters.txt} & Тоо биш утга (алдаа гарна) \\ \hline
+\code{invalid-overflow.txt} & int мужаас хэтэрсэн утга (алдаа гарна) \\ \hline
+\code{empty.txt} & Хоосон файл (алдаа гарна) \\ \hline
+\end{tabularx}
+\end{table}
+
+Хүснэгтийн эхний зургаан файл амжилттай эрэмбэлэгдэх ёстой бол сүүлийн гурав нь алдааны мессеж ба exit code 2 буцаах ёстой.
+Автомат тестийг \code{./test.sh} (Windows: \code{test.bat}), хугацааны хэмжилтийг \code{./bench.sh} командаар ажиллуулна.
+
+\subsection{Нэмэлт boundary ба error тест}
+
+Захын болон алдаатай нөхцөлийг шалгах командуудыг Хүснэгт~\ref{tab:bnd}-д хүлээгдэх үр дүнтэй нь харьцуулав.
+Команд бүрийг ажиллуулж, гаралтыг баруун баганатай тулгаснаар зөв ажиллагааг шалгана.
+
+\begin{table}[H]
+\caption{Boundary ба error тестийн команд, хүлээгдэх үр дүн}\label{tab:bnd}
+\begin{tabularx}{\linewidth}{|L{8.2cm}|Y|}
+\hline
+\hd{Команд} & \hd{Хүлээгдэх үр дүн} \\ \hline
+\code{./run.sh 42} & \code{[42]}, exit code 0 \\ \hline
+\code{./run.sh 2 1} & \code{[1, 2]}, exit code 0 \\ \hline
+\code{./run.sh --file examples/duplicates.txt} & \code{[1, 1, 1, 2, 2, 3, 3, 3, 3, 5, 5, 5]} \\ \hline
+\code{./run.sh --file examples/int-limits.txt} & Хамгийн бага, их int утга зөв байрлана \\ \hline
+\code{./run.sh --input "1,,2"} & \code{[1, 2]}, хоосон утгын тэмдэглэл \\ \hline
+\code{./run.sh --input ""} & Алдааны мессеж, exit code 2 \\ \hline
+\code{./run.sh --input "5,3,abc"} & Алдааны мессеж, exit code 2 \\ \hline
+\code{./run.sh --input "1,2.5"} & Алдааны мессеж, exit code 2 \\ \hline
+\end{tabularx}
+\end{table}
+
+Хүснэгтийн эхний таван мөр программын зөв ажиллагааг, сүүлийн гурван мөр буруу оролтыг таних чадварыг шалгана.
+
+\subsection{Хүлээгдсэн үр дүн}
+
+Номын жишээг ажиллуулахад \code{[2, 3, 4, 6, 7, 8, 12, 15, 18, 19]}, \code{Шалгалт (Arrays.sort-той харьцуулав): ЗӨВ} гэж гарч,
+exit code 0 буцна. Автомат тестийн төгсгөлд \code{Нийт: 114, амжилттай: 114, алдаатай: 0} гэж гарна. Тест бүрийн оролт,
+хүлээгдсэн ба бодит утга \code{tests/results/test-results.md} файлд, хугацааны хэмжилт \code{tests/results/benchmark.md} файлд бичигдэнэ.
+
+\subsection{Known issues}
+
+Эцсийн хувилбарын мэдэгдэж буй хязгаарлалт дараах байдалтай байна.
+
 \begin{itemize}
   \item Windows-ийн \code{.bat} скриптийг бодит Windows машин дээр туршаагүй.
-  \item n бага үед хугацааны хэмжилт шуугиантай (JIT, thread үүсгэх зардал); trace-тэй ажиллалт удаан.
-  \item Lockstep-д хойш алхах боломжгүй; Web сервер зөвхөн \code{127.0.0.1} дээр сонсоно.
+  \item n бага үед хугацааны хэмжилтэд JIT болон \term{thread} үүсгэх зардал нөлөөлнө.
+  \item \term{Lockstep} горимд хойш алхах боломжгүй. Web сервер зөвхөн \code{127.0.0.1} хаягаар сонсдог.
+  \item Зэрэг 4 хүртэл \term{Lockstep} \term{session} ажиллана. 5 дахь нь эхлэхэд хамгийн удаан идэвхгүй байсан
+        \term{session} хаагдаж, тухайн цонхонд шалтгаан нь гарна. 10 минут идэвхгүй \term{session} мөн хаагдана.
 \end{itemize}
 
-\msub{Нөөц ба эх сурвалж}
-Silberschatz, Galvin, Gagne. \emph{Operating System Concepts}, 10th ed., Ch.~4;
-Java SE 17 API: \url{https://docs.oracle.com/en/java/javase/17/docs/api/}; Temurin JDK: \url{https://adoptium.net}.
+% =====================================================================
+\section{БД2-т орсон засвар ба шинэ боломж}
 
-{\small\emph{Энэ гарын авлагын нооргийг Claude хиймэл оюун ухаан ашиглан бэлтгэсэн; багийн гишүүд уншиж шалгасан.}}
+IV-2-13 багийн шүүмжийн дагуу хэрэглэгчид шууд нөлөөлөх өөрчлөлтийг Хүснэгт~\ref{tab:chg}-д нэгтгэв. Мөр бүрд шүүмжийн дугаар
+ба хэрэглэгчийн харах өөрчлөлтийг зэрэгцүүлсэн тул өмнөх хувилбарыг ашиглаж байсан хэрэглэгч ялгааг шууд харна.
+
+\begin{table}[H]
+\caption{БД2-т хэрэглэгчид нөлөөлөх өөрчлөлт}\label{tab:chg}
+\begin{tabularx}{\linewidth}{|L{2.4cm}|Y|}
+\hline
+\hd{Шүүмж} & \hd{Хэрэглэгчийн харах өөрчлөлт} \\ \hline
+F-01 & \term{Replay} ажиллаж байхад горим солиход алдаа гарахгүй, \term{Lockstep} хэвийн эхэлнэ \\ \hline
+F-02 & Оролтын, сервертэй холбогдох болон хуудасны дотоод алдааг ялгаж мэдээлнэ \\ \hline
+F-03 & Хаагдсан \term{session} шалтгаанаа хэлж, 5 дахь \term{session}-ийн хариунд хязгаарын тэмдэглэл гарна \\ \hline
+F-04 & \term{Lockstep} горимд «Явц: N event, M үйлдэл (permit)» тоолуур гарна \\ \hline
+F-05 & Хуудас ачаалахад \term{favicon}-ийн 404 алдаа гарахаа больсон \\ \hline
+F-06 & Хоосон утгыг алгасахдаа хаана байсныг тэмдэглэлээр мэдээлнэ \\ \hline
+F-07 & Автомат тестийн тоо 100-аас 114 болж, Web серверийн HTTP шалгалт нэмэгдсэн \\ \hline
+F-08 & \term{Permit} хүлээж буй \term{thread}-ийн картад «Permit хүлээж байна» гэж гарна \\ \hline
+\end{tabularx}
+\end{table}
+
+Эдгээр өөрчлөлт нь эрэмбэлэлтийн үр дүн болон командын мөрийн өмнөх хэрэглээг өөрчлөөгүй. F-09 нь Git түүхтэй холбоотой тул
+хэрэглэгчийн ажиллагаанд нөлөөлөхгүй.
+
+\section*{Ашигласан материал}
+\addcontentsline{toc}{section}{Ашигласан материал}
+
+\noindent\hangindent=1cm\hangafter=1\makebox[1cm][l]{[1]}A. Silberschatz, P. B. Galvin, and G. Gagne, \emph{Operating System Concepts}, 10th ed. Wiley, 2018.
+
+\vspace{1em}
+\noindent Энэ гарын авлагын нооргийг бэлтгэхэд Claude хиймэл оюун ухааныг ашигласан.
 
 \end{document}

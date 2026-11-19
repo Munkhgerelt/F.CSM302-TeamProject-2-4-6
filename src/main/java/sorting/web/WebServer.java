@@ -21,7 +21,10 @@ import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,7 +61,24 @@ public final class WebServer {
     private HttpServer server;
     private ExecutorService pool;
     private final Map<String, LiveSession> sessions = new ConcurrentHashMap<>();
+    /** Why a session was closed by the server (id -> message); only the most recent ones are kept. */
+    private final Map<String, String> closedSessions = Collections.synchronizedMap(
+            new LinkedHashMap<String, String>() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
+                    return size() > MAX_CLOSED_REMEMBERED;
+                }
+            });
     private ScheduledExecutorService janitor;
+
+    private static final int MAX_CLOSED_REMEMBERED = 64;
+    static final String MSG_CLOSED_BY_NEWER = "Энэ Lockstep session хаагдсан: өөр цонх эсвэл tab дээр шинэ session эхэлсэн"
+            + " бөгөөд зэрэг хамгийн ихдээ " + MAX_SESSIONS + " session ажиллана (хамгийн удаан идэвхгүй байсныг нь хаадаг)."
+            + " \"Ажиллуулах\"-ыг дахин дарна уу.";
+    static final String MSG_CLOSED_IDLE = "Энэ Lockstep session " + (SESSION_IDLE_MS / 60_000)
+            + " минут идэвхгүй байсан тул автоматаар хаагдсан. \"Ажиллуулах\"-ыг дахин дарна уу.";
 
     public WebServer(int port) {
         this.port = port;
@@ -171,11 +191,21 @@ public final class WebServer {
     private void liveStart(HttpExchange ex) throws IOException {
         if (!requirePost(ex)) return;
         RunRequest req = RunRequest.parse(readForm(ex), LIVE_MAX_N, "Lockstep горимд");
+        List<String> notes = new ArrayList<>(req.notes);
+        // At most MAX_SESSIONS sessions run at the same time. When the limit is reached the
+        // session that has been idle the longest (usually a forgotten tab) is closed, and the
+        // reason is remembered so that the closed session gets a clear message.
         while (sessions.size() >= MAX_SESSIONS) {
             sessions.values().stream().min((a, b) -> Long.compare(b.idleMillis(), a.idleMillis()))
-                    .ifPresent(old -> { old.cancel(); sessions.remove(old.id); });
+                    .ifPresent(old -> {
+                        old.cancel();
+                        sessions.remove(old.id);
+                        closedSessions.put(old.id, MSG_CLOSED_BY_NEWER);
+                        notes.add("Тэмдэглэл: зэрэг ажиллах Lockstep session-ий хязгаар (" + MAX_SESSIONS
+                                + ")-т хүрсэн тул хамгийн удаан идэвхгүй байсан session-ийг хаалаа.");
+                    });
         }
-        LiveSession ls = new LiveSession(req.values, req.left, req.right, req.source, req.notes);
+        LiveSession ls = new LiveSession(req.values, req.left, req.right, req.source, notes);
         sessions.put(ls.id, ls);
         ls.start();
         sendJson(ex, 200, ls.startJson());
@@ -205,8 +235,13 @@ public final class WebServer {
     }
 
     private LiveSession session(Map<String, String> f) {
-        LiveSession ls = sessions.get(f.getOrDefault("id", ""));
-        if (ls == null) throw new InputException("Lockstep session олдсонгүй (хугацаа нь дууссан эсвэл сервер дахин асаасан). \"Ажиллуулах\"-ыг дахин дарна уу.");
+        String id = f.getOrDefault("id", "");
+        LiveSession ls = sessions.get(id);
+        if (ls == null) {
+            String reason = closedSessions.get(id);
+            throw new InputException(reason != null ? reason
+                    : "Lockstep session олдсонгүй (session хаагдсан эсвэл сервер дахин асаасан). \"Ажиллуулах\"-ыг дахин дарна уу.");
+        }
         return ls;
     }
 
@@ -226,6 +261,7 @@ public final class WebServer {
             if (ls.idleMillis() > SESSION_IDLE_MS) {
                 ls.cancel();
                 sessions.remove(ls.id);
+                closedSessions.put(ls.id, MSG_CLOSED_IDLE);
             }
         }
     }
@@ -233,6 +269,11 @@ public final class WebServer {
     private void staticFile(HttpExchange ex) throws IOException {
         String path = ex.getRequestURI().getPath();
         if (path.equals("/")) path = "/index.html";
+        if (path.equals("/favicon.ico")) {
+            // the page declares an empty icon; answer browsers that still ask for one without a 404
+            ex.sendResponseHeaders(204, -1);
+            return;
+        }
         if (path.contains("..") || !path.matches("/[A-Za-z0-9._-]+")) {
             sendText(ex, 404, "text/plain", "Not found");
             return;
@@ -332,7 +373,8 @@ public final class WebServer {
                 throw new InputException(modeLabel + " n ≤ " + maxN + " (одоо n = " + r.values.length
                         + "). Том өгөгдлийг console горимоор ажиллуулна уу: ./run.sh --random N --algo merge");
             }
-            r.notes = Limits.check(r.values.length, r.left, r.right, false, true);
+            r.notes = new ArrayList<>(mode.equals("random") ? List.of() : InputParser.emptyFieldNotes(f.get("input")));
+            r.notes.addAll(Limits.check(r.values.length, r.left, r.right, false, true));
             return r;
         }
 

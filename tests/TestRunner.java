@@ -10,11 +10,16 @@ import sorting.input.Limits;
 import sorting.trace.TraceEvent;
 import sorting.trace.TraceJson;
 import sorting.trace.TraceRecorder;
+import sorting.web.WebServer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -98,6 +103,8 @@ public final class TestRunner {
         traceTests();
         lockstepTests();
         cliTests();
+        inputNoteTests();
+        webTests();
 
         long passed = ROWS.stream().filter(r -> r.pass).count();
         System.out.println();
@@ -510,6 +517,112 @@ public final class TestRunner {
         cli("Хоосон файл", new String[] {"--file", "examples/empty.txt"}, 2, "Алдаа");
         cli("Буруу алгоритм", new String[] {"--input", "1,2", "--algo", "foo"}, 2, "foo");
         cli("--help", new String[] {"--help"}, 0, "--algo");
+    }
+
+    // =====================================================================
+    // 10. Empty values between separators (review F-06)
+    // =====================================================================
+    private static void inputNoteTests() {
+        category("Хоосон утгын тэмдэглэл");
+        emptyNote("Давхар таслал", "1,,2", "1 2", "1-р утгын дараа");
+        emptyNote("Төгсгөлийн таслал", "1,2,", "1 2", "2-р утгын дараа");
+        emptyNote("Эхний таслал", ",5,3", "5 3", "эхэнд");
+        emptyNote("Таслал ба зай: тэмдэглэлгүй", "7, 12, 19", "7 12 19", null);
+        emptyNote("Олон зай, хоосон мөр: тэмдэглэлгүй", "1 2\n\n3", "1 2 3", null);
+        cli("Хоосон утгатай оролт (CLI)", new String[] {"--input", "1,,2"}, 0, "хоосон утга");
+    }
+
+    /** parseList must still skip the empty value; emptyFieldNotes must (or must not) report it. */
+    private static void emptyNote(String name, String input, String expectedValues, String mustMention) {
+        String expected = expectedValues + "; " + (mustMention == null ? "тэмдэглэлгүй" : "тэмдэглэл: " + mustMention);
+        check(name, input, expected, () -> {
+            String values = join(InputParser.parseList(input));
+            List<String> notes = InputParser.emptyFieldNotes(input);
+            boolean noteOk = mustMention == null ? notes.isEmpty()
+                    : notes.size() == 1 && notes.get(0).contains(mustMention);
+            String actual = values + "; " + (notes.isEmpty() ? "тэмдэглэлгүй"
+                    : (mustMention != null && noteOk ? "тэмдэглэл: " + mustMention : notes.get(0)));
+            return new Outcome(actual, values.equals(expectedValues) && noteOk);
+        });
+    }
+
+    // =====================================================================
+    // 11. Web server over HTTP (review F-03, F-05, F-06; server-side errors for F-02)
+    // =====================================================================
+    private static void webTests() throws Exception {
+        category("Web сервер (HTTP)");
+        WebServer server = new WebServer(0);   // port 0: any free port
+        server.start();
+        String base = "http://127.0.0.1:" + server.port();
+        HttpClient http = HttpClient.newHttpClient();
+        try {
+            check("Хуудас icon зарласан", "GET /", "200, rel=\"icon\"", () -> {
+                HttpResponse<String> r = get(http, base + "/");
+                boolean ok = r.statusCode() == 200 && r.body().contains("rel=\"icon\"");
+                return new Outcome(r.statusCode() + (r.body().contains("rel=\"icon\"") ? ", rel=\"icon\"" : ", icon алга"), ok);
+            });
+            check("/favicon.ico 404 биш", "GET /favicon.ico", "204", () -> {
+                HttpResponse<String> r = get(http, base + "/favicon.ico");
+                return new Outcome(String.valueOf(r.statusCode()), r.statusCode() == 204);
+            });
+            check("Буруу оролт: серверийн алдаа JSON-оор", "POST /api/run input=5,abc", "400, ok:false, '2-р утга'", () -> {
+                HttpResponse<String> r = post(http, base + "/api/run", "source=input&algoLeft=merge&algoRight=merge&input=5%2Cabc");
+                boolean ok = r.statusCode() == 400 && r.body().contains("\"ok\":false") && r.body().contains("2-р утга");
+                return new Outcome(r.statusCode() + (ok ? ", ok:false, '2-р утга'" : ", " + cell(r.body())), ok);
+            });
+            check("Хоосон утгын тэмдэглэл (Web)", "POST /api/run input=1,,2", "200, sorted, 'хоосон утга' тэмдэглэл", () -> {
+                HttpResponse<String> r = post(http, base + "/api/run", "source=input&algoLeft=merge&algoRight=merge&input=1%2C%2C2");
+                boolean ok = r.statusCode() == 200 && r.body().contains("\"sorted\":true") && r.body().contains("хоосон утга");
+                return new Outcome(ok ? "200, sorted, 'хоосон утга' тэмдэглэл" : r.statusCode() + ", " + cell(r.body()), ok);
+            });
+
+            // five lockstep sessions in a row: the limit stays 4, the oldest idle one is closed with a clear reason
+            List<String> ids = new ArrayList<>();
+            List<String> startBodies = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                HttpResponse<String> r = post(http, base + "/api/live/start",
+                        "source=input&algoLeft=merge&algoRight=merge&input=5%2C4%2C3%2C2%2C1");
+                startBodies.add(r.body());
+                java.util.regex.Matcher m = java.util.regex.Pattern.compile("\"id\":\"(s\\d+)\"").matcher(r.body());
+                ids.add(m.find() ? m.group(1) : "?");
+                Thread.sleep(20);   // distinct idle times
+            }
+            check("5 дахь Lockstep session: тэмдэглэл", "5 × /api/live/start", "5 дахь хариунд 'хязгаар (4)' тэмдэглэл", () -> {
+                boolean ok = startBodies.get(4).contains("хязгаар (4)") && !startBodies.get(3).contains("хязгаар (4)");
+                return new Outcome(ok ? "5 дахь хариунд 'хязгаар (4)' тэмдэглэл" : cell(startBodies.get(4)), ok);
+            });
+            check("Хаагдсан session: шалтгаантай мессеж", "GET /api/live/state (эхний session)", "400, 'шинэ session эхэлсэн'", () -> {
+                HttpResponse<String> r = get(http, base + "/api/live/state?id=" + ids.get(0) + "&from=0");
+                boolean ok = r.statusCode() == 400 && r.body().contains("шинэ session эхэлсэн");
+                return new Outcome(r.statusCode() + (ok ? ", 'шинэ session эхэлсэн'" : ", " + cell(r.body())), ok);
+            });
+            check("Lockstep хязгаар 4 хэвээр", "GET /api/live/state (2–5 дахь)", "4 session ажиллаж байна", () -> {
+                int alive = 0;
+                for (int i = 1; i < 5; i++) {
+                    if (get(http, base + "/api/live/state?id=" + ids.get(i) + "&from=0").statusCode() == 200) alive++;
+                }
+                return new Outcome(alive + " session ажиллаж байна", alive == 4);
+            });
+            check("Мэдэгдэхгүй session", "GET /api/live/state?id=s999999", "400, 'олдсонгүй'", () -> {
+                HttpResponse<String> r = get(http, base + "/api/live/state?id=s999999&from=0");
+                boolean ok = r.statusCode() == 400 && r.body().contains("олдсонгүй");
+                return new Outcome(r.statusCode() + (ok ? ", 'олдсонгүй'" : ", " + cell(r.body())), ok);
+            });
+        } finally {
+            server.stop();
+        }
+    }
+
+    private static HttpResponse<String> get(HttpClient http, String url) throws Exception {
+        return http.send(HttpRequest.newBuilder(URI.create(url)).GET().build(),
+                HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    }
+
+    private static HttpResponse<String> post(HttpClient http, String url, String form) throws Exception {
+        return http.send(HttpRequest.newBuilder(URI.create(url))
+                        .header("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+                        .POST(HttpRequest.BodyPublishers.ofString(form, StandardCharsets.UTF_8)).build(),
+                HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
     }
 
     private static void cli(String name, String[] args, int expectedExit, String expectedText) {

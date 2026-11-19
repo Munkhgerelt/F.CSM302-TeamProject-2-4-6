@@ -1,6 +1,6 @@
 # II-4-6 · Multithreaded Sorting Application
 
-Хичээл: F.CSM302 Үйлдлийн систем · Бие даалт 1
+Хичээл: F.CSM302 Үйлдлийн систем · Бие даалт 1, Бие даалт 2 (шүүмжийн дагуу эцэслэсэн хувилбар)
 Хуваарилалтын код: II-4-6
 Эх сурвалж: Silberschatz, Galvin, Gagne — Operating System Concepts, 10th ed. (2018), Chapter 4 "Threads & Concurrency", Programming Projects — Multithreaded Sorting Application
 
@@ -10,7 +10,9 @@
 
 Мөн бодит thread-ийн ажиллагааг удирдаж, харуулах **Sorting animation** UI хийнэ.
 
-![Sorting animation](docs/images/03-replay-merge.png)
+![Replay горим: номын жишээ, 12 / 60 дахь алхам](tests/results/bd2-evidence/screenshots/after-02-replay-step12.png)
+
+![Lockstep горим: хоёр sorter Semaphore permit хүлээж байна](tests/results/bd2-evidence/screenshots/after-04-lockstep.png)
 
 ## Quick Start
 
@@ -24,9 +26,11 @@ cd F.CSM302-TeamProject-2-4-6
 ./run.sh --web
 ```
 
-Сүүлийн командыг ажиллуулсны дараа хөтөч дээр **http://localhost:8080** хаягийг нээнэ. Серверийг `Ctrl+C`-ээр зогсооно. Автомат тестийг `./test.sh` ажиллуулна (100 тест, үр дүн нь `tests/results/test-results.md`-д бичигдэнэ).
+Сүүлийн командыг ажиллуулсны дараа хөтөч дээр **http://localhost:8080** хаягийг нээнэ. Серверийг `Ctrl+C`-ээр зогсооно. Автомат тестийг `./test.sh` ажиллуулна (114 тест, үр дүн нь `tests/results/test-results.md`-д бичигдэнэ).
 
-Windows дээр `build.bat`, `run.bat`, `test.bat` скриптийг ашиглана.
+Хугацааны хэмжилтийг `./bench.sh` ажиллуулна (1–3 минут, үр дүн нь `tests/results/benchmark.md`-д бичигдэнэ).
+
+Windows дээр `build.bat`, `run.bat`, `test.bat`, `bench.bat` скриптийг ашиглана.
 
 Дэлгэрэнгүй заавар [docs/Manual.md](docs/Manual.md)-д байгаа. LaTeX хувилбар нь [docs/manual/manual.tex](docs/manual/manual.tex), PDF нь [docs/manual/manual.pdf](docs/manual/manual.pdf).
 
@@ -42,6 +46,20 @@ Windows дээр `build.bat`, `run.bat`, `test.bat` скриптийг ашиг�
 - Run, Step, Pause, Reset, хурд болон байрлалын удирдлагатай.
 - Хоёр хэсэг өөр өнгөөр, merge тусдаа өнгөөр харагдана. Мөн legend, thread-ийн төлөв, хугацааны шугам, үр дүн, хугацаа гарна.
 - JSON event trace (`--trace FILE`).
+
+## БД2: шүүмжийн дагуу хийсэн сайжруулалт
+
+IV-2-13 багийн шүүмжийн (F-01–F-09) дагуу:
+
+- **F-01:** Replay ажиллаж байхад горимыг Lockstep болгоход гардаг алдааг (хоцорсон хариу) засав.
+- **F-02:** Оролтын алдаа, сервертэй холбогдоогүй, хуудасны дотоод алдааг ялгаж мэдээлдэг болов.
+- **F-03:** Зэрэг 4 Lockstep session-ий хязгаар хэвээр; хаагдсан session шалтгаанаа хэлдэг болов.
+- **F-04, F-08:** Lockstep дээр «Явц: N event, M үйлдэл (permit)», картад «Permit хүлээж байна» гэж харуулна.
+- **F-05:** `favicon.ico` 404 алдааг арилгав.
+- **F-06:** `1,,2` гэх мэт хоосон утгыг алгасахдаа тэмдэглэл гаргадаг болов.
+- **F-07:** Web сервер ба оролтын 14 автомат тест нэмэв (нийт 114). Гадны dependency нэмээгүй.
+
+Засварын өмнөх ба дараах тест, дэлгэцийн зураг, хугацааны хэмжилт: [tests/results/bd2-evidence/README.md](tests/results/bd2-evidence/README.md). Release: https://github.com/Munkhgerelt/F.CSM302-TeamProject-2-4-6/releases
 
 ## Хязгаарлалт
 
@@ -67,11 +85,12 @@ Windows дээр `build.bat`, `run.bat`, `test.bat` скриптийг ашиг�
 |---|---|
 | `src/main/java/sorting/` | Эх код. Дотор нь `algo/` (алгоритмууд), `core/` (thread-үүд), `input/` (оролт, хязгаар), `trace/` (event trace), `web/` (сервер) |
 | `src/main/resources/web/` | Sorting animation (`index.html`, `app.js`, `style.css`) |
-| `tests/` | Автомат тест (`TestRunner.java`) болон үр дүнгийн хүснэгт (`results/`) |
+| `tests/` | Автомат тест (`TestRunner.java`), хугацааны хэмжилт (`Benchmark.java`) болон үр дүнгийн хүснэгт (`results/`) |
+| `tests/results/bd2-evidence/` | БД2: засварын өмнөх ба дараах тестийн гаралт, дэлгэцийн зураг, хэмжилт |
 | `examples/` | Жишээ болон тестийн өгөгдөл |
-| `docs/` | Manual (Markdown, LaTeX, PDF) болон дэлгэцийн зургууд |
-| `report/` | LaTeX тайлан |
-| `build.*`, `run.*`, `test.*` | Build, ажиллуулах, тестлэх скриптүүд (macOS/Linux: `.sh`, Windows: `.bat`) |
+| `docs/` | Manual (Markdown, LaTeX, PDF) болон БД1-ийн дэлгэцийн зургууд |
+| `report/` | БД1-ийн LaTeX тайлан |
+| `build.*`, `run.*`, `test.*`, `bench.*` | Build, ажиллуулах, тестлэх, хэмжих скриптүүд (macOS/Linux: `.sh`, Windows: `.bat`) |
 
 ## Багийн гишүүд
 

@@ -38,7 +38,7 @@ PDF хувилбар: [manual/manual.pdf](manual/manual.pdf)
 
 ### Оролт ба тохиргоо
 
-- **Тоонууд:** бүхэл тоонуудыг таслал эсвэл зайгаар тусгаарлана. Жишээ: `7, 12, 19, 3, 18`. Сөрөг тоо, давхардсан утга, сондгой n зөвшөөрнө.
+- **Тоонууд:** бүхэл тоонуудыг таслал, цэг таслал эсвэл зай (шинэ мөр)-аар тусгаарлана. Жишээ: `7, 12, 19, 3, 18`. Сөрөг тоо, давхардсан утга, сондгой n зөвшөөрнө. Таслалын хоорондох хоосон утгыг (`1,,2`, `1,2,`) алгасаж, энэ тухай тэмдэглэл гаргана.
 - **Гараар / Санамсаргүй:** санамсаргүй үед n, Seed, Min, Max, Хэлбэр (random, sorted, reversed, duplicates)-ийг тохируулна.
 - **Алгоритм:** Sorter-L ба Sorter-R тус бүрт insertion, bubble, selection, merge, quick-ээс сонгоно.
 - **Горим:** **Replay**: Java дээр thread-үүд ажиллаж дуусаад, бүртгэсэн event-ийг урагш/хойш тоглуулна (n ≤ 300). **Lockstep**: thread-үүд амьд байж, алхам бүрд Semaphore-ийн permit хүлээнэ (n ≤ 100).
@@ -53,7 +53,7 @@ PDF хувилбар: [manual/manual.pdf](manual/manual.pdf)
 | ◂ Алхам / Алхам ▸ | Нэг алхам ухрах (зөвхөн Replay) эсвэл урагшлах (← / →) |
 | Эхнээс нь | Replay: эхлэл рүү буцна. Lockstep: шинэ session эхлүүлнэ |
 | Хурд | 1–5000 алхам/сек |
-| Байрлал | Гулсуураар дурын алхам руу шууд очно (зөвхөн Replay) |
+| Байрлал / Явц | Replay: гулсуураар дурын алхам руу шууд очно. Lockstep: ирсэн event болон олгосон үйлдлийн (permit) тоог харуулна |
 
 Горимыг солиход дүрслэл цэвэрлэгдэнэ. Серверийг зогсоохдоо terminal дээр `Ctrl+C` дарна.
 
@@ -69,7 +69,7 @@ PDF хувилбар: [manual/manual.pdf](manual/manual.pdf)
 | ⬛ Бараан саарал | Merger аль хэдийн авсан элемент |
 | Босоо зураас | Хуваалтын цэг `mid` |
 
-Thread-ийн карт дээр төлөв гарна: *Үүсээгүй → start() дуудагдсан → Ажиллаж байна → Дууссан*, Parent-д *join() дээр хүлээж байна*. Lockstep горимд Java-гийн бодит төлөв (`NEW`, `RUNNABLE`, `WAITING`, `TERMINATED`) нэмж харагдана.
+Thread-ийн карт дээр төлөв гарна: *Үүсээгүй → start() дуудагдсан → Ажиллаж байна → Дууссан*, Parent-д *join() дээр хүлээж байна*. Lockstep горимд Java-гийн бодит төлөв (`NEW`, `RUNNABLE`, `WAITING`, `TERMINATED`) нэмж харагдана; Semaphore дээр зогсож буй thread-ийн картад *Permit хүлээж байна* гэж гарна.
 
 ### Хоёроос доошгүй жишээ
 
@@ -115,7 +115,7 @@ cd F.CSM302-TeamProject-2-4-6
 
 ### OS, compiler/runtime, хувилбар
 
-JDK 17 буюу түүнээс дээш (`javac -version`); `build.sh` нь `javac --release 17` ашигладаг. Туршсан орчин: macOS 27 (Apple Silicon) + Temurin 17.0.21, Ubuntu 24.04 (amd64) + OpenJDK 21.
+JDK 17 буюу түүнээс дээш (`javac -version`); `build.sh` нь `javac --release 17` ашигладаг. Туршсан орчин: БД1-ийн хувилбар: macOS 27 (Apple Silicon) + Temurin 17.0.21, Ubuntu 24.04 (amd64) + OpenJDK 21. БД2-ын засварын дараах хувилбар: macOS 27 (Apple M4) + Temurin 17.0.21; Linux дээр дахин туршаагүй.
 
 ### Dependency суулгах
 
@@ -132,7 +132,7 @@ Windows: `build.bat`, `run.bat --web`. Скрипт ажиллахгүй бол 
 
 ### Үндсэн тестийн өгөгдөл
 
-`examples/` хавтас: `book-example.txt` (номын жишээ), `odd-11.txt`, `duplicates.txt`, `reversed.txt`, `int-limits.txt`, `single.txt`; алдаатай: `invalid-letters.txt`, `invalid-overflow.txt`, `empty.txt`. Автомат тест: `./test.sh` (Windows: `test.bat`), JUnit-гүй 100 тест (`tests/TestRunner.java`). Хугацааны хэмжилт: `./bench.sh`.
+`examples/` хавтас: `book-example.txt` (номын жишээ), `odd-11.txt`, `duplicates.txt`, `reversed.txt`, `int-limits.txt`, `single.txt`; алдаатай: `invalid-letters.txt`, `invalid-overflow.txt`, `empty.txt`. Автомат тест: `./test.sh` (Windows: `test.bat`), JUnit-гүй 114 тест (`tests/TestRunner.java`, Web серверийн HTTP шалгалт орно). Хугацааны хэмжилт: `./bench.sh`.
 
 ### Нэмэлт boundary/error тест
 
@@ -143,13 +143,14 @@ Windows: `build.bat`, `run.bat --web`. Скрипт ажиллахгүй бол 
 
 ### Хүлээгдсэн үр дүн
 
-Номын жишээ: `[2, 3, 4, 6, 7, 8, 12, 15, 18, 19]`, `Шалгалт: ЗӨВ`, exit code 0. Автомат тест: `Нийт: 100, амжилттай: 100, алдаатай: 0`. Тест бүрийн оролт, хүлээгдсэн ба бодит утга [tests/results/test-results.md](../tests/results/test-results.md)-д, хэмжилт [tests/results/benchmark.md](../tests/results/benchmark.md)-д бичигдэнэ.
+Номын жишээ: `[2, 3, 4, 6, 7, 8, 12, 15, 18, 19]`, `Шалгалт: ЗӨВ`, exit code 0. Автомат тест: `Нийт: 114, амжилттай: 114, алдаатай: 0`. Тест бүрийн оролт, хүлээгдсэн ба бодит утга [tests/results/test-results.md](../tests/results/test-results.md)-д, хэмжилт [tests/results/benchmark.md](../tests/results/benchmark.md)-д бичигдэнэ.
 
 ### Known issues
 
 - Windows-ийн `.bat` скриптийг бодит Windows машин дээр туршаагүй.
 - n бага үед хугацааны хэмжилт шуугиантай (JIT, thread үүсгэх зардал); trace-тэй ажиллалт удаан.
 - Lockstep-д хойш алхах боломжгүй; Web сервер зөвхөн `127.0.0.1` дээр сонсоно.
+- Зэрэг 4 хүртэл Lockstep session ажиллана. 5 дахь нь эхлэхэд хамгийн удаан идэвхгүй байсан session хаагдаж, тэр цонхонд шалтгаан нь бичигдэнэ; 10 минут идэвхгүй session мөн хаагдана.
 
 ### Нөөц ба эх сурвалж
 

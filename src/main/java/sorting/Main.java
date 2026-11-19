@@ -18,6 +18,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,8 @@ public final class Main {
                 return;
             }
             input = cfg.resolveInput();
-            notes = Limits.check(input.length, cfg.left, cfg.right, cfg.force, cfg.tracePath != null);
+            notes = new ArrayList<>(cfg.inputNotes);
+            notes.addAll(Limits.check(input.length, cfg.left, cfg.right, cfg.force, cfg.tracePath != null));
         } catch (InputException e) {
             System.err.println("Алдаа: " + e.getMessage());
             System.err.println("Жишээ: ./run.sh --input \"7,12,19,3,18,4,2,6,15,8\" --algo merge   (тусламж: --help)");
