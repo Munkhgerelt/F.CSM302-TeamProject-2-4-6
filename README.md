@@ -34,6 +34,13 @@ Windows дээр `build.bat`, `run.bat`, `test.bat`, `bench.bat` скрипти�
 
 Дэлгэрэнгүй заавар [docs/Manual.md](docs/Manual.md)-д байгаа. LaTeX хувилбар нь [docs/manual/manual.tex](docs/manual/manual.tex), PDF нь [docs/manual/manual.pdf](docs/manual/manual.pdf).
 
+## БД2-ын эцсийн материал
+
+- Тайлан: [report/bd2/II-4-6_Final_Report.pdf](report/bd2/II-4-6_Final_Report.pdf)
+- Гарын авлага: [report/bd2/II-4-6_Manual.pdf](report/bd2/II-4-6_Manual.pdf)
+- Постер: [report/bd2/II-4-6_Poster.pdf](report/bd2/II-4-6_Poster.pdf)
+- GitHub final release: [v2.0.0](https://github.com/Munkhgerelt/F.CSM302-TeamProject-2-4-6/releases/tag/v2.0.0)
+
 ## Боломжууд
 
 - Гурван бодит Java `Thread` (Sorter-L, Sorter-R, Merger) болон Parent thread дээрх `start()` / `join()`.
@@ -90,6 +97,7 @@ IV-2-13 багийн шүүмжийн (F-01–F-09) дагуу:
 | `examples/` | Жишээ болон тестийн өгөгдөл |
 | `docs/` | Manual (Markdown, LaTeX, PDF) болон БД1-ийн дэлгэцийн зургууд |
 | `report/` | БД1-ийн LaTeX тайлан |
+| `report/bd2/` | БД2-ын тайлан, гарын авлага, постер (PDF), тайлангийн DOCX, схем ба зургийн эх файл |
 | `build.*`, `run.*`, `test.*`, `bench.*` | Build, ажиллуулах, тестлэх, хэмжих скриптүүд (macOS/Linux: `.sh`, Windows: `.bat`) |
 
 ## Багийн гишүүд
