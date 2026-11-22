@@ -8,7 +8,6 @@
 \setmainfont{Times New Roman}
 \setsansfont{Times New Roman}
 \setmonofont{Courier New}[Scale=0.92]
-\newfontfamily\symfont{Menlo}[Scale=0.8]
 
 \usepackage[left=3cm,right=1.5cm,top=2cm,bottom=2cm]{geometry}
 \usepackage{graphicx}
@@ -44,8 +43,8 @@
 \newcommand{\sw}[1]{\textcolor{#1}{\rule{0.8em}{0.8em}}}
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\term}[1]{\emph{#1}}
-\newcommand{\stepback}{{\symfont ◂}}
-\newcommand{\stepfwd}{{\symfont ▸}}
+\newcommand{\stepback}{◄}
+\newcommand{\stepfwd}{►}
 \DefineVerbatimEnvironment{cmd}{Verbatim}{fontsize=\small,frame=single,framesep=2mm,breaklines}
 \setlist{itemsep=2pt,topsep=3pt,parsep=0pt}
 \hyphenpenalty=10000
@@ -73,7 +72,7 @@
     {МЭДЭЭЛЭЛ, ХОЛБООНЫ ТЕХНОЛОГИЙН СУРГУУЛЬ} \\[1.3cm]
     \includegraphics[width=3.2cm]{../../report/images/logo.png} \\[1.2cm]
     {\fontsize{18}{22}\selectfont\bfseries БИЕ ДААЛТ 2} \\[0.3cm]
-    {\fontsize{16}{20}\selectfont\bfseries ГАРЫН АВЛАГА (MANUAL)} \\[0.3cm]
+    {\fontsize{16}{20}\selectfont\bfseries ГАРЫН АВЛАГА} \\[0.3cm]
     {\bfseries Үйлдлийн систем (F.CSM302)} \\[1.5cm]
     \begin{tabular}{@{}L{5.2cm}L{10cm}@{}}
         \textbf{Сэдэв:} & Multithreaded Sorting Application, Sorting animation \\[0.15cm]
@@ -109,7 +108,7 @@
 
 Программ нь бүхэл тоон жагсаалтыг бодит Java \term{thread}-үүдээр эрэмбэлж, энэ ажиллагааг алхам алхмаар
 харуулдаг. Даалгавар нь \emph{Operating System Concepts} номын 4-р бүлгийн Programming Project дээр үндэслэсэн~[1].
-Parent \term{thread} жагсаалтыг \code{[0, mid)} ба \code{[mid, n)} хоёр хэсэгт хуваана ($mid = \lceil n/2\rceil$).
+Parent \term{thread} жагсаалтыг \code{[0, mid)} ба \code{[mid, n)} хоёр хэсэгт хуваана (\code{mid = (n + 1) / 2}).
 Sorter-L ба Sorter-R өөр өөрийн хэсгийг зэрэг эрэмбэлж, дараа нь Merger хоёр хэсгийг \code{result[]} массив руу нэгтгэнэ.
 Энэ дарааллыг Зураг~\ref{fig:fj}-д харуулав.
 
@@ -149,7 +148,7 @@ Sorter-L ба Sorter-R өөр өөрийн хэсгийг зэрэг эрэмб�
 
 \begin{enumerate}
   \item JDK 17 суулгана: macOS дээр \code{brew install --cask temurin@17}, Ubuntu дээр
-        \code{sudo apt install openjdk-17-jdk}, Windows дээр \url{https://adoptium.net} хаягаас Temurin 17.
+        \code{sudo apt install openjdk-17-jdk}, Windows дээр \url{https://adoptium.net} хаягаас Temurin 17-г татаж суулгана.
   \item Төслийн хавтас руу Terminal-аар орж, \code{javac -version} командаар хувилбарыг шалгана.
   \item \code{./build.sh} (Windows: \code{build.bat}) ажиллуулна. \code{Build OK (javac 17) -> out/} гарвал бэлэн.
   \item \code{./run.sh --web} ажиллуулж, хөтөч дээр \url{http://localhost:8080} хаягийг нээнэ.
@@ -168,7 +167,7 @@ Web UI болон командын мөрөөр дараах тохиргоог 
   \item \textbf{Алгоритм:} Sorter-L, Sorter-R тус бүрт \term{insertion}, \term{bubble}, \term{selection},
         \term{merge}, \term{quick} алгоритмаас сонгоно.
   \item \textbf{Горим:} \term{Replay} горимд \term{thread}-үүд ажиллаж дууссаны дараа бүртгэсэн \term{event}-ийг урагш, хойш
-        тоглуулна (n $\le$ 300). \term{Lockstep} горимд амьд \term{thread}-үүд алхам бүрд \term{Semaphore}-ийн \term{permit} хүлээнэ (n $\le$ 100).
+        тоглуулна (n ≤ 300). \term{Lockstep} горимд амьд \term{thread}-үүд алхам бүрд \term{Semaphore}-ийн \term{permit} хүлээнэ (n ≤ 100).
   \item \textbf{Командын мөр:} \code{--input "7,12,19,3"}, \code{--file PATH}, \code{--random N --seed S},
         \code{--algo-left NAME}, \code{--algo-right NAME}, \code{--help}.
 \end{itemize}
@@ -184,7 +183,7 @@ Web UI-ийн удирдлагын товчнуудыг Хүснэгт~\ref{tab:
 \hd{Товч} & \hd{Үүрэг} \\ \hline
 Ажиллуулах & Оролтыг шалгаж, Java дээр шинэ ажиллалт эхлүүлнэ \\ \hline
 Тоглуулах / Түр зогсоох & Дүрслэлийг тасралтгүй тоглуулах эсвэл зогсооно (Space) \\ \hline
-\stepback\ Алхам / Алхам \stepfwd & Нэг алхам ухрах (зөвхөн \term{Replay}) эсвэл урагшлах (сумтай товч) \\ \hline
+\stepback\ Алхам / Алхам \stepfwd & Нэг алхам ухрах (зөвхөн \term{Replay}) эсвэл урагшлах (гарын ← / → товч) \\ \hline
 Эхнээс нь & \term{Replay}: эхлэл рүү буцна. \term{Lockstep}: шинэ \term{session} эхлүүлнэ \\ \hline
 Хурд & Секундэд 1--5000 алхам \\ \hline
 Байрлал / Явц & \term{Replay}: гулсуураар дурын алхам руу очно. \term{Lockstep}: ирсэн \term{event} ба олгосон \term{permit}-ийн тоог харуулна \\ \hline
@@ -215,8 +214,8 @@ Web UI-ийн удирдлагын товчнуудыг Хүснэгт~\ref{tab:
 \caption{Дүрслэлийн өнгө ба тэмдгийн утга}\label{tab:col}
 \end{table}
 
-Хүснэгтийн өнгөнүүдийг ашиглан аль \term{thread} массивын аль хэсэгт ажиллаж байгааг шууд ялгана. Зураг~\ref{fig:ui}-д \term{Replay} горимын бодит дэлгэцийг харуулав. Дээд хэсэгт тохиргоо, дунд хэсэгт эх массив ба
-\code{result[]}, доод хэсэгт \term{thread}-ийн карт, сүүлийн \term{event}-үүд, үр дүн байрлана.
+Хүснэгтийн өнгөнүүдийг ашиглан аль \term{thread} массивын аль хэсэгт ажиллаж байгааг шууд ялгана. Зураг~\ref{fig:ui}-д \term{Replay} горимын бодит дэлгэцийг харуулав. Дээд хэсэгт тохиргоо, дунд хэсэгт эх массив, \code{result[]} ба
+хугацааны шугам, доод хэсэгт \term{thread}-ийн карт, сүүлийн \term{event}-үүд, үр дүн байрлана.
 
 \begin{figure}[H]
   \centering
@@ -226,7 +225,7 @@ Web UI-ийн удирдлагын товчнуудыг Хүснэгт~\ref{tab:
 \end{figure}
 
 \term{Thread}-ийн картад
-«Үүсээгүй», «start() дуудагдсан», «Ажиллаж байна», «Дууссан» гэсэн төлөв гарна. \term{Lockstep} горимд Java-гийн бодит төлөв
+«Үүсээгүй», «start() дуудагдсан», «Ажиллаж байна», «Дууссан» гэсэн төлөв, Parent-ийн картад «join() дээр хүлээж байна» гэсэн төлөв гарна. \term{Lockstep} горимд Java-гийн бодит төлөв
 (\code{NEW}, \code{RUNNABLE}, \code{WAITING}, \code{TERMINATED}) нэмж харагдах бөгөөд Зураг~\ref{fig:cards}-т үзүүлснээр
 \term{Semaphore} дээр зогсож буй \term{thread}-ийн картад «Permit хүлээж байна» гэж бичигдэнэ.
 
@@ -261,7 +260,7 @@ Web UI-ийн удирдлагын товчнуудыг Хүснэгт~\ref{tab:
 \hd{Алдаа, нөхцөл} & \hd{Шийдэл} \\ \hline
 Хоосон оролт & Дор хаяж нэг бүхэл тоо оруулна \\ \hline
 Тоо биш утга (\code{abc}), бутархай (\code{2.5}) & Зөвхөн бүхэл тоо оруулна \\ \hline
-int мужаас хэтэрсэн (\code{3000000000}) & $-2^{31}\dots 2^{31}-1$ мужид оруулна \\ \hline
+int мужаас хэтэрсэн (\code{3000000000}) & −2³¹ … 2³¹ − 1 мужид оруулна \\ \hline
 O(n²) алгоритмд n > 20 000 & \term{merge}, \term{quick} сонгох эсвэл \code{--force} \\ \hline
 Web UI-д n > 300 (\term{Lockstep}: n > 100) & n-ийг багасгана \\ \hline
 \code{javac олдсонгүй} & JDK 17 суулгаж, PATH-ийг шалгана \\ \hline
@@ -322,7 +321,7 @@ Windows дээр \code{build.bat}, \code{run.bat --web} скриптийг аш�
 \hline
 \hd{Файл} & \hd{Шалгах зүйл} \\ \hline
 \code{book-example.txt} & Номын жишээ, 10 элемент \\ \hline
-\code{odd-11.txt} & Сондгой тооны элемент \\ \hline
+\code{odd-11.txt} & Сондгой тооны (11) элемент \\ \hline
 \code{duplicates.txt} & Давхардсан утга \\ \hline
 \code{reversed.txt} & Урвуу эрэмбэтэй өгөгдөл \\ \hline
 \code{int-limits.txt} & int төрлийн хязгаарын утга \\ \hline
@@ -389,7 +388,7 @@ IV-2-13 багийн шүүмжийн дагуу хэрэглэгчид шууд
 \hline
 \hd{Шүүмж} & \hd{Хэрэглэгчийн харах өөрчлөлт} \\ \hline
 F-01 & \term{Replay} ажиллаж байхад горим солиход алдаа гарахгүй, \term{Lockstep} хэвийн эхэлнэ \\ \hline
-F-02 & Оролтын, сервертэй холбогдох болон хуудасны дотоод алдааг ялгаж мэдээлнэ \\ \hline
+F-02 & Оролтын алдаа, сервертэй холбогдож чадаагүй болон хуудасны дотоод алдааг ялгаж мэдээлнэ \\ \hline
 F-03 & Хаагдсан \term{session} шалтгаанаа хэлж, 5 дахь \term{session}-ийн хариунд хязгаарын тэмдэглэл гарна \\ \hline
 F-04 & \term{Lockstep} горимд «Явц: N event, M үйлдэл (permit)» тоолуур гарна \\ \hline
 F-05 & Хуудас ачаалахад \term{favicon}-ийн 404 алдаа гарахаа больсон \\ \hline

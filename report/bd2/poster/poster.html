@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<title>II-4-6 Poster</title>
+<style>
+  @page { size: 420mm 297mm; margin: 0; }
+  :root { --navy: #1b2f4d; --blue: #1f4e8c; --light: #eaf1fa; --line: #c9d6e8; --ink: #0b0b0b; --muted: #52514e; --c1: #eb6834; --c3: #2a78d6; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 420mm; height: 297mm; background: #fff; }
+  body { font-family: Arial, Helvetica, sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.38; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 420mm; height: 297mm; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ---------- header: identity of the work ---------- */
+  header { display: grid; grid-template-columns: 26mm 1fr 108mm; gap: 7mm; align-items: center; margin: 8mm 11mm 0; padding-bottom: 4mm; border-bottom: 1.2mm solid var(--navy); }
+  header img { width: 26mm; height: 26mm; }
+  .kicker { font-size: 11pt; font-weight: bold; color: var(--blue); letter-spacing: .2pt; }
+  h1 { font-size: 27pt; line-height: 1.1; margin: 1mm 0 1.5mm; color: var(--navy); }
+  .sub { font-size: 12pt; color: var(--muted); }
+  .team { font-size: 9.5pt; line-height: 1.45; }
+  .team .row { display: grid; grid-template-columns: auto auto; column-gap: 5mm; white-space: nowrap; }
+  .team .lbl { font-weight: bold; color: var(--navy); margin-bottom: .6mm; }
+  .team .lbl.t2 { margin-top: 1.4mm; }
+
+  /* ---------- body: three reading columns ---------- */
+  main { flex: 1; display: grid; grid-template-columns: 112mm 1fr 116mm; gap: 7mm; padding: 6mm 11mm 7mm; min-height: 0; }
+  .col { display: flex; flex-direction: column; gap: 5mm; min-height: 0; }
+  .col > section { flex: 1 1 auto; }
+  section { background: var(--light); border-radius: 2.5mm; padding: 3.5mm 5mm; display: flex; flex-direction: column; gap: 2mm; }
+  h2 { font-size: 15pt; color: var(--navy); display: flex; align-items: center; gap: 2.5mm; }
+  h2 .no { flex: none; width: 7.5mm; height: 7.5mm; border-radius: 50%; background: var(--blue); color: #fff; font-size: 11pt; display: grid; place-items: center; }
+  ul { padding-left: 4.5mm; }
+  li + li { margin-top: .8mm; }
+  code { font-family: inherit; font-size: inherit; color: var(--blue); }
+  .muted { color: var(--muted); }
+
+  .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr; align-items: center; gap: 1.5mm; margin-top: 1mm; }
+  .flow span { background: #fff; border: .3mm solid var(--line); border-radius: 1.5mm; padding: 1.5mm 1mm; text-align: center; font-size: 9pt; line-height: 1.25; }
+  .flow b { color: var(--blue); }
+  .flow i { font-style: normal; color: var(--blue); font-weight: bold; }
+  .schema { background: #fff; border-radius: 1.5mm; padding: 1.5mm 2mm; }
+  .schema img { width: 100%; display: block; }
+  .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 1.8mm 4mm; font-size: 9.5pt; }
+  .legend span::before { content: ""; display: inline-block; width: 3.2mm; height: 3.2mm; border-radius: .7mm; margin-right: 1.6mm; vertical-align: -.5mm; background: var(--sw); border: .25mm solid rgba(0,0,0,.25); }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+  .two > div { background: #fff; border-radius: 1.5mm; padding: 2mm 2.5mm; }
+  .two h3 { font-size: 10.5pt; color: var(--navy); margin-bottom: 1mm; }
+
+  figure { margin: 0; }
+  figure img { display: block; width: 100%; border-radius: 1.5mm; border: .3mm solid var(--line); }
+  figcaption { font-size: 10pt; color: var(--muted); margin-top: 1.4mm; }
+  figcaption b { color: var(--navy); }
+  .demo { gap: 2.5mm; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; align-items: start; }
+  .tag { font-size: 9.5pt; font-weight: bold; color: var(--navy); margin-bottom: 1mm; }
+
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; }
+  .tile { background: #fff; border-radius: 2mm; padding: 2mm 2mm; }
+  .tile .n { font-size: 14pt; white-space: nowrap; font-weight: bold; color: var(--blue); line-height: 1.1; }
+  .tile .d { font-size: 9pt; color: var(--muted); margin-top: .6mm; }
+  .chart { background: #fff; border-radius: 2mm; padding: 2.5mm 3mm; }
+  .chart .key { display: flex; gap: 5mm; font-size: 9pt; color: var(--muted); margin-bottom: 1mm; }
+  .chart .key span::before { content: ""; display: inline-block; width: 3mm; height: 3mm; border-radius: .6mm; margin-right: 1.4mm; vertical-align: -.4mm; background: var(--sw); }
+  .chart img { width: 100%; display: block; }
+
+  .fix { display: grid; grid-template-columns: 20mm 1fr; gap: 1.8mm 2.5mm; align-items: start; }
+  .fix .id { background: var(--blue); color: #fff; font-weight: bold; font-size: 8.5pt; border-radius: 1mm; padding: .7mm 0; text-align: center; }
+
+  .gh { background: var(--navy); color: #fff; display: grid; grid-template-columns: 36mm 1fr; gap: 4.5mm; align-items: center; }
+  .gh h2 { color: #fff; }
+  .gh h2 .no { background: #fff; color: var(--navy); }
+  .gh img { width: 36mm; height: 36mm; background: #fff; padding: 2mm; border-radius: 1.5mm; }
+  .gh .txt { display: flex; flex-direction: column; gap: 1.2mm; font-size: 9.5pt; }
+  .gh code { font-size: 9.5pt; color: #fff; }
+  .res .resgrid { display: grid; grid-template-columns: 56mm 1fr; gap: 3mm; align-items: stretch; }
+  .res .tiles { grid-template-columns: 1fr 1fr; }
+  .res .tile .n { font-size: 15pt; }
+  .fix .ba { font-size: 9.5pt; color: var(--muted); margin-top: .8mm; background: #fff; border-radius: 1mm; padding: 1mm 2mm; }
+  .fix { row-gap: 3mm; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <img src="../../images/logo.png" alt="ШУТИС лого">
+    <div>
+      <div class="kicker">ШУТИС-МХТС · F.CSM302 Үйлдлийн систем · Бие даалт 2</div>
+      <h1>II-4-6 – Multithreaded Sorting Application • Final</h1>
+      <div class="sub">Бодит Java thread-ээр зэрэг эрэмбэлж, ажиллагааг нь Sorting animation-оор харуулна</div>
+    </div>
+    <div class="team">
+      <div class="lbl">Удирдагч багш</div>
+      <div>Г. Ганбат /F.CS10/</div>
+      <div class="lbl t2">Гүйцэтгэсэн: II-4-6 баг</div>
+      <div class="row">
+        <span>Б. Отгондалай /B241940132/</span><span>Б. Хаш-Эрдэнэ /B241930006/</span>
+        <span>М. Мөнхгэрэлт /B232270012/</span><span>Э. Мичидмаа /B221960015/</span>
+        <span>А. Базарсад /B242270065/</span><span>Ж. Суварнабазар /B251940118/</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Column 1: what problem, how it is solved, what to try -->
+    <div class="col">
+      <section>
+        <h2>Асуудал</h2>
+        <p>Operating System Concepts номын 4-р бүлгийн даалгавар. Жагсаалтыг хоёр хувааж, хоёр <i>sorting thread</i> зэрэг эрэмбэлнэ. Дараа нь <i>merging thread</i> хоёр дахь массив руу нэгтгэж, <i>parent thread</i> бүгдийг хүлээгээд үр дүнг хэвлэнэ.</p>
+        <p>Гол асуудал: хуваалцсан массивт <i>lock</i>-гүйгээр зөв бичих, <i>thread</i> дуусахыг зөв дарааллаар хүлээх, мөн бодит <i>thread</i>-ийн ажиллагааг UI дээр харуулах.</p>
+      </section>
+
+      <section>
+        <h2>Шийдэл</h2>
+        <p>Sorter-L, Sorter-R давхцахгүй мужид ажиллах тул <i>lock</i> хэрэггүй. Merger хоёр <code>join()</code>-ийн дараа л эхэлнэ.</p>
+        <div class="schema"><img src="fork-join.svg" alt="Fork–join дараалал"></div>
+        <ul>
+          <li><b>Replay:</b> Java дээр бүртгэсэн <i>event</i>-ийг урагш, хойш тоглуулна (n ≤ 300).</li>
+          <li><b>Lockstep:</b> амьд <i>thread</i> бүр үйлдлийн өмнө <i>Semaphore</i>-ийн <i>permit</i> хүлээнэ (n ≤ 100).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Туршилт ба дүрслэл</h2>
+        <div class="two">
+          <div><h3>Өөрчлөх зүйл</h3>Оролт (гараар, санамсаргүй), хоёр <i>sorter</i>-ийн алгоритм (5&nbsp;×&nbsp;5), горим, хурд</div>
+          <div><h3>Ажиглах зүйл</h3><i>Thread</i>-ийн төлөв (<code>WAITING</code>, <code>TERMINATED</code>), хугацааны шугам, <i>event</i></div>
+        </div>
+        <div class="legend">
+          <span style="--sw:#5B8CFF">Sorter-L-ийн хэсэг</span>
+          <span style="--sw:#F5A524">Sorter-R-ийн хэсэг</span>
+          <span style="--sw:#2FD39A">Merger-ийн бичсэн утга</span>
+          <span style="--sw:#FF5C8A">Харьцуулж буй элемент</span>
+          <span style="--sw:#FFFFFF">Сольсон, бичсэн элемент</span>
+          <span style="--sw:#3B4763">Merger авсан элемент</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- Column 2: the running program -->
+    <div class="col">
+      <section class="demo">
+        <h2>Демонстрац</h2>
+        <figure>
+          <img src="shot-replay.png" alt="Replay горим">
+          <figcaption><b>Зураг 1. Replay горим.</b> Номын жишээ, 60 <i>event</i>-ийн 12 дахь алхам. Sorter-L өөрийн хэсгийг эрэмбэлж байгаа нь массив, хугацааны шугам, <i>thread</i>-ийн картад харагдана.</figcaption>
+        </figure>
+        <div class="pair">
+          <figure>
+            <img src="shot-f01-before.png" alt="F-01 засварын өмнө">
+            <figcaption><b>Зураг 2. F-01 засварын өмнө.</b> Replay ажиллаж байхад Lockstep сонгоход TypeError гарч, Lockstep эхлэхгүй.</figcaption>
+          </figure>
+          <figure>
+            <img src="shot-f01-after.png" alt="F-01 засварын дараа">
+            <figcaption><b>Зураг 3. F-01 засварын дараа.</b> Lockstep хэвийн эхэлж, «Явц» тоолуур олгосон <i>permit</i>-ийн тоог харуулна.</figcaption>
+          </figure>
+        </div>
+      </section>
+      <section class="res">
+        <h2>Үр дүн</h2>
+        <div class="resgrid">
+        <div class="tiles">
+          <div class="tile"><div class="n">114/114</div><div class="d">тест амжилттай (БД1: 100)</div></div>
+          <div class="tile"><div class="n">20 → 0</div><div class="d">F-01 алдаа (20 давталт)</div></div>
+          <div class="tile"><div class="n">1 → 0</div><div class="d">Console-ийн алдаа</div></div>
+          <div class="tile"><div class="n">1.86–1.98×</div><div class="d">3 thread-ийн хурдсалт</div></div>
+        </div>
+        <div class="chart">
+          <div class="key"><span style="--sw:#6da7ec">1 thread (ижил ажил, дараалан)</span><span style="--sw:#1c5cab">3 thread</span></div>
+          <img src="chart.svg" alt="Хугацааны хэмжилтийн график">
+        </div>
+        </div>
+        <div class="muted" style="font-size:9pt">Баруун талын тоо нь хурдсалт. Apple M4, Java 17, 9 хэмжилтийн медиан.</div>
+      </section>
+    </div>
+
+    <!-- Column 3: results, improvements, conclusion, link -->
+    <div class="col">
+
+      <section>
+        <h2>Сайжруулалт</h2>
+        <div class="fix">
+          <span class="id">F-01</span><div><b>Горим солих үеийн алдаа.</b> Хоцорсон серверийн хариуг <code>runSeq</code> дугаараар хаяна.<div class="ba">Өмнө: TypeError 20/20 → Дараа: 0/20</div></div>
+          <span class="id">F-02</span><div><b>Алдааны мессеж.</b> Оролтын, сүлжээний, хуудасны дотоод алдааг ялгаж мэдээлнэ.<div class="ba">Өмнө: «Өгөгдлөө засаад…» → Дараа: «Хуудасны дотоод алдаа (оролтын алдаа биш)»</div></div>
+          <span class="id">F-03/04/08</span><div><b>Lockstep-ийн ойлгомж.</b> Тоолуур, <i>thread</i>-ийн төлөв, хаагдсан <i>session</i>-ийн шалтгаан.<div class="ba">Өмнө: «6 / 6», «Ажиллаж байна» → Дараа: «6 event, 1 үйлдэл», «Permit хүлээж байна»</div></div>
+          <span class="id">F-05/06/07</span><div><b>Оролт ба тест.</b> Favicon-ийн 404 алдааг арилгаж, хоосон утгын тэмдэглэл нэмэв.<div class="ba">Өмнө: Console-ийн алдаа 1, 100 тест → Дараа: 0, 114 тест</div></div>
+        </div>
+      </section>
+
+
+      <section>
+        <h2>Дүгнэлт</h2>
+        <p><b>Гол үр дүн:</b> номын <i>fork–join</i> бүтэц ба <i>lock</i>-гүй зөв ажиллагаа хадгалагдсан. IV-2-13 багийн есөн шүүмжийн зургааг бүрэн, гурвыг хэсэгчлэн хүлээн авч засварласан. 114 тест бүгд амжилттай, өмнөх 100 тест шинэ код дээр өөрчлөлтгүй давсан.</p>
+        <p><b>Хязгаарлалт:</b> БД2-ын хувилбарыг зөвхөн macOS дээр туршсан. Нэгтгэх үе дан <i>thread</i>-ээр явдаг тул хурдсалт 2-т хүрэхгүй. Lockstep горимд хойш алхах боломжгүй.</p>
+      </section>
+      <section class="gh">
+        <img src="qr.svg" alt="GitHub release QR">
+        <div class="txt">
+          <h2>GitHub</h2>
+          <div><b>Final release v2.0.0</b><br>github.com/Munkhgerelt/<br>F.CSM302-TeamProject-2-4-6</div>
+          <div>Туршиж үзэх: README-ийн Quick Start<br><code>./build.sh</code> → <code>./run.sh --web</code></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</body>
+</html>
